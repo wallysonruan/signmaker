@@ -7,7 +7,10 @@
     "packages/fsw",
     "packages/layout",
     "packages/editor",
-    "packages/renderer"
+    "packages/renderer",
+    "packages/vue",
+    "packages/react",
+    "packages/web-components"
   ],
   "scripts": {
     "test": "jest",
