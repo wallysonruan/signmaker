@@ -6,7 +6,7 @@
       <div class="header-controls">
         <button
           class="btn"
-          :disabled="!canUndo.value"
+          :disabled="!canUndo"
           @click="undo"
           title="Undo (Ctrl+Z)"
         >
@@ -14,7 +14,7 @@
         </button>
         <button
           class="btn"
-          :disabled="!canRedo.value"
+          :disabled="!canRedo"
           @click="redo"
           title="Redo (Ctrl+Y)"
         >
