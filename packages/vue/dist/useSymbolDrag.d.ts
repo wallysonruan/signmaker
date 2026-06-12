@@ -1,5 +1,5 @@
-import type { ComputedRef } from 'vue';
-import type { EditorState, Command } from '@signwriter/editor';
+import { ComputedRef } from 'vue';
+import { EditorState, Command } from '@signwriter/editor';
 export interface UseSymbolDragReturn {
     isDragging: ComputedRef<boolean>;
     onPointerDown(symbolId: string, clientX: number, clientY: number): void;

@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useSymbolDrag } from '@signwriter/vue';
+import { useSymbolDrag } from '../useSymbolDrag';
 import { selectNone, addSymbol } from '@signwriter/editor';
 import { renderSymbol } from '@signwriter/renderer';
 import type { EditorState, EditorSymbol, Command } from '@signwriter/editor';

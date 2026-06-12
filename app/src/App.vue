@@ -46,12 +46,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue';
-import { useEditorState, useKeyboard } from '@signwriter/vue';
+import {
+  useEditorState,
+  useKeyboard,
+  SymbolPalette,
+  SignEditorCanvas,
+  FswPanel,
+} from '@signwriter/vue';
 import { stateToFsw, stateFromFsw, addSymbol } from '@signwriter/editor';
 import type { IdGenerator } from '@signwriter/editor';
-import SymbolPalette from './components/SymbolPalette.vue';
-import SignEditorCanvas from './components/SignEditorCanvas.vue';
-import FswPanel from './components/FswPanel.vue';
 
 const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
 
