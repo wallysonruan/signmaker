@@ -1,0 +1,23 @@
+{
+  "name": "@signwriter/layout",
+  "version": "0.1.0",
+  "description": "Pure TypeScript layout engine: bounding box, FSW↔screen coordinates, sign normalization",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "@signwriter/fsw": "file:../fsw"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.8.3"
+  }
+}
