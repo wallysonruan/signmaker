@@ -95,7 +95,7 @@ const selectedBase = ref<string | null>(null);
 const variantTab = ref<0 | 1>(0);
 
 function renderGroupIcon(key: string): string {
-  return renderSymbol(key, 500, 500);
+  return renderSymbol(key);
 }
 
 function variantKey(baseKey: string, fillDigit: number, rotation: number): string {
