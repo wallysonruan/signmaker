@@ -4,6 +4,9 @@
     { "path": "./packages/fsw" },
     { "path": "./packages/layout" },
     { "path": "./packages/editor" },
-    { "path": "./packages/renderer" }
+    { "path": "./packages/renderer" },
+    { "path": "./packages/vue" },
+    { "path": "./packages/react" },
+    { "path": "./packages/web-components" }
   ]
 }
