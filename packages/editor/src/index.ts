@@ -1,6 +1,10 @@
 export type { EditorState, EditorSymbol, Command, IdGenerator } from './types';
 export { EMPTY_STATE } from './types';
 
+// Re-exported so consumers of stateToFsw / stateToNormalizedFsw don't need
+// to add @signwriter/layout as a direct dependency.
+export type { SizeProvider } from '@signwriter/layout';
+
 export * from './commands';
 
 export { getSelected, selectNone, selectById, cycleSelection } from './SelectionEngine';

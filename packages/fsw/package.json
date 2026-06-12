@@ -2,6 +2,12 @@
   "name": "@signwriter/fsw",
   "version": "0.1.0",
   "description": "Pure TypeScript FSW engine: parse, generate, validate, convert, symbol manipulation",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wallysonruan/signmaker",
+    "directory": "packages/fsw"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "commonjs",
