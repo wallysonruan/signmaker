@@ -19,6 +19,14 @@
     >
       <span v-html="renderSym(sym.key)" />
     </div>
+
+    <SymbolHandles
+      :state="state"
+      :dispatch="dispatch"
+      :mid-width="midWidth"
+      :mid-height="midHeight"
+      :is-dragging="drag.isDragging.value"
+    />
   </div>
 </template>
 
@@ -28,6 +36,7 @@ import { useSymbolDrag } from '@signwriter/vue';
 import { selectNone, addSymbol } from '@signwriter/editor';
 import { renderSymbol } from '@signwriter/renderer';
 import type { EditorState, EditorSymbol, Command } from '@signwriter/editor';
+import SymbolHandles from './SymbolHandles.vue';
 
 const props = defineProps<{
   state: EditorState;
@@ -71,7 +80,6 @@ function symbolStyle(sym: EditorSymbol): Record<string, string> {
     top: (y - 500 + midHeight.value) + 'px',
     cursor: drag.isDragging.value ? 'grabbing' : 'grab',
     zIndex: props.state.selection.has(sym.id) ? '10' : '1',
-    outline: props.state.selection.has(sym.id) ? '2px solid #3b82f6' : 'none',
   };
 }
 

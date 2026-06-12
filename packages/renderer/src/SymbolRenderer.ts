@@ -39,6 +39,19 @@ export function renderSymbol(
 }
 
 /**
+ * Return the natural pixel dimensions of a symbol glyph.
+ *
+ * Returns null if the key is invalid or fonts have not yet loaded.
+ * This is a thin wrapper around font-ttf's canvas measurement — call
+ * waitForFonts() before relying on it in browser contexts.
+ */
+export function getSymbolSize(key: string): { width: number; height: number } | null {
+  const size = (fttFsw as unknown as { symbolSize(k: string): number[] | undefined }).symbolSize(key);
+  if (!size) return null;
+  return { width: size[0], height: size[1] };
+}
+
+/**
  * Render a single symbol and return only the inner SVG body.
  *
  * Useful when composing multiple symbols inside a parent SVG element.
