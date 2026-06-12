@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "paths": {
+      "@signwriter/fsw":      ["../packages/fsw/src/index.ts"],
+      "@signwriter/layout":   ["../packages/layout/src/index.ts"],
+      "@signwriter/editor":   ["../packages/editor/src/index.ts"],
+      "@signwriter/renderer": ["../packages/renderer/src/index.ts"],
+      "@signwriter/vue":      ["../packages/vue/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
+}
