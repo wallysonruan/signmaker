@@ -1,5 +1,6 @@
 export type { EditorState, EditorSymbol, Command, IdGenerator } from './types';
 export { EMPTY_STATE } from './types';
+export type { SizeProvider } from '@signwriter/layout';
 export * from './commands';
 export { getSelected, selectNone, selectById, cycleSelection } from './SelectionEngine';
 export type { History } from './CommandHistory';
