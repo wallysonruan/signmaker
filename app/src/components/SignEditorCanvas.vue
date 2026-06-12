@@ -53,7 +53,7 @@ const drag = useSymbolDrag(
 );
 
 function renderSym(key: string): string {
-  return renderSymbol(key, 500, 500);
+  return renderSymbol(key);
 }
 
 function symbolStyle(sym: EditorSymbol): Record<string, string> {
