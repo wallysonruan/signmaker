@@ -6,6 +6,8 @@
     @pointermove="onCanvasPointerMove"
     @pointerup="onCanvasPointerUp"
     @pointercancel="onCanvasPointerCancel"
+    @dragover.prevent
+    @drop="onDrop"
   >
     <div
       v-for="sym in state.symbols"
@@ -23,7 +25,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useSymbolDrag } from '@signwriter/vue';
-import { selectNone } from '@signwriter/editor';
+import { selectNone, addSymbol } from '@signwriter/editor';
 import { renderSymbol } from '@signwriter/renderer';
 import type { EditorState, EditorSymbol, Command } from '@signwriter/editor';
 
@@ -105,6 +107,16 @@ function onCanvasPointerCancel(_e: PointerEvent): void {
 
 function onCanvasClick(_e: MouseEvent): void {
   props.dispatch((state) => selectNone(state));
+}
+
+function onDrop(e: DragEvent): void {
+  e.preventDefault();
+  const key = e.dataTransfer?.getData('text/plain');
+  if (!key || !canvasEl.value) return;
+  const rect = canvasEl.value.getBoundingClientRect();
+  const fswX = Math.round(e.clientX - rect.left - midWidth.value + 500);
+  const fswY = Math.round(e.clientY - rect.top - midHeight.value + 500);
+  props.dispatch(addSymbol(key, fswX, fswY, () => crypto.randomUUID()));
 }
 </script>
 

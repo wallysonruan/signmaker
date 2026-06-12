@@ -9,6 +9,8 @@
           :key="groupKey"
           class="group-btn"
           :title="groupKey"
+          draggable="true"
+          @dragstart="onDragStart($event, groupKey)"
           @click="selectGroup(groupKey)"
         >
           <span
@@ -31,6 +33,8 @@
           :key="baseKey"
           class="symbol-btn"
           :title="baseKey"
+          draggable="true"
+          @dragstart="onDragStart($event, baseKey)"
           @click="selectBase(baseKey)"
         >
           <span
@@ -67,6 +71,8 @@
             :key="rotIdx"
             class="symbol-btn"
             :title="variantKey(selectedBase, fillIdx - 1, (variantTab * 8) + rotIdx - 1)"
+            draggable="true"
+            @dragstart="onDragStart($event, variantKey(selectedBase, fillIdx - 1, (variantTab * 8) + rotIdx - 1))"
             @click="addVariant(variantKey(selectedBase, fillIdx - 1, (variantTab * 8) + rotIdx - 1))"
           >
             <span
@@ -116,6 +122,11 @@ function selectBase(baseKey: string): void {
 
 function addVariant(key: string): void {
   emit('add-symbol', key);
+}
+
+function onDragStart(e: DragEvent, key: string): void {
+  e.dataTransfer?.setData('text/plain', key);
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy';
 }
 </script>
 
