@@ -1,4 +1,4 @@
-import type { Command } from '@signwriter/editor';
+import { Command } from '@signwriter/editor';
 export interface UseKeyboardReturn {
     attach(el: EventTarget): () => void;
 }
