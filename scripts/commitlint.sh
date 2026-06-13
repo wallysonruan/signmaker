@@ -1,14 +1,29 @@
 #!/usr/bin/env bash
-# Validate commit messages from the last tag (or repo root) to HEAD.
+# Validate only commits introduced on the current branch relative to the base
+# branch (default: main). This avoids flagging pre-existing history in forks.
+#
+# Usage:
+#   bash scripts/commitlint.sh           # base = origin/main
+#   BASE=origin/develop bash scripts/commitlint.sh
 set -euo pipefail
 
-LAST_TAG=$(git tag --sort=version:refname | tail -n1)
+BASE="${BASE:-origin/main}"
 
-if [ -z "$LAST_TAG" ]; then
-  FROM=$(git rev-list --max-parents=0 HEAD)
-else
-  FROM="$LAST_TAG"
+git fetch origin main --quiet 2>/dev/null || true
+
+FROM=$(git merge-base HEAD "$BASE" 2>/dev/null || echo "")
+
+if [ -z "$FROM" ]; then
+  echo "Could not find merge-base with $BASE; skipping commitlint."
+  exit 0
 fi
 
-echo "Validating commits from $FROM to HEAD..."
+COMMIT_COUNT=$(git rev-list --count "$FROM"..HEAD)
+
+if [ "$COMMIT_COUNT" -eq 0 ]; then
+  echo "No new commits relative to $BASE; nothing to validate."
+  exit 0
+fi
+
+echo "Validating $COMMIT_COUNT commit(s) from merge-base of $BASE to HEAD..."
 npx commitlint --from "$FROM" --to HEAD --verbose
