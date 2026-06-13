@@ -1,27 +1,50 @@
 {
   "name": "@signwriter/react",
   "version": "0.1.0",
-  "description": "React hooks for the SignWriter editor",
+  "description": "React hooks and components for the SignWriter editor",
   "license": "ISC",
   "repository": { "type": "git", "url": "https://github.com/wallysonruan/signmaker", "directory": "packages/react" },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "type": "commonjs",
-  "scripts": { "build": "tsc", "test": "jest", "test:watch": "jest --watch", "test:coverage": "jest --coverage" },
-  "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+      "require": { "types": "./dist/index.d.ts", "default": "./dist/index.cjs" }
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
   "dependencies": {
     "@signwriter/editor": "file:../editor",
+    "@signwriter/renderer": "file:../renderer",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.14",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.3.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vite": "^8.0.16",
+    "vite-plugin-dts": "^4.0.0"
   }
 }

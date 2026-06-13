@@ -1,12 +1,10 @@
-module.exports = {
-  preset: 'ts-jest',
+export default {
   testEnvironment: 'jsdom',
-  testMatch: ['**/tests/**/*.test.ts', '**/tests/**/*.test.tsx'],
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        jsx: 'react',
-      },
-    },
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
   },
+  moduleNameMapper: {
+    '\\.module\\.css$': 'identity-obj-proxy',
+  },
+  testMatch: ['**/tests/**/*.test.ts', '**/tests/**/*.test.tsx'],
 };
