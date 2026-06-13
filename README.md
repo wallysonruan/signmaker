@@ -1,198 +1,259 @@
-SignMaker 2017
-=====================
-- - - 
-> Version 2.1.0  
-February 19th, 2020
+# SignMaker
 
-> AUTHOR: https://SteveSlevinski.me  
-> SUPPORT: https://www.patreon.com/signwriting
+A browser-based editor for creating and editing signs in **Sutton SignWriting** notation.
+Signs are stored and exchanged as **FSW** (Formal SignWriting) strings.
 
-Write signs in any sign language with the SignWriting script using the [Sutton SignWriting Fonts].
+This repository is a ground-up TypeScript rewrite of the original SignMaker 2017.
+It is structured as an **npm workspace monorepo** with framework-agnostic core packages
+and thin framework bindings for Vue 3 and React.
 
-- - - 
-## About
-SignMaker is a standards based editor, utilizing HTML, CSS, JavaScript, SVG, TrueType Fonts, and PNG images.  
+---
 
-SignMaker is browser based without the need for a server connection.
-It can be used online or it can be [downloaded][Download] and run directly from the user's computer.
+## Packages
 
-The primary online website can be used to create a private dictionary in the browser's LocalStorage or view dozens of sign language dictionaries from around the world.
-* http://signbank.org/signmaker.html
+| Package | Description |
+|---|---|
+| [`@signwriter/fsw`](packages/fsw) | Pure TypeScript FSW engine: parse, generate, validate, convert FSW ↔ SWU, symbol key algebra |
+| [`@signwriter/layout`](packages/layout) | Bounding-box calculation, FSW ↔ screen coordinate transforms, sign normalization |
+| [`@signwriter/editor`](packages/editor) | Immutable editor state, commands, undo/redo history, selection, drag engine, keyboard bindings |
+| [`@signwriter/renderer`](packages/renderer) | SVG symbol rendering via Sutton SignWriting TrueType fonts |
+| [`@signwriter/vue`](packages/vue) | Vue 3 composables and components |
+| [`@signwriter/react`](packages/react) | React hooks and components |
+| [`app`](app) | Demo application built with Vue 3 + Vite (private, not published) |
 
-The secondary online website can be used to create a private dictionary in the browser's LocalStorage.
-* http://slevinski.github.io/signmaker
+---
 
-- - -
-## Features
-* TrueType fonts
-* Experimental Unicode
-* Multilingual user interface
-* Symbol Palette access to the entire International SignWriting Alphabet 2010
-* Drag and Drop sign construction 
-* Integrated dictionary with searching support for both spoken and signed languages
-* Supports SVG and PNG images
-* Available online
-* Download and open in any browser
-* MIT License
- 
-- - -
-## Installation
-### Windows, Mac, and Linux
- 1. [Download] source code in zip file.
- 2. Unzip source code on your computer.
- 3. Open the index.html file in a browser.
+## Quick Start
 
-- - -
-### Sutton SignWriting Fonts
-The Sutton SignWriting TrueType fonts are available for download and installation.
+```bash
+npm install          # install all workspace dependencies
+npm run dev          # start the demo app (inside app/)
+# or
+cd app && npm run dev
+```
 
-Installing the fonts using the instructions below is not required, but it will improve the user experience.
-If the fonts are not installed on the system, CSS declarations will install the fonts in the browser cache.  
+---
 
->Sutton SignWriting Fonts  
-Copyright (c) 1974-2017, Center for Sutton Movement Writing, inc  
-Licensed under the SIL Open Font License v1.1
+## Demo App
 
-## Help and Documentation
-Help and documentation is available online: http://signbank.org/signmaker.html
+The `app/` directory contains a fully functional Vue 3 editor demonstrating all packages together.
+It is **not** published to npm — it exists to show integration and serves as a live testbed.
 
-Consider joining [Sutton SignWriting on Facebook] or the [SignWriting Email List] for news and discussion with writers from around the world.
+**Features:**
+- Symbol palette with drill-down: groups → base symbols → fill/rotation variants
+- Drag symbols from the palette onto the canvas
+- Drag to reposition symbols already on the canvas
+- Selection handles overlay: rotate CCW/CW, flip horizontal/vertical, copy
+- Undo/redo (Ctrl+Z / Ctrl+Y) and keyboard nudge (arrow keys)
+- FSW panel: displays the current FSW string, accepts FSW input to load a sign
 
-If you wish to participate in SignMaker development, you can submit patches, fixes and new features through GitHub.
-Questions, feedback, and ideas regarding SignMaker can be sent to slevin@signpuddle.net.
+---
 
-- - -
-## Customization
-SignMaker is highly customizable.  The `config` directory contains configuration files that can customize the interface, data, and functionality of SignMaker.
+## `@signwriter/vue`
 
-### Messages
-The text file `messages.js` contains a list of configurable messages for the various user interface languages.
+Vue 3 composables and components. Install alongside `vue`:
 
-    var messages = {
-        en: {
-            language: 'English',
-            signmaker: 'SignMaker',
- 
-### Keyboard
-The text file `keyboard.js` contains a list of configurable keyboard actions that can be tailored for the various keyboards.
+```bash
+npm install @signwriter/vue
+```
 
-    var keyboard = {
-        left10: [37,'shiftKey'],
-        left: [37],
+### Composables
 
-### Alphabet
-The text file `alphabet.js` contains a list of configurable group of symbols keys that controls the arrangement of the symbol palette.  The files contains the entire ISWA 2010 as arranged by Valerie Sutton.
+```typescript
+import { useEditorState, useSymbolDrag, useKeyboard } from '@signwriter/vue';
 
-    window.alphabet = {
-        S10000: ["S10000", "S10110", ...
-        S10e00: ["S10e00", "S10f10", ...
+const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
+const drag = useSymbolDrag(() => state.value, replaceState, dispatch);
+const kb   = useKeyboard(dispatch, undo, redo);
+```
 
-The `alphabet` subdirectory can contain language specific subsets of the ISWA 2010.  Subsets are based on sign language dictionaries of [SignPuddle Online][sp-org], recreated daily.  Subsets are [available on SignBank][sb-alphabet].  Download the desired alphabet subsets and place in the `alphabet` subdirectory.
+### Components
 
-### Dictionary
-The text file `dictionary.js` is a multi-line file, with one dictionary entry per line.  Each line starts with a Formal SignWriting  string, followed by one or more spoken language terms, separated by tabs.
+```typescript
+import {
+  SymbolPalette,    // ISWA 2010 symbol picker with drag support
+  SignEditorCanvas, // drag-and-drop canvas with selection handles
+  SymbolHandles,    // rotate / flip / copy overlay (used inside SignEditorCanvas)
+  FswPanel,         // footer bar with live FSW display and load input
+} from '@signwriter/vue';
+```
 
-    window.dict = "";
-    dict += "AS14c20S27106M518x529S14c20481x471S27106503x489	hello\n";
-    dict += "M522x551S18711488x449S18719495x479S2e800507x504S2e818479x518S20500493x473S2fb04498x545    world    globe\n";
+**`SymbolPalette`** — emits `add-symbol(key: string)` when a symbol is clicked or dropped.
 
-The `dictionary` subdirectory can contain language specific dictionaries.  Dictionaries are custom export of the sign language dictionaries of [SignPuddle Online], recreated daily.  Dictionaries are [available on SignBank][sb-dictionary].  Download the desired dictionaries and place in the `dictionary` subdirectory.
+**`SignEditorCanvas`** — props: `state`, `dispatch`, `replaceState`. Handles pointer drag,
+HTML5 drag-and-drop from the palette, and renders the `SymbolHandles` overlay automatically.
 
-- - -
-## Support Libraries
-The `lib` directory contains several JavaScript support libraries.
+**`FswPanel`** — props: `fsw`. Emits `load-fsw(fsw: string)` when the user submits a string.
 
-### Sutton SignWriting JavaScript Library
-> SuttonSignWriting.min.js 
+---
 
-The [Sutton SignWriting JavaScript Library] provides support for SignWriting images and queries.  Released under the MIT License, the library includes a guide, API documentation, and testing suite.
+## `@signwriter/react`
 
-### Draggabilly
-> draggabilly.min.js 
+React hooks and components. Install alongside `react`:
 
-[Draggabilly] provides cross-browser dragging functionality.  Released under the MIT License, the library includes documentation, demo page, and testing suite.
+```bash
+npm install @signwriter/react
+```
 
-### Mithril
-> mithril.min.js 
+### Hooks
 
-[Mithril] is a client-side MVC framework - a tool to organize code in a way that is easy to think about and to maintain.  Released under the MIT License, the library includes documentation, tutorials, and testing suite.
+```typescript
+import { useEditorState, useSymbolDrag, useKeyboard } from '@signwriter/react';
 
-### Translate
-> translate.min.js  
+const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
+const drag = useSymbolDrag(getState, replaceState, dispatch);
+const kb   = useKeyboard(dispatch, undo, redo);
+```
 
-[Translate] is a translations (i18n) library with support for placeholders and multiple plural forms.  Released under the MIT License, the library includes documentation and examples.
+### Components
 
-- - -
-## Author
+```typescript
+import {
+  SymbolPalette,    // props: { onAddSymbol(key): void }
+  SignEditorCanvas, // props: { state, dispatch, replaceState }
+  SymbolHandles,    // props: { state, dispatch, midWidth, midHeight, isDragging }
+  FswPanel,         // props: { fsw, onLoadFsw(fsw): void }
+} from '@signwriter/react';
+```
 
-Steve Slevinski  
-https://SteveSlevinski.me
+---
 
-- - -
-## Special Thanks
+## `@signwriter/editor`
 
-Valerie Sutton  
-https://ValerieSutton.org
+Framework-agnostic state management. Core building block for both Vue and React packages.
 
-- - - 
+```typescript
+import { EMPTY_STATE, addSymbol, rotateSelected, mirrorSelected,
+         copySelected, deleteSelected, selectNone, getSelected,
+         createHistory, apply, undo, redo, canUndo, canRedo } from '@signwriter/editor';
+```
 
-## Reference
-The Formal SignWriting character encoding used in SignMaker is defined in an Internet Draft submitted to the IETF: [draft-slevinski-formal-signwriting].
-The document is improved and resubmitted every 6 months.
-The ASCII character design has been stable since January 12, 2012.
-The Unicode character design has been stable since July 14, 2017.
+**State shape:**
 
-- - -
+```typescript
+interface EditorState {
+  symbols:   EditorSymbol[];   // ordered array; later = higher z-order
+  selection: Set<string>;      // symbol ids currently selected
+}
 
-## Epilogue
-This is a work in progress. Feedback, bug reports, and patches are welcomed.
+interface EditorSymbol {
+  id:  string;   // stable UUID
+  key: string;   // 6-char FSW symbol key, e.g. "S14c20"
+  x:   number;   // FSW coordinate (0–999, center = 500)
+  y:   number;
+}
+```
 
-- - -
+**Commands** are pure functions `(state: EditorState) => EditorState`. Pass them to `dispatch`.
+
+---
+
+## `@signwriter/fsw`
+
+Pure FSW string utilities with no DOM or font dependencies.
+
+```typescript
+import { parseFsw, generateFsw, normalizeFsw, fsw2swu, swu2fsw } from '@signwriter/fsw';
+```
+
+**FSW format:** `[A<sort>]? <box><coord> [<sym><coord>]*`
+
+Example: `AS14c20S27106M518x529S14c20481x471S27106503x489`
+
+---
+
+## `@signwriter/renderer`
+
+Renders individual symbol SVGs using the Sutton SignWriting TrueType fonts.
+
+```typescript
+import { renderSymbol, getSymbolSize } from '@signwriter/renderer';
+
+const svg  = renderSymbol('S14c20');        // returns SVG string
+const size = getSymbolSize('S14c20');       // { width, height } | null
+```
+
+Rendering requires the Sutton SignWriting fonts to be loaded in the browser.
+The `app/` entry point injects the required `@font-face` CSS automatically.
+
+---
+
+## Development
+
+```bash
+# Run all package tests
+npm run test:packages
+
+# Build all packages (produces dist/ in each)
+npm run build:packages
+
+# Build a single package
+cd packages/vue && npm run build
+cd packages/react && npm run build
+
+# Type-check the demo app
+cd app && npm run typecheck
+```
+
+### Repository Structure
+
+```
+signmaker/
+├── app/                        # Vue 3 demo application (private)
+│   ├── src/
+│   │   ├── App.vue
+│   │   └── main.ts
+│   └── vite.config.ts
+├── packages/
+│   ├── fsw/                    # @signwriter/fsw
+│   ├── layout/                 # @signwriter/layout
+│   ├── editor/                 # @signwriter/editor
+│   │   └── src/
+│   │       ├── commands/       # addSymbol, rotateSelected, mirrorSelected, …
+│   │       ├── CommandHistory.ts
+│   │       ├── SelectionEngine.ts
+│   │       ├── DragEngine.ts
+│   │       └── KeyboardBindings.ts
+│   ├── renderer/               # @signwriter/renderer
+│   ├── vue/                    # @signwriter/vue
+│   │   └── src/
+│   │       ├── components/     # SymbolPalette, SignEditorCanvas, SymbolHandles, FswPanel
+│   │       └── useEditorState, useSymbolDrag, useKeyboard
+│   └── react/                  # @signwriter/react
+│       └── src/
+│           ├── components/     # same four components as Vue, in TSX + CSS modules
+│           └── useEditorState, useSymbolDrag, useKeyboard
+└── package.json                # npm workspace root
+```
+
+---
+
+## FSW Coordinate System
+
+Symbols are placed in a **1000×1000** coordinate space with the logical center at **(500, 500)**.
+X increases rightward, Y increases downward.
+
+Screen position is derived as:
+```
+screen_left = fsw_x − 500 + midWidth
+screen_top  = fsw_y − 500 + midHeight
+```
+
+where `midWidth`/`midHeight` are half the canvas element's pixel dimensions.
+
+---
 
 ## License
+
 MIT
 
-- - -
-## To Do
-* additional customizations for smaller screens
-* enable app downloads for PNG, SVG, and dictionary export
-* CSS for checkbox: white inside, bigger, centered
+---
 
-- - - 
+## Original Author
 
-## Version History
-* 2.1.0 - Feb 19th, 2020: font cdn update to unpkg 
-* 2.0.5 - Jan 4th, 2018: fix safari object eval 
-* 2.0.4 - Dec 18th, 2017: fix fswview and swuview
-* 2.0.3 - Dec 18th, 2017: fix fswnorm
-* 2.0.2 - Dec 18th, 2017: fix image output
-* 2.0.1 - Dec 15th, 2017: version string for JS file references
-* 2.0.0 - Dec 15th, 2017: update for SignWriting in Unicode (SWU)
-* 1.4.0 - Aug 2nd, 2017: update for SuttonSignWritingLine font
-* 1.3.3 - Feb 10th, 2017: SuttonSignWriting.min.js v1.1.1
-* 1.3.2 - Nov 11th, 2015: sw10.js v1.7.0
-* 1.3.1 - Sept 2nd, 2015: colorize and click search additions
-* 1.3 - Aug 27th, 2015: styling string and dialing search
-* 1.2.5 - July 8th, 2015: sw10.min.js update for trunk centering 
-* 1.2.4 - June 26th, 2015: Spanish UI
-* 1.2.3 - June 24th, 2015: messages fix, svg overflow, and mithril update 
-* 1.2.2 - June 10th, 2015: Chrome fix in sw10.min.js 
-* 1.2.1 - June 5th, 2015: Android app download links
-* 1.2 - June 4th, 2015: app customizations and dictionary source
-* 1.1 - May 15th, 2015: dictionary sizing and remote font loading
-* 1.0 - May 6th, 2015: initial release
+Steve Slevinski — https://SteveSlevinski.me
+
+The FSW format is defined in [draft-slevinski-formal-signwriting].
+Symbol data is from the International SignWriting Alphabet 2010 (ISWA 2010) by Valerie Sutton.
 
 [draft-slevinski-formal-signwriting]: http://tools.ietf.org/html/draft-slevinski-formal-signwriting
-[Sutton SignWriting Fonts]: https://slevinski.github.io/SuttonSignWriting/components/fonts.html
-[SignWriting List]: http://www.signwriting.org/forums/swlist/
-[SignPuddle Online]: http://signpuddle.org
-[sb-alphabet]: http://signbank.org/signmaker/config/alphabet
-[sb-dictionary]: http://signbank.org/signmaker/config/dictionary
-[Sutton SignWriting JavaScript Library]: https://slevinski.github.io/SuttonSignWriting/guide.html#js
-[SignWriting Email List]: http://listserv.valenciacollege.edu/cgi-bin/wa?SUBED1=SW-L&A=1
-[MIT]: http://www.opensource.org/licenses/mit-license.php
-[Draggabilly]: http://draggabilly.desandro.com/
-[Mithril]: https://lhorie.github.io/mithril/
-[Translate]: https://github.com/musterknabe/translate.js
-[Download]: https://github.com/Slevinski/signmaker/archive/gh-pages.zip
-
