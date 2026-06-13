@@ -181,18 +181,13 @@ The `app/` entry point injects the required `@font-face` CSS automatically.
 ## Development
 
 ```bash
-# Run all package tests
-npm run test:packages
-
-# Build all packages (produces dist/ in each)
-npm run build:packages
-
-# Build a single package
-cd packages/vue && npm run build
-cd packages/react && npm run build
-
-# Type-check the demo app
-cd app && npm run typecheck
+make install         # install dependencies + activate git hooks
+make ci              # full validation: lint, typecheck, test, commitlint
+make test            # run all Jest tests
+make typecheck       # type-check Vue and React packages
+make lint            # type-check (ESLint target, extend as needed)
+make build           # build all packages required for @signwriter/vue
+make release         # build + semantic-release (main branch only)
 ```
 
 ### Repository Structure
@@ -225,6 +220,87 @@ signmaker/
 │           └── useEditorState, useSymbolDrag, useKeyboard
 └── package.json                # npm workspace root
 ```
+
+---
+
+## CI / CD
+
+### Pipeline
+
+```
+push (any branch)
+    │
+    ▼
+test
+    ├── lint        (make lint)
+    ├── typecheck   (make typecheck)
+    ├── unit tests  (make test)
+    └── commitlint  (make commitlint)
+    │
+    ▼
+release  ← main branch only, after test passes
+    └── make release → semantic-release → npm publish @signwriter/vue
+```
+
+GitHub Actions is the orchestrator only. All logic lives in the `Makefile`
+and `scripts/`. CI and local execution use the exact same commands.
+
+### Commit Convention
+
+This repository uses [Conventional Commits](https://www.conventionalcommits.org/).
+Commit messages are validated by `commitlint` via the `commit-msg` Lefthook hook.
+
+**Format:** `<type>(<scope>): <description>`
+
+Valid scopes: `fsw`, `layout`, `editor`, `renderer`, `vue`, `react`,
+`web-components`, `app`, `ci`, `release`, `deps`.
+
+**Examples:**
+```
+feat(vue): add symbol rotation composable
+fix(editor): prevent drag overflow at canvas boundary
+refactor(keyboard): simplify scope registry
+docs(readme): update installation guide
+chore(deps): upgrade vite to 8.x
+```
+
+**Release impact:**
+| Commit type | Version bump |
+|---|---|
+| `feat` | minor |
+| `fix`, `perf`, `revert` | patch |
+| `BREAKING CHANGE` footer | major |
+
+### Versioning
+
+`@signwriter/vue` uses [Semantic Release](https://github.com/semantic-release/semantic-release).
+Versions are determined automatically from commit history on every merge to `main`.
+Releases are tagged `vue-vX.Y.Z`, published to npm, and a GitHub release is created
+with a generated changelog.
+
+### Required Secrets
+
+| Secret | Purpose |
+|---|---|
+| `GITHUB_TOKEN` | Auto-provided by GitHub Actions. Creates releases and pushes changelog commits. |
+| `NPM_TOKEN` | npm automation token. Publishes `@signwriter/vue` to the npm registry. |
+
+### Local Release Process
+
+Releases are normally triggered by CI. To run semantic-release locally in dry-run mode:
+
+```bash
+npx semantic-release --dry-run
+```
+
+This requires both `GITHUB_TOKEN` and `NPM_TOKEN` set in your environment.
+
+### Git Hooks (Lefthook)
+
+After `make install`, two hooks are active:
+
+- **`commit-msg`** — runs `commitlint` to reject invalid commit messages immediately.
+- **`pre-commit`** — runs `typecheck` and `test` before the commit is recorded.
 
 ---
 

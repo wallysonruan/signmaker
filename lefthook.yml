@@ -1,0 +1,12 @@
+commit-msg:
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}
+
+pre-commit:
+  parallel: true
+  commands:
+    typecheck:
+      run: npm run typecheck --workspace=packages/vue --if-present && npm run typecheck --workspace=packages/react --if-present
+    test:
+      run: npm test -- --passWithNoTests
