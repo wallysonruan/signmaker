@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/wallysonruan/signmaker/compare/vue-v1.0.0...vue-v1.0.1) (2026-06-14)
+
+### Bug Fixes
+
+* **ci:** point to the right npm organization ([fb28204](https://github.com/wallysonruan/signmaker/commit/fb28204fa7ef941deb7ee78cda27ca4646b4f30f))
+
 ## 1.0.0 (2026-06-14)
 
 ### Features

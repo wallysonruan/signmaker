@@ -1,6 +1,6 @@
 {
   "name": "@wallysonruan/signmaker-vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Vue 3 composables and components for the SignWriter editor.",
   "license": "ISC",
   "repository": {
