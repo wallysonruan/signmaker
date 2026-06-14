@@ -1,9 +1,13 @@
 {
-  "name": "@signwriter/vue",
-  "version": "0.1.0",
-  "description": "Vue 3 composables and components for the SignWriter editor",
+  "name": "@wallysonruan/signmaker-vue",
+  "version": "1.0.0",
+  "description": "Vue 3 composables and components for the SignWriter editor.",
   "license": "ISC",
-  "repository": { "type": "git", "url": "https://github.com/wallysonruan/signmaker", "directory": "packages/vue" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wallysonruan/signmaker.git",
+    "directory": "packages/vue"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
