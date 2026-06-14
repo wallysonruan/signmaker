@@ -1,5 +1,7 @@
 {
-  "branches": ["main"],
+  "branches": [
+    "main"
+  ],
   "tagFormat": "fsw-v${version}",
   "plugins": [
     [
@@ -8,36 +10,88 @@
         "scope": "fsw",
         "preset": "conventionalcommits",
         "releaseRules": [
-          { "type": "feat", "release": "minor" },
-          { "type": "fix", "release": "patch" },
-          { "type": "perf", "release": "patch" },
-          { "type": "revert", "release": "patch" },
-          { "breaking": true, "release": "major" }
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "perf",
+            "release": "patch"
+          },
+          {
+            "type": "revert",
+            "release": "patch"
+          },
+          {
+            "breaking": true,
+            "release": "major"
+          }
         ],
         "presetConfig": {
           "types": [
-            { "type": "feat", "section": "Features" },
-            { "type": "fix", "section": "Bug Fixes" },
-            { "type": "perf", "section": "Performance" },
-            { "type": "revert", "section": "Reverts" },
-            { "type": "docs", "section": "Documentation", "hidden": false },
-            { "type": "refactor", "section": "Code Refactoring", "hidden": false },
-            { "type": "test", "hidden": true },
-            { "type": "chore", "hidden": true },
-            { "type": "ci", "hidden": true }
+            {
+              "type": "feat",
+              "section": "Features"
+            },
+            {
+              "type": "fix",
+              "section": "Bug Fixes"
+            },
+            {
+              "type": "perf",
+              "section": "Performance"
+            },
+            {
+              "type": "revert",
+              "section": "Reverts"
+            },
+            {
+              "type": "docs",
+              "section": "Documentation",
+              "hidden": false
+            },
+            {
+              "type": "refactor",
+              "section": "Code Refactoring",
+              "hidden": false
+            },
+            {
+              "type": "test",
+              "hidden": true
+            },
+            {
+              "type": "chore",
+              "hidden": true
+            },
+            {
+              "type": "ci",
+              "hidden": true
+            }
           ]
         }
       }
     ],
-    ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
-    "@semantic-release/npm",
-    "@semantic-release/github",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "package.json"],
+        "assets": [
+          "CHANGELOG.md",
+          "package.json"
+        ],
         "message": "chore(release): fsw-v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
-    ]
+    ],
+    "@semantic-release/npm",
+    "@semantic-release/github"
   ]
 }
