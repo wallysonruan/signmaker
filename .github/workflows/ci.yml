@@ -51,8 +51,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Release
-        run: make release
+      - name: Release all packages
+        run: make release-all
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
