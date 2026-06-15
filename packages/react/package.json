@@ -1,20 +1,32 @@
 {
   "name": "@wallysonruan/signmaker-react",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "React hooks and components for the SignWriter editor",
   "license": "ISC",
-  "repository": { "type": "git", "url": "https://github.com/wallysonruan/signmaker", "directory": "packages/react" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wallysonruan/signmaker",
+    "directory": "packages/react"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
-      "require": { "types": "./dist/index.d.ts", "default": "./dist/index.cjs" }
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc --noEmit",
