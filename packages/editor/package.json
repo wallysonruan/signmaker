@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/editor",
+  "name": "@wallysonruan/signmaker-editor-engine",
   "version": "0.1.0",
   "description": "Pure TypeScript editor engine: immutable state, commands, undo/redo, selection, keyboard bindings",
   "license": "ISC",

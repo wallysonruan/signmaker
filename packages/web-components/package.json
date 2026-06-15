@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/web-components",
+  "name": "@wallysonruan/signmaker-web-components",
   "version": "0.1.0",
   "description": "Framework-independent custom element wrapper for the SignWriter editor",
   "license": "ISC",

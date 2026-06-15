@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/react",
+  "name": "@wallysonruan/signmaker-react",
   "version": "0.1.0",
   "description": "React hooks and components for the SignWriter editor",
   "license": "ISC",

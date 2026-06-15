@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/renderer",
+  "name": "@wallysonruan/signmaker-renderer",
   "version": "0.1.0",
   "description": "SVG rendering for SignWriting signs and symbols using Sutton font-ttf",
   "license": "ISC",
