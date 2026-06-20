@@ -16,6 +16,8 @@ export type { PaletteNavigationState, PaletteLevel, VariantTab } from './interac
 export { INITIAL_PALETTE_NAV, paletteNavigate, paletteEnterGroup, paletteEnterBase, paletteSetVariantTab, paletteBack, paletteColumns, paletteLevel2FocusedKey, } from './interaction/PaletteNavigationState';
 export type { ActiveScope, ScopeState } from './interaction/ScopeManager';
 export { createScopeState, toggleScope, enterScope } from './interaction/ScopeManager';
+export type { Scope, ScopeInit, ScopeManager, ScopeHook, ScopeChangedHook, } from './interaction/createScopeManager';
+export { createScope, createScopeManager } from './interaction/createScopeManager';
 export type { ScopedRouterOptions, ScopedRouterResult, KeyEventDescriptor } from './interaction/ScopedKeyboardRouter';
 export { routeKeyEvent } from './interaction/ScopedKeyboardRouter';
 //# sourceMappingURL=index.d.ts.map

@@ -14,6 +14,10 @@ export type { UsePaletteNavigationReturn } from './usePaletteNavigation';
 
 export { useScopeManager } from './useScopeManager';
 export type { UseScopeManagerReturn } from './useScopeManager';
+export type {
+  Scope, ScopeInit, ScopeManager, ScopeHook, ScopeChangedHook,
+} from '@signwriter/editor';
+export { createScope, createScopeManager } from '@signwriter/editor';
 
 export { default as SymbolPalette }    from './components/SymbolPalette.vue';
 export { default as SignEditorCanvas } from './components/SignEditorCanvas.vue';
