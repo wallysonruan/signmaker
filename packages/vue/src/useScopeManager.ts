@@ -20,6 +20,12 @@ import type { ComputedRef, Ref } from 'vue';
 
 export interface UseScopeManagerOptions extends ScopedRouterOptions {
   /**
+   * Scope tree to register palette/canvas into. Defaults to a fresh
+   * createScopeManager(). Inject your own (e.g. from createSignMaker) so
+   * SignMaker's scopes live alongside the host application's scopes.
+   */
+  scopeManager?: ScopeManager;
+  /**
    * Focus manager driving DOM focus on scope changes. Defaults to a fresh
    * createFocusManager(). Inject your own to route focus through an
    * application-wide focus system.
@@ -105,7 +111,7 @@ export function useScopeManager(
   // component handles arrow keys / Enter / Escape via its own @keydown.
   const paletteScope = createScope('palette');
 
-  const manager = createScopeManager();
+  const manager = options.scopeManager ?? createScopeManager();
   manager.register(canvasScope);
   manager.register(paletteScope);
 

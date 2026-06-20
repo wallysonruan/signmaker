@@ -63,8 +63,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import {
-  useEditorState,
-  useScopeManager,
+  useSignMaker,
   SymbolPalette,
   SignEditorCanvas,
   FswPanel,
@@ -72,7 +71,11 @@ import {
 import { stateToFsw, stateFromFsw, addSymbol } from '@signwriter/editor';
 import type { IdGenerator } from '@signwriter/editor';
 
-const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
+// Single composition root: editor state + history + scope/keyboard/focus.
+const {
+  state, canUndo, canRedo, dispatch, replaceState, undo, redo,
+  scope, paletteNav, focusManager, attach,
+} = useSignMaker();
 
 const currentFsw = computed(() => stateToFsw(state.value));
 const idGen: IdGenerator = () => crypto.randomUUID();
@@ -87,11 +90,9 @@ function handleLoadFsw(fsw: string) {
 }
 
 // ─── Scope management ──────────────────────────────────────────────────────────
-// useScopeManager exposes a writable `paletteNav` ref.
+// useSignMaker exposes a writable `paletteNav` ref.
 // Vue auto-unwraps refs in templates, so v-model:nav="paletteNav" works:
 //   :nav reads paletteNav.value; @update:nav="paletteNav = $event" writes paletteNav.value.
-
-const { scope, paletteNav, focusManager, attach } = useScopeManager(dispatch, undo, redo);
 
 // Template refs — expose({ focus }) is called by the focus manager on scope change.
 const rootRef    = ref<HTMLElement | null>(null);
