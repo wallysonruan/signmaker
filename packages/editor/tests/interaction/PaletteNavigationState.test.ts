@@ -53,10 +53,10 @@ describe('paletteNavigate', () => {
 });
 
 describe('paletteEnterGroup', () => {
-  test('transitions to level 1 and pushes index to stack', () => {
+  test('transitions to bases level and pushes index to stack', () => {
     const state = { ...INITIAL_PALETTE_NAV, focusedIndex: 3 };
     const next  = paletteEnterGroup(state, 'S10000');
-    expect(next.level).toBe(1);
+    expect(next.level).toBe('bases');
     expect(next.selectedGroup).toBe('S10000');
     expect(next.focusedIndex).toBe(0);
     expect(next.focusStack).toEqual([3]);
@@ -64,12 +64,12 @@ describe('paletteEnterGroup', () => {
 });
 
 describe('paletteEnterBase', () => {
-  test('transitions to level 2 and normalises base key', () => {
-    const state = { ...INITIAL_PALETTE_NAV, level: 1 as const, selectedGroup: 'S10000', focusedIndex: 2, focusStack: [3] };
+  test('transitions to variants level and normalises base key', () => {
+    const state = { ...INITIAL_PALETTE_NAV, level: 'bases' as const, selectedGroup: 'S10000', focusedIndex: 2, focusStack: [3] };
     const next  = paletteEnterBase(state, 'S10020');
-    expect(next.level).toBe(2);
+    expect(next.level).toBe('variants');
     expect(next.selectedBase).toBe('S10000');
-    expect(next.variantTab).toBe(0);
+    expect(next.variantTab).toBe('first');
     expect(next.focusedIndex).toBe(0);
     expect(next.focusStack).toEqual([3, 2]);
   });
@@ -77,63 +77,63 @@ describe('paletteEnterBase', () => {
 
 describe('paletteSetVariantTab', () => {
   test('switches tab and resets focusedIndex', () => {
-    const state = { ...INITIAL_PALETTE_NAV, level: 2 as const, selectedBase: 'S10000', focusedIndex: 5, focusStack: [] };
-    const next  = paletteSetVariantTab(state, 1);
-    expect(next.variantTab).toBe(1);
+    const state = { ...INITIAL_PALETTE_NAV, level: 'variants' as const, selectedBase: 'S10000', focusedIndex: 5, focusStack: [] };
+    const next  = paletteSetVariantTab(state, 'second');
+    expect(next.variantTab).toBe('second');
     expect(next.focusedIndex).toBe(0);
   });
 
-  test('no-op at level 0', () => {
-    const next = paletteSetVariantTab(INITIAL_PALETTE_NAV, 1);
-    expect(next.variantTab).toBe(0);
+  test('no-op at groups level', () => {
+    const next = paletteSetVariantTab(INITIAL_PALETTE_NAV, 'second');
+    expect(next.variantTab).toBe('first');
   });
 });
 
 describe('paletteBack', () => {
-  test('goes from level 2 to level 1 and restores focusedIndex', () => {
-    const state = { ...INITIAL_PALETTE_NAV, level: 2 as const, selectedGroup: 'S10000', selectedBase: 'S10000', focusedIndex: 10, focusStack: [3, 2] };
+  test('goes from variants to bases level and restores focusedIndex', () => {
+    const state = { ...INITIAL_PALETTE_NAV, level: 'variants' as const, selectedGroup: 'S10000', selectedBase: 'S10000', focusedIndex: 10, focusStack: [3, 2] };
     const next  = paletteBack(state);
-    expect(next.level).toBe(1);
+    expect(next.level).toBe('bases');
     expect(next.selectedBase).toBeNull();
     expect(next.focusedIndex).toBe(2);
     expect(next.focusStack).toEqual([3]);
   });
 
-  test('goes from level 1 to level 0 and restores focusedIndex', () => {
-    const state = { ...INITIAL_PALETTE_NAV, level: 1 as const, selectedGroup: 'S10000', focusedIndex: 5, focusStack: [3] };
+  test('goes from bases to groups level and restores focusedIndex', () => {
+    const state = { ...INITIAL_PALETTE_NAV, level: 'bases' as const, selectedGroup: 'S10000', focusedIndex: 5, focusStack: [3] };
     const next  = paletteBack(state);
-    expect(next.level).toBe(0);
+    expect(next.level).toBe('groups');
     expect(next.selectedGroup).toBeNull();
     expect(next.focusedIndex).toBe(3);
     expect(next.focusStack).toEqual([]);
   });
 
-  test('no-op at level 0', () => {
+  test('no-op at groups level', () => {
     const state = paletteBack(INITIAL_PALETTE_NAV);
-    expect(state.level).toBe(0);
+    expect(state.level).toBe('groups');
   });
 });
 
 describe('paletteLevel2FocusedKey', () => {
-  const base = { ...INITIAL_PALETTE_NAV, level: 2 as const, selectedBase: 'S10000' };
+  const base = { ...INITIAL_PALETTE_NAV, level: 'variants' as const, selectedBase: 'S10000' };
 
-  test('first cell (fill 0, rot 0) on tab 0', () => {
-    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 0, variantTab: 0 })).toBe('S10000');
+  test('first cell (fill 0, rot 0) on first tab', () => {
+    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 0, variantTab: 'first' })).toBe('S10000');
   });
 
-  test('second cell (fill 0, rot 1) on tab 0', () => {
-    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 1, variantTab: 0 })).toBe('S10001');
+  test('second cell (fill 0, rot 1) on first tab', () => {
+    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 1, variantTab: 'first' })).toBe('S10001');
   });
 
-  test('first cell of row 1 (fill 1, rot 0) on tab 0', () => {
-    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 8, variantTab: 0 })).toBe('S10010');
+  test('first cell of row 1 (fill 1, rot 0) on first tab', () => {
+    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 8, variantTab: 'first' })).toBe('S10010');
   });
 
-  test('first cell on tab 1 applies rotation offset 8', () => {
-    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 0, variantTab: 1 })).toBe('S10008');
+  test('first cell on second tab applies rotation offset 8', () => {
+    expect(paletteLevel2FocusedKey({ ...base, focusedIndex: 0, variantTab: 'second' })).toBe('S10008');
   });
 
-  test('returns null when not at level 2', () => {
+  test('returns null when not at variants level', () => {
     expect(paletteLevel2FocusedKey(INITIAL_PALETTE_NAV)).toBeNull();
   });
 });

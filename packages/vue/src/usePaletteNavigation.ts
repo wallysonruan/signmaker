@@ -30,13 +30,13 @@ export function usePaletteNavigation(): UsePaletteNavigationReturn {
 
   const currentItems = computed<readonly string[]>(() => {
     const s = nav.value;
-    if (s.level === 0) return GROUPS;
-    if (s.level === 1 && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];
+    if (s.level === 'groups') return GROUPS;
+    if (s.level === 'bases' && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];
     return [];
   });
 
   const cols      = computed(() => paletteColumns(nav.value));
-  const itemCount = computed(() => nav.value.level === 2 ? 48 : currentItems.value.length);
+  const itemCount = computed(() => nav.value.level === 'variants' ? 48 : currentItems.value.length);
 
   function navigate(direction: 'up' | 'down' | 'left' | 'right'): void {
     nav.value = paletteNavigate(nav.value, direction, cols.value, itemCount.value);
@@ -44,7 +44,7 @@ export function usePaletteNavigation(): UsePaletteNavigationReturn {
 
   const focusedKey = computed<string | null>(() => {
     const s = nav.value;
-    if (s.level === 2) return paletteLevel2FocusedKey(s);
+    if (s.level === 'variants') return paletteLevel2FocusedKey(s);
     return currentItems.value[s.focusedIndex] ?? null;
   });
 
@@ -52,8 +52,8 @@ export function usePaletteNavigation(): UsePaletteNavigationReturn {
     const s   = nav.value;
     const key = focusedKey.value;
     if (key === null) return;
-    if (s.level === 0) nav.value = paletteEnterGroup(s, key);
-    else if (s.level === 1) nav.value = paletteEnterBase(s, key);
+    if (s.level === 'groups') nav.value = paletteEnterGroup(s, key);
+    else if (s.level === 'bases') nav.value = paletteEnterBase(s, key);
   }
 
   function back(): void {

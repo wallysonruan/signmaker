@@ -31,7 +31,7 @@ function routeKeyEvent(e, scope, palette, options = {}) {
     if (scope.activeScope === 'palette') {
         // Escape: back one level (or exit palette scope — caller decides)
         if (e.keyCode === 27) {
-            return palette.level === 0
+            return palette.level === 'groups'
                 ? { type: 'toggleScope' } // exit palette → canvas
                 : { type: 'paletteBack' };
         }
