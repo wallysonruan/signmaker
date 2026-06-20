@@ -2,6 +2,10 @@
   <div
     ref="canvasEl"
     class="canvas"
+    role="region"
+    aria-label="Sign canvas"
+    :tabindex="0"
+    data-canvas
     @click="onCanvasClick"
     @pointermove="onCanvasPointerMove"
     @pointerup="onCanvasPointerUp"
@@ -13,11 +17,16 @@
       v-for="sym in state.symbols"
       :key="sym.id"
       class="symbol-wrapper"
+      :class="{ selected: state.selection.has(sym.id) }"
       :style="symbolStyle(sym)"
+      :tabindex="state.selection.has(sym.id) ? 0 : -1"
+      role="img"
+      :aria-label="`Symbol ${sym.key}`"
+      :aria-selected="state.selection.has(sym.id)"
       @pointerdown="(e: PointerEvent) => onSymbolPointerDown(sym, e)"
       @click.stop
     >
-      <span v-html="renderSym(sym.key)" />
+      <span v-html="renderSym(sym.key)" aria-hidden="true" />
     </div>
 
     <SymbolHandles
@@ -27,11 +36,20 @@
       :mid-height="midHeight"
       :is-dragging="drag.isDragging.value"
     />
+
+    <!-- Screen-reader live region for state change announcements -->
+    <div
+      ref="liveRegion"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useSymbolDrag } from '../useSymbolDrag';
 import { selectNone, addSymbol } from '@signwriter/editor';
 import { renderSymbol } from '@signwriter/renderer';
@@ -44,7 +62,8 @@ const props = defineProps<{
   replaceState: (state: EditorState) => void;
 }>();
 
-const canvasEl = ref<HTMLElement | null>(null);
+const canvasEl   = ref<HTMLElement | null>(null);
+const liveRegion = ref<HTMLElement | null>(null);
 
 const midWidth = computed(() => {
   return canvasEl.value ? canvasEl.value.clientWidth / 2 : 300;
@@ -77,7 +96,7 @@ function symbolStyle(sym: EditorSymbol): Record<string, string> {
   return {
     position: 'absolute',
     left: (x - 500 + midWidth.value) + 'px',
-    top: (y - 500 + midHeight.value) + 'px',
+    top:  (y - 500 + midHeight.value) + 'px',
     cursor: drag.isDragging.value ? 'grabbing' : 'grab',
     zIndex: props.state.selection.has(sym.id) ? '10' : '1',
   };
@@ -126,6 +145,53 @@ function onDrop(e: DragEvent): void {
   const fswY = Math.round(e.clientY - rect.top - midHeight.value + 500);
   props.dispatch(addSymbol(key, fswX, fswY, () => crypto.randomUUID()));
 }
+
+// ─── Accessibility: live region announcements ──────────────────────────────────
+
+function announce(msg: string): void {
+  if (!liveRegion.value) return;
+  liveRegion.value.textContent = '';
+  requestAnimationFrame(() => {
+    if (liveRegion.value) liveRegion.value.textContent = msg;
+  });
+}
+
+watch(() => props.state, (next, prev) => {
+  const added = next.symbols.length - prev.symbols.length;
+  if (added > 0) {
+    const newest = next.symbols[next.symbols.length - 1];
+    announce(`Symbol ${newest?.key ?? ''} added`);
+  } else if (added < 0) {
+    const n = Math.abs(added);
+    announce(n === 1 ? 'Symbol deleted' : `${n} symbols deleted`);
+  } else if (next.selection.size !== prev.selection.size) {
+    if (next.selection.size === 0) {
+      announce('Selection cleared');
+    } else {
+      const ids = [...next.selection];
+      const sym = next.symbols.find((s) => s.id === ids[0]);
+      announce(sym ? `${sym.key} selected` : 'Symbol selected');
+    }
+  }
+}, { deep: false });
+
+// ─── Focus management: move DOM focus to selected symbol ───────────────────────
+
+watch(() => props.state.selection, (sel) => {
+  if (sel.size !== 1 || !canvasEl.value) return;
+  const wrapper = canvasEl.value.querySelector<HTMLElement>('[aria-selected="true"]');
+  if (canvasEl.value.contains(document.activeElement)) {
+    wrapper?.focus();
+  }
+}, { deep: true });
+
+/** Focus the canvas element (called by useScopeManager when entering canvas scope). */
+function focus(): void {
+  const selected = canvasEl.value?.querySelector<HTMLElement>('[aria-selected="true"]');
+  (selected ?? canvasEl.value)?.focus();
+}
+
+defineExpose({ focus });
 </script>
 
 <style scoped>
@@ -139,6 +205,12 @@ function onDrop(e: DragEvent): void {
     linear-gradient(rgba(203, 213, 225, 0.4) 1px, transparent 1px),
     linear-gradient(90deg, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
   background-size: 20px 20px;
+  outline: none;
+}
+
+.canvas:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
 }
 
 .symbol-wrapper {
@@ -147,9 +219,33 @@ function onDrop(e: DragEvent): void {
   justify-content: center;
   user-select: none;
   touch-action: none;
+  border-radius: 4px;
+  outline: none;
 }
 
 .symbol-wrapper :deep(svg) {
   display: block;
+}
+
+.symbol-wrapper.selected {
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.symbol-wrapper:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  pointer-events: none;
 }
 </style>
