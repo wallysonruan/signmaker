@@ -1,83 +1,114 @@
 <template>
-  <aside class="palette">
+  <aside
+    ref="paletteEl"
+    class="palette"
+    role="navigation"
+    aria-label="Symbol palette"
+    data-palette
+    @keydown="handleKeydown"
+  >
     <!-- Level 0: group grid -->
-    <div v-if="level === 0" class="palette-section">
-      <div class="palette-title">Symbol Groups</div>
-      <div class="group-grid">
+    <div v-if="navState.level === 0" class="palette-section">
+      <div class="palette-title" aria-hidden="true">Symbol Groups</div>
+      <div
+        class="group-grid"
+        role="grid"
+        aria-label="Symbol groups"
+        :aria-rowcount="Math.ceil(GROUPS.length / 4)"
+      >
         <button
-          v-for="groupKey in GROUPS"
+          v-for="(groupKey, idx) in GROUPS"
           :key="groupKey"
           class="group-btn"
           :title="groupKey"
+          :aria-label="groupKey"
+          :tabindex="idx === navState.focusedIndex ? 0 : -1"
+          :aria-selected="idx === navState.focusedIndex"
           draggable="true"
           @dragstart="onDragStart($event, groupKey)"
-          @click="selectGroup(groupKey)"
+          @click="onItemClick(groupKey)"
+          @dblclick.prevent="onItemDblClick(idx, groupKey)"
         >
-          <span
-            class="symbol-cell"
-            v-html="renderGroupIcon(groupKey)"
-          />
+          <span class="symbol-cell" v-html="renderGroupIcon(groupKey)" aria-hidden="true" />
         </button>
       </div>
     </div>
 
     <!-- Level 1: base symbols within group -->
-    <div v-else-if="level === 1 && selectedGroup !== null" class="palette-section">
+    <div v-else-if="navState.level === 1 && navState.selectedGroup !== null" class="palette-section">
       <div class="palette-nav">
-        <button class="back-btn" @click="level = 0">&#8592; Groups</button>
-        <span class="palette-title">{{ selectedGroup }}</span>
+        <button class="back-btn" @click="onBack">&#8592; Groups</button>
+        <span class="palette-title" aria-live="polite">{{ navState.selectedGroup }}</span>
       </div>
-      <div class="symbol-grid">
+      <div
+        class="symbol-grid"
+        role="grid"
+        :aria-label="`Symbols in ${navState.selectedGroup}`"
+        :aria-rowcount="Math.ceil(currentItems.length / 4)"
+      >
         <button
-          v-for="baseKey in ALPHABET[selectedGroup]"
+          v-for="(baseKey, idx) in currentItems"
           :key="baseKey"
           class="symbol-btn"
           :title="baseKey"
+          :aria-label="baseKey"
+          :tabindex="idx === navState.focusedIndex ? 0 : -1"
+          :aria-selected="idx === navState.focusedIndex"
           draggable="true"
           @dragstart="onDragStart($event, baseKey)"
-          @click="selectBase(baseKey)"
+          @click="onItemClick(baseKey)"
+          @dblclick.prevent="onItemDblClick(idx, baseKey)"
         >
-          <span
-            class="symbol-cell"
-            v-html="renderGroupIcon(baseKey)"
-          />
+          <span class="symbol-cell" v-html="renderGroupIcon(baseKey)" aria-hidden="true" />
         </button>
       </div>
     </div>
 
     <!-- Level 2: fill/rotation variants -->
-    <div v-else-if="level === 2 && selectedBase !== null" class="palette-section">
+    <div v-else-if="navState.level === 2 && navState.selectedBase !== null" class="palette-section">
       <div class="palette-nav">
-        <button class="back-btn" @click="level = 1">&#8592; Base</button>
-        <span class="palette-title">{{ selectedBase }}</span>
+        <button class="back-btn" @click="onBack">&#8592; Base</button>
+        <span class="palette-title" aria-live="polite">{{ navState.selectedBase }}</span>
       </div>
-      <div class="tab-bar">
+      <div class="tab-bar" role="tablist" aria-label="Rotation range">
         <button
+          role="tab"
           class="tab-btn"
-          :class="{ active: variantTab === 0 }"
-          @click="variantTab = 0"
+          :class="{ active: navState.variantTab === 0 }"
+          :aria-selected="navState.variantTab === 0"
+          @click="onSetTab(0)"
         >0–7</button>
         <button
+          role="tab"
           class="tab-btn"
-          :class="{ active: variantTab === 1 }"
-          @click="variantTab = 1"
+          :class="{ active: navState.variantTab === 1 }"
+          :aria-selected="navState.variantTab === 1"
+          @click="onSetTab(1)"
         >8–f</button>
       </div>
-      <!-- 6 rows (fill 0-5) x 8 cols (rotation 0-7 or 8-f) -->
-      <div class="variant-grid">
+      <div
+        class="variant-grid"
+        role="grid"
+        :aria-label="`Variants for ${navState.selectedBase}, rotations ${navState.variantTab === 0 ? '0–7' : '8–f'}`"
+        aria-rowcount="6"
+      >
         <template v-for="fillIdx in 6" :key="fillIdx">
           <button
             v-for="rotIdx in 8"
             :key="rotIdx"
             class="symbol-btn"
-            :title="variantKey(selectedBase, fillIdx - 1, (variantTab * 8) + rotIdx - 1)"
+            :title="variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1)"
+            :aria-label="variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1)"
+            :tabindex="(fillIdx - 1) * 8 + (rotIdx - 1) === navState.focusedIndex ? 0 : -1"
+            :aria-selected="(fillIdx - 1) * 8 + (rotIdx - 1) === navState.focusedIndex"
             draggable="true"
-            @dragstart="onDragStart($event, variantKey(selectedBase, fillIdx - 1, (variantTab * 8) + rotIdx - 1))"
-            @click="addVariant(variantKey(selectedBase, fillIdx - 1, (variantTab * 8) + rotIdx - 1))"
+            @dragstart="onDragStart($event, variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1))"
+            @click="emit('add-symbol', variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1))"
           >
             <span
               class="symbol-cell"
-              v-html="renderGroupIcon(variantKey(selectedBase, fillIdx - 1, (variantTab * 8) + rotIdx - 1))"
+              v-html="renderGroupIcon(variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1))"
+              aria-hidden="true"
             />
           </button>
         </template>
@@ -87,18 +118,70 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { renderSymbol } from '@signwriter/renderer';
 import { ALPHABET, GROUPS } from '../data/alphabet';
+import {
+  INITIAL_PALETTE_NAV,
+  paletteNavigate,
+  paletteEnterGroup,
+  paletteEnterBase,
+  paletteSetVariantTab,
+  paletteBack,
+  paletteLevel2FocusedKey,
+  type PaletteNavigationState,
+} from '@signwriter/editor';
 
-const emit = defineEmits<{
-  (e: 'add-symbol', key: string): void;
+const props = defineProps<{
+  /** External navigation state. When provided the component is controlled (model-style). */
+  nav?: PaletteNavigationState;
+  /** 'add' (default): single click adds to canvas; dblclick expands.
+      'navigate': preserves legacy single-click drill-down. */
+  clickBehavior?: 'add' | 'navigate';
 }>();
 
-const level = ref<0 | 1 | 2>(0);
-const selectedGroup = ref<string | null>(null);
-const selectedBase = ref<string | null>(null);
-const variantTab = ref<0 | 1>(0);
+const emit = defineEmits<{
+  'add-symbol': [key: string];
+  /** Emitted when nav state changes in controlled mode (use with v-model:nav). */
+  'update:nav': [state: PaletteNavigationState];
+}>();
+
+const paletteEl = ref<HTMLElement | null>(null);
+const internalNav = ref<PaletteNavigationState>(INITIAL_PALETTE_NAV);
+
+const navState = computed<PaletteNavigationState>(() => props.nav ?? internalNav.value);
+
+function applyNav(next: PaletteNavigationState): void {
+  if (props.nav !== undefined) {
+    emit('update:nav', next);
+  } else {
+    internalNav.value = next;
+  }
+  // Focus the button that now has focusedIndex
+  nextTick(() => focusActive());
+}
+
+function focusActive(): boolean {
+  if (!paletteEl.value) return false;
+  const btn = paletteEl.value.querySelector<HTMLElement>('[tabindex="0"]');
+  if (!btn) return false;
+  btn.focus();
+  return true;
+}
+
+const currentItems = computed<string[]>(() => {
+  const s = navState.value;
+  if (s.level === 0) return GROUPS;
+  if (s.level === 1 && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];
+  return [];
+});
+
+const paletteColumns = computed(() => navState.value.level === 2 ? 8 : 4);
+
+const paletteItemCount = computed(() => {
+  if (navState.value.level === 2) return 48; // 6 fills × 8 rots
+  return currentItems.value.length;
+});
 
 function renderGroupIcon(key: string): string {
   return renderSymbol(key);
@@ -108,26 +191,104 @@ function variantKey(baseKey: string, fillDigit: number, rotation: number): strin
   return baseKey.slice(0, 4) + fillDigit.toString() + rotation.toString(16);
 }
 
-function selectGroup(groupKey: string): void {
-  selectedGroup.value = groupKey;
-  level.value = 1;
+function focusedKeyAtCurrentLevel(): string | null {
+  const s = navState.value;
+  if (s.level === 2) return paletteLevel2FocusedKey(s);
+  return currentItems.value[s.focusedIndex] ?? null;
 }
 
-function selectBase(baseKey: string): void {
-  // Normalize to base key (first 4 chars + '00') so variants are computed correctly
-  selectedBase.value = baseKey.slice(0, 4) + '00';
-  variantTab.value = 0;
-  level.value = 2;
+// ─── Click/dblclick interaction model ─────────────────────────────────────────
+
+function onItemClick(key: string): void {
+  if ((props.clickBehavior ?? 'add') === 'add') {
+    emit('add-symbol', key);
+  } else {
+    // Legacy navigate mode
+    if (navState.value.level === 0) applyNav(paletteEnterGroup(navState.value, key));
+    else if (navState.value.level === 1) applyNav(paletteEnterBase(navState.value, key));
+  }
 }
 
-function addVariant(key: string): void {
-  emit('add-symbol', key);
+function onItemDblClick(idx: number, key: string): void {
+  if ((props.clickBehavior ?? 'add') === 'navigate') {
+    // Legacy mode: dblclick does nothing extra (single click already navigated)
+    return;
+  }
+  // New model: dblclick expands
+  if (navState.value.level === 0) {
+    applyNav(paletteEnterGroup({ ...navState.value, focusedIndex: idx }, key));
+  } else if (navState.value.level === 1) {
+    applyNav(paletteEnterBase({ ...navState.value, focusedIndex: idx }, key));
+  }
+}
+
+function onBack(): void {
+  applyNav(paletteBack(navState.value));
+}
+
+function onSetTab(tab: 0 | 1): void {
+  applyNav(paletteSetVariantTab(navState.value, tab));
 }
 
 function onDragStart(e: DragEvent, key: string): void {
   e.dataTransfer?.setData('text/plain', key);
   if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy';
 }
+
+// ─── Keyboard handling ─────────────────────────────────────────────────────────
+
+function handleKeydown(e: KeyboardEvent): void {
+  // F6 is handled globally by useScopeManager — let it bubble
+  if (e.key === 'F6' || e.keyCode === 117) return;
+
+  if (e.key === 'Escape') {
+    if (navState.value.level > 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      applyNav(paletteBack(navState.value));
+    }
+    // At level 0: let Escape bubble so useScopeManager can switch scope
+    return;
+  }
+
+  const dirMap: Record<string, 'up' | 'down' | 'left' | 'right'> = {
+    ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
+  };
+  const dir = dirMap[e.key];
+  if (dir) {
+    e.preventDefault();
+    e.stopPropagation();
+    applyNav(paletteNavigate(navState.value, dir, paletteColumns.value, paletteItemCount.value));
+    return;
+  }
+
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.ctrlKey || e.metaKey) {
+      // Expand: drill into next level
+      const s = navState.value;
+      const focused = focusedKeyAtCurrentLevel();
+      if (focused === null) return;
+      if (s.level === 0) applyNav(paletteEnterGroup(s, focused));
+      else if (s.level === 1) applyNav(paletteEnterBase(s, focused));
+      else if (s.level === 2) applyNav(paletteSetVariantTab(s, s.variantTab === 0 ? 1 : 0));
+    } else {
+      // Add focused symbol to canvas
+      const key = focusedKeyAtCurrentLevel();
+      if (key !== null) emit('add-symbol', key);
+    }
+  }
+}
+
+/** Focus the palette root element (called by useScopeManager when entering palette scope). */
+function focus(): void {
+  nextTick(() => {
+    focusActive() || paletteEl.value?.focus();
+  });
+}
+
+defineExpose({ focus });
 </script>
 
 <style scoped>
@@ -139,6 +300,7 @@ function onDragStart(e: DragEvent, key: string): void {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  outline: none;
 }
 
 .palette-section {
@@ -174,6 +336,11 @@ function onDragStart(e: DragEvent, key: string): void {
 
 .back-btn:hover {
   background: #f1f5f9;
+}
+
+.back-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 .group-grid {
@@ -216,6 +383,14 @@ function onDragStart(e: DragEvent, key: string): void {
   background: #eff6ff;
 }
 
+.group-btn:focus-visible,
+.symbol-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
 .symbol-cell {
   display: flex;
   align-items: center;
@@ -254,5 +429,10 @@ function onDragStart(e: DragEvent, key: string): void {
 
 .tab-btn:hover:not(.active) {
   background: #f1f5f9;
+}
+
+.tab-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 </style>
