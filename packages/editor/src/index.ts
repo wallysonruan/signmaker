@@ -69,6 +69,12 @@ export type {
 } from './interaction/createScopeManager';
 export { createScope, createScopeManager } from './interaction/createScopeManager';
 
+export type { CanvasScopeDeps } from './interaction/createCanvasScope';
+export { createCanvasScope } from './interaction/createCanvasScope';
+
+export type { PaletteScope, PaletteScopeDeps } from './interaction/createPaletteScope';
+export { createPaletteScope } from './interaction/createPaletteScope';
+
 export type {
   FocusManagerPort, FocusTarget, FocusTargetFn,
 } from './interaction/createFocusManager';
