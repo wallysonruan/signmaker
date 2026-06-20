@@ -5,7 +5,8 @@ Signs are stored and exchanged as **FSW** (Formal SignWriting) strings.
 
 This repository is a ground-up TypeScript rewrite of the original SignMaker 2017.
 It is structured as an **npm workspace monorepo** with framework-agnostic core packages
-and thin framework bindings for Vue 3 and React.
+and a Vue 3 adapter. The core packages have no framework dependency and can be used
+directly from any other framework.
 
 ---
 
@@ -18,7 +19,6 @@ and thin framework bindings for Vue 3 and React.
 | [`@signwriter/editor`](packages/editor) | Immutable editor state, commands, undo/redo history, selection, drag engine, keyboard bindings |
 | [`@signwriter/renderer`](packages/renderer) | SVG symbol rendering via Sutton SignWriting TrueType fonts |
 | [`@signwriter/vue`](packages/vue) | Vue 3 composables and components |
-| [`@signwriter/react`](packages/react) | React hooks and components |
 | [`app`](app) | Demo application built with Vue 3 + Vite (private, not published) |
 
 ---
@@ -87,34 +87,12 @@ HTML5 drag-and-drop from the palette, and renders the `SymbolHandles` overlay au
 
 ---
 
-## `@signwriter/react`
+## Framework Adapters
 
-React hooks and components. Install alongside `react`:
-
-```bash
-npm install @signwriter/react
-```
-
-### Hooks
-
-```typescript
-import { useEditorState, useSymbolDrag, useKeyboard } from '@signwriter/react';
-
-const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
-const drag = useSymbolDrag(getState, replaceState, dispatch);
-const kb   = useKeyboard(dispatch, undo, redo);
-```
-
-### Components
-
-```typescript
-import {
-  SymbolPalette,    // props: { onAddSymbol(key): void }
-  SignEditorCanvas, // props: { state, dispatch, replaceState }
-  SymbolHandles,    // props: { state, dispatch, midWidth, midHeight, isDragging }
-  FswPanel,         // props: { fsw, onLoadFsw(fsw): void }
-} from '@signwriter/react';
-```
+`@signwriter/vue` is the actively maintained framework adapter. The four core packages
+(`@signwriter/fsw`, `@signwriter/layout`, `@signwriter/editor`, `@signwriter/renderer`) are
+fully framework-agnostic — they have no Vue dependency and can be consumed directly from React,
+Svelte, or any other environment. Adapter contributions for other frameworks are welcome.
 
 ---
 
@@ -184,7 +162,7 @@ The `app/` entry point injects the required `@font-face` CSS automatically.
 make install         # install dependencies + activate git hooks
 make ci              # full validation: lint, typecheck, test, commitlint
 make test            # run all Jest tests
-make typecheck       # type-check Vue and React packages
+make typecheck       # type-check the Vue package
 make lint            # type-check (ESLint target, extend as needed)
 make build           # build all packages required for @signwriter/vue
 make release         # build + semantic-release (main branch only)
@@ -210,13 +188,9 @@ signmaker/
 │   │       ├── DragEngine.ts
 │   │       └── KeyboardBindings.ts
 │   ├── renderer/               # @signwriter/renderer
-│   ├── vue/                    # @signwriter/vue
-│   │   └── src/
-│   │       ├── components/     # SymbolPalette, SignEditorCanvas, SymbolHandles, FswPanel
-│   │       └── useEditorState, useSymbolDrag, useKeyboard
-│   └── react/                  # @signwriter/react
+│   └── vue/                    # @signwriter/vue
 │       └── src/
-│           ├── components/     # same four components as Vue, in TSX + CSS modules
+│           ├── components/     # SymbolPalette, SignEditorCanvas, SymbolHandles, FswPanel
 │           └── useEditorState, useSymbolDrag, useKeyboard
 └── package.json                # npm workspace root
 ```
@@ -252,8 +226,7 @@ Commit messages are validated by `commitlint` via the `commit-msg` Lefthook hook
 
 **Format:** `<type>(<scope>): <description>`
 
-Valid scopes: `fsw`, `layout`, `editor`, `renderer`, `vue`, `react`,
-`web-components`, `app`, `ci`, `release`, `deps`.
+Valid scopes: `fsw`, `layout`, `editor`, `renderer`, `vue`, `app`, `ci`, `release`, `deps`.
 
 **Examples:**
 ```

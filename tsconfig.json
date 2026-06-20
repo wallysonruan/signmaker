@@ -5,8 +5,6 @@
     { "path": "./packages/layout" },
     { "path": "./packages/editor" },
     { "path": "./packages/renderer" },
-    { "path": "./packages/vue" },
-    { "path": "./packages/react" },
-    { "path": "./packages/web-components" }
+    { "path": "./packages/vue" }
   ]
 }

@@ -15,11 +15,9 @@ RELEASE_DRY_TARGETS := $(addprefix release-dry-run-,$(PACKAGES))
 
 lint:
 	npm run typecheck --workspace=packages/vue
-	npm run typecheck --workspace=packages/react
 
 typecheck:
 	npm run typecheck --workspace=packages/vue
-	npm run typecheck --workspace=packages/react
 
 test:
 	npm test

@@ -16,7 +16,7 @@ The central challenge is that FSW editing involves three concerns that pull in d
 - **Interaction** (drag-and-drop, undo/redo, keyboard shortcuts) is inherently stateful and event-driven, but the specific events and reactivity mechanism vary by environment.
 - **Rendering** (turning a symbol key into pixels) depends on TrueType fonts that must be downloaded before any measurement is possible, making it the one genuinely async, browser-specific concern.
 
-This ADR records the architectural decisions made to keep these concerns cleanly separated while producing a library that works equally well with Vue 3, React, vanilla web components, and server-side TypeScript.
+This ADR records the architectural decisions made to keep these concerns cleanly separated while producing a library whose core packages work equally well with Vue 3, React, vanilla web components, server-side TypeScript, or any other environment.
 
 ---
 
@@ -29,9 +29,7 @@ signmaker/
 │   ├── layout/           @signwriter/layout      — coordinate math, bounding box
 │   ├── editor/           @signwriter/editor      — immutable state, commands, history
 │   ├── renderer/         @signwriter/renderer    — SVG rendering, font loading
-│   ├── vue/              @signwriter/vue         — Vue 3 composables
-│   ├── react/            @signwriter/react       — React hooks
-│   └── web-components/   @signwriter/web-components — framework-independent element
+│   └── vue/              @signwriter/vue         — Vue 3 composables and components
 └── app/                  Vite + Vue 3 reference application
 ```
 
@@ -43,14 +41,14 @@ renderer  ──►  fsw  ◄──  layout
                 ▼              ▼
               editor  ◄────────┘
                 │
-        ┌───────┼───────┐
-        ▼       ▼       ▼
-       vue    react   web-components
-        │       │         │
-        └───────┴────┬────┘
-                     ▼
-                    app
+                ▼
+               vue
+                │
+                ▼
+               app
 ```
+
+The four core packages (`fsw`, `layout`, `editor`, `renderer`) have no framework dependency. They can be consumed directly from React, Svelte, or any other environment. `@signwriter/vue` is the actively maintained framework adapter; adapter contributions for other frameworks are welcome.
 
 ---
 
@@ -348,51 +346,6 @@ Returns `{ attach(el: EventTarget): () => void }`. Not lifecycle-coupled — cal
 
 ---
 
-### `@signwriter/react` — React Hooks
-
-Equivalent functionality to the Vue composables using React idioms.
-
-**`useEditorState(initial?)`** — uses `useReducer` with a typed `History` reducer. Stable `dispatch`, `replaceState`, `undo`, `redo` callbacks via `useCallback`.
-
-**`useSymbolDrag(getState, replaceState, dispatch)`** — uses `useRef<DragState | null>` for the active drag to avoid stale-closure issues with `useState`.
-
-**`useKeyboard(dispatch, onUndo, onRedo)`** — same `{ attach(el): () => void }` contract as the Vue version.
-
----
-
-### `@signwriter/web-components` — `<sign-editor>`
-
-A framework-independent `HTMLElement` subclass that owns the full editor state machine internally.
-
-```typescript
-class SignEditorElement extends HTMLElement {
-  // State accessors
-  get state(): EditorState
-  get canUndo(): boolean
-  get canRedo(): boolean
-
-  // Command API
-  dispatch(command: Command): void
-  replaceState(state: EditorState): void
-  undo(): void
-  redo(): void
-
-  // Drag API (call from pointer event handlers in your rendering layer)
-  startSymbolDrag(symbolId, clientX, clientY): void
-  moveSymbolDrag(clientX, clientY): void
-  endSymbolDrag(): void
-  cancelSymbolDrag(): void
-}
-
-function define(tagName = 'sign-editor'): void
-```
-
-Fires `statechange` (`CustomEvent<{ state: EditorState }>`, `bubbles: true`, `composed: true`) after every `dispatch`, `replaceState`, `undo`, or `redo`.
-
-Keyboard handler attaches in `connectedCallback`, detaches in `disconnectedCallback`. Sets `tabindex="0"` on first connect if the attribute is absent.
-
----
-
 ## Key Design Decisions
 
 ### 1. Commands are plain functions, not objects
@@ -570,16 +523,13 @@ npm test --workspaces --if-present
 | `@signwriter/editor` | 144 |
 | `@signwriter/renderer` | 42 |
 | `@signwriter/vue` | 16 |
-| `@signwriter/react` | 14 |
-| `@signwriter/web-components` | 20 |
-| **Total** | **378** |
+| **Total** | **344** |
 
 **Testing philosophy:**
 
 - `@signwriter/fsw`, `@signwriter/layout`, `@signwriter/editor`: pure function tests, no DOM. Run identically in Node.js.
 - `@signwriter/renderer`: tests use Node.js path of `font-ttf` which bypasses canvas measurement. SVG structure is verified, not pixel output.
-- `@signwriter/vue`, `@signwriter/react`: use `jsdom` environment. Vue uses `@vue/test-utils`; React uses `@testing-library/react`.
-- `@signwriter/web-components`: `jsdom` with `customElements.define`. Lifecycle callbacks (`connectedCallback`, `disconnectedCallback`) are triggered by `appendChild` / `removeChild`.
+- `@signwriter/vue`: uses `jsdom` environment with `@vue/test-utils`.
 
 ---
 
