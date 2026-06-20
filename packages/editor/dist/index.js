@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.EMPTY_STATE = void 0;
+exports.routeKeyEvent = exports.enterScope = exports.toggleScope = exports.createScopeState = exports.paletteLevel2FocusedKey = exports.paletteColumns = exports.paletteBack = exports.paletteSetVariantTab = exports.paletteEnterBase = exports.paletteEnterGroup = exports.paletteNavigate = exports.INITIAL_PALETTE_NAV = exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.EMPTY_STATE = void 0;
 var types_1 = require("./types");
 Object.defineProperty(exports, "EMPTY_STATE", { enumerable: true, get: function () { return types_1.EMPTY_STATE; } });
 __exportStar(require("./commands"), exports);
@@ -43,4 +43,19 @@ Object.defineProperty(exports, "startDrag", { enumerable: true, get: function ()
 Object.defineProperty(exports, "updateDrag", { enumerable: true, get: function () { return DragEngine_1.updateDrag; } });
 Object.defineProperty(exports, "endDrag", { enumerable: true, get: function () { return DragEngine_1.endDrag; } });
 Object.defineProperty(exports, "cancelDrag", { enumerable: true, get: function () { return DragEngine_1.cancelDrag; } });
+var PaletteNavigationState_1 = require("./interaction/PaletteNavigationState");
+Object.defineProperty(exports, "INITIAL_PALETTE_NAV", { enumerable: true, get: function () { return PaletteNavigationState_1.INITIAL_PALETTE_NAV; } });
+Object.defineProperty(exports, "paletteNavigate", { enumerable: true, get: function () { return PaletteNavigationState_1.paletteNavigate; } });
+Object.defineProperty(exports, "paletteEnterGroup", { enumerable: true, get: function () { return PaletteNavigationState_1.paletteEnterGroup; } });
+Object.defineProperty(exports, "paletteEnterBase", { enumerable: true, get: function () { return PaletteNavigationState_1.paletteEnterBase; } });
+Object.defineProperty(exports, "paletteSetVariantTab", { enumerable: true, get: function () { return PaletteNavigationState_1.paletteSetVariantTab; } });
+Object.defineProperty(exports, "paletteBack", { enumerable: true, get: function () { return PaletteNavigationState_1.paletteBack; } });
+Object.defineProperty(exports, "paletteColumns", { enumerable: true, get: function () { return PaletteNavigationState_1.paletteColumns; } });
+Object.defineProperty(exports, "paletteLevel2FocusedKey", { enumerable: true, get: function () { return PaletteNavigationState_1.paletteLevel2FocusedKey; } });
+var ScopeManager_1 = require("./interaction/ScopeManager");
+Object.defineProperty(exports, "createScopeState", { enumerable: true, get: function () { return ScopeManager_1.createScopeState; } });
+Object.defineProperty(exports, "toggleScope", { enumerable: true, get: function () { return ScopeManager_1.toggleScope; } });
+Object.defineProperty(exports, "enterScope", { enumerable: true, get: function () { return ScopeManager_1.enterScope; } });
+var ScopedKeyboardRouter_1 = require("./interaction/ScopedKeyboardRouter");
+Object.defineProperty(exports, "routeKeyEvent", { enumerable: true, get: function () { return ScopedKeyboardRouter_1.routeKeyEvent; } });
 //# sourceMappingURL=index.js.map
