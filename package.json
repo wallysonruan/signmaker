@@ -9,8 +9,6 @@
     "packages/editor",
     "packages/renderer",
     "packages/vue",
-    "packages/react",
-    "packages/web-components",
     "app"
   ],
   "scripts": {

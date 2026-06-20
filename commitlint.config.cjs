@@ -11,8 +11,6 @@ module.exports = {
         'editor',
         'renderer',
         'vue',
-        'react',
-        'web-components',
         'app',
         'ci',
         'release',
