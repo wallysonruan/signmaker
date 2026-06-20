@@ -2,6 +2,7 @@ import { ref, computed } from 'vue';
 import {
   createScope,
   createScopeManager,
+  createFocusManager,
   INITIAL_PALETTE_NAV,
   actionToCommand,
   lookupAction,
@@ -13,8 +14,18 @@ import {
   type KeyBinding,
   type KeyEventDescriptor,
   type ScopeManager,
+  type FocusManagerPort,
 } from '@signwriter/editor';
 import type { ComputedRef, Ref } from 'vue';
+
+export interface UseScopeManagerOptions extends ScopedRouterOptions {
+  /**
+   * Focus manager driving DOM focus on scope changes. Defaults to a fresh
+   * createFocusManager(). Inject your own to route focus through an
+   * application-wide focus system.
+   */
+  focusManager?: FocusManagerPort;
+}
 
 export interface UseScopeManagerReturn {
   /** The currently active scope ('palette' or 'canvas'). */
@@ -36,7 +47,18 @@ export interface UseScopeManagerReturn {
    * as just another participant rather than owning interaction.
    */
   manager:    ScopeManager;
-  /** Attach the global keyboard handler to an EventTarget. Returns a detach function. */
+  /**
+   * Focus manager driving DOM focus on scope changes. Register focus targets
+   * by scope name (e.g. focusManager.register('palette', paletteRef.value)).
+   * Focus moves automatically when the active scope changes — no watch needed.
+   */
+  focusManager: FocusManagerPort;
+  /**
+   * Attach the keyboard handler to an EventTarget. Prefer a scoped container
+   * element over `document` so SignMaker does not capture keys globally and
+   * can coexist with other widgets / instances on the page.
+   * Returns a detach function.
+   */
   attach(el: EventTarget): () => void;
 }
 
@@ -57,9 +79,10 @@ export function useScopeManager(
   dispatch: (c: Command) => void,
   onUndo:   () => void,
   onRedo:   () => void,
-  options:  ScopedRouterOptions = {},
+  options:  UseScopeManagerOptions = {},
 ): UseScopeManagerReturn {
   const paletteNav = ref<PaletteNavigationState>(INITIAL_PALETTE_NAV);
+  const focusManager = options.focusManager ?? createFocusManager();
 
   const bindings = (options.canvasBindings ?? DEFAULT_BINDINGS) as
     ReadonlyArray<readonly [KeyBinding, ActionName]>;
@@ -86,10 +109,12 @@ export function useScopeManager(
   manager.register(canvasScope);
   manager.register(paletteScope);
 
-  // Reactive mirror of manager.currentScope() for templates / watchers.
+  // Reactive mirror of manager.currentScope() for templates / watchers, and
+  // automatic focus handoff to the entered scope's registered target.
   const scopeRef = ref<'palette' | 'canvas'>('canvas');
   manager.onScopeChanged((to) => {
     if (to === 'palette' || to === 'canvas') scopeRef.value = to;
+    if (to !== null) focusManager.focusScope(to);
   });
   manager.enter('canvas');
 
@@ -136,6 +161,7 @@ export function useScopeManager(
     scope:      computed(() => scopeRef.value),
     paletteNav,
     manager,
+    focusManager,
     attach,
   };
 }

@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.routeKeyEvent = exports.createScopeManager = exports.createScope = exports.enterScope = exports.toggleScope = exports.createScopeState = exports.paletteLevel2FocusedKey = exports.paletteColumns = exports.paletteBack = exports.paletteSetVariantTab = exports.paletteEnterBase = exports.paletteEnterGroup = exports.paletteNavigate = exports.INITIAL_PALETTE_NAV = exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.createCommandBus = exports.EMPTY_STATE = void 0;
+exports.routeKeyEvent = exports.createFocusManager = exports.createScopeManager = exports.createScope = exports.enterScope = exports.toggleScope = exports.createScopeState = exports.paletteLevel2FocusedKey = exports.paletteColumns = exports.paletteBack = exports.paletteSetVariantTab = exports.paletteEnterBase = exports.paletteEnterGroup = exports.paletteNavigate = exports.INITIAL_PALETTE_NAV = exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.createCommandBus = exports.EMPTY_STATE = void 0;
 var types_1 = require("./types");
 Object.defineProperty(exports, "EMPTY_STATE", { enumerable: true, get: function () { return types_1.EMPTY_STATE; } });
 var CommandBus_1 = require("./CommandBus");
@@ -61,6 +61,8 @@ Object.defineProperty(exports, "enterScope", { enumerable: true, get: function (
 var createScopeManager_1 = require("./interaction/createScopeManager");
 Object.defineProperty(exports, "createScope", { enumerable: true, get: function () { return createScopeManager_1.createScope; } });
 Object.defineProperty(exports, "createScopeManager", { enumerable: true, get: function () { return createScopeManager_1.createScopeManager; } });
+var createFocusManager_1 = require("./interaction/createFocusManager");
+Object.defineProperty(exports, "createFocusManager", { enumerable: true, get: function () { return createFocusManager_1.createFocusManager; } });
 var ScopedKeyboardRouter_1 = require("./interaction/ScopedKeyboardRouter");
 Object.defineProperty(exports, "routeKeyEvent", { enumerable: true, get: function () { return ScopedKeyboardRouter_1.routeKeyEvent; } });
 //# sourceMappingURL=index.js.map

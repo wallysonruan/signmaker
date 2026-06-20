@@ -38,7 +38,7 @@
     </header>
 
     <!-- Main content area -->
-    <div class="main-content">
+    <div ref="rootRef" class="main-content">
       <!-- Symbol palette sidebar -->
       <SymbolPalette
         ref="paletteRef"
@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import {
   useEditorState,
   useScopeManager,
@@ -91,21 +91,22 @@ function handleLoadFsw(fsw: string) {
 // Vue auto-unwraps refs in templates, so v-model:nav="paletteNav" works:
 //   :nav reads paletteNav.value; @update:nav="paletteNav = $event" writes paletteNav.value.
 
-const { scope, paletteNav, attach } = useScopeManager(dispatch, undo, redo);
+const { scope, paletteNav, focusManager, attach } = useScopeManager(dispatch, undo, redo);
 
-// Template refs — expose({ focus }) is called when the scope switch fires.
+// Template refs — expose({ focus }) is called by the focus manager on scope change.
+const rootRef    = ref<HTMLElement | null>(null);
 const paletteRef = ref<{ focus(): void } | null>(null);
 const canvasRef  = ref<{ focus(): void } | null>(null);
 
 onMounted(() => {
-  const detach = attach(document);
-  onUnmounted(detach);
-});
+  // Register focus targets; the focus manager moves focus on scope changes.
+  focusManager.register('palette', () => paletteRef.value?.focus());
+  focusManager.register('canvas',  () => canvasRef.value?.focus());
 
-// Move DOM focus to the appropriate component whenever the active scope changes.
-watch(scope, (s) => {
-  if (s === 'palette') paletteRef.value?.focus();
-  else                 canvasRef.value?.focus();
+  // Attach keyboard to the scoped container (not document) so SignMaker does
+  // not capture keys globally and can coexist with other widgets on the page.
+  const detach = attach(rootRef.value ?? document);
+  onUnmounted(detach);
 });
 </script>
 

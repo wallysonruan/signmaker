@@ -113,6 +113,46 @@ describe('useScopeManager', () => {
     expect(scope.value).toBe('canvas');
   });
 
+  test('focus moves to the entered scope target on scope change', () => {
+    const { dispatch, undo, redo } = useEditorState();
+    const { manager, focusManager } = useScopeManager(dispatch, undo, redo);
+    const palette = jest.fn();
+    const canvas = jest.fn();
+    focusManager.register('palette', palette);
+    focusManager.register('canvas', canvas);
+
+    manager.enter('palette');
+    expect(palette).toHaveBeenCalledTimes(1);
+    manager.enter('canvas');
+    expect(canvas).toHaveBeenCalledTimes(1);
+  });
+
+  test('F6 toggle drives focus through the focus manager', () => {
+    const el = new MockEventTarget();
+    const { focusManager, attach } = useScopeManager(jest.fn(), jest.fn(), jest.fn());
+    const palette = jest.fn();
+    focusManager.register('palette', palette);
+    attach(el as unknown as EventTarget);
+
+    el.dispatchEvent(makeKeyEvent(117)); // F6 → palette
+    expect(palette).toHaveBeenCalledTimes(1);
+  });
+
+  test('accepts an injected focus manager', () => {
+    const calls: string[] = [];
+    const injected = {
+      register: jest.fn(),
+      focusScope: (name: string) => { calls.push(name); return true; },
+      hasTarget: () => true,
+    };
+    const { manager, focusManager } = useScopeManager(jest.fn(), jest.fn(), jest.fn(), {
+      focusManager: injected,
+    });
+    expect(focusManager).toBe(injected);
+    manager.enter('palette');
+    expect(calls).toContain('palette');
+  });
+
   test('attach cleanup removes the listener', () => {
     const el = new MockEventTarget();
     const { dispatch, undo, redo } = useEditorState();

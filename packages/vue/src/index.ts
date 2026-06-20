@@ -16,8 +16,10 @@ export { useScopeManager } from './useScopeManager';
 export type { UseScopeManagerReturn } from './useScopeManager';
 export type {
   Scope, ScopeInit, ScopeManager, ScopeHook, ScopeChangedHook,
+  FocusManagerPort, FocusTarget, FocusTargetFn,
 } from '@signwriter/editor';
-export { createScope, createScopeManager } from '@signwriter/editor';
+export { createScope, createScopeManager, createFocusManager } from '@signwriter/editor';
+export type { UseScopeManagerOptions } from './useScopeManager';
 
 export { default as SymbolPalette }    from './components/SymbolPalette.vue';
 export { default as SignEditorCanvas } from './components/SignEditorCanvas.vue';

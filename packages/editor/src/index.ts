@@ -57,5 +57,10 @@ export type {
 } from './interaction/createScopeManager';
 export { createScope, createScopeManager } from './interaction/createScopeManager';
 
+export type {
+  FocusManagerPort, FocusTarget, FocusTargetFn,
+} from './interaction/createFocusManager';
+export { createFocusManager } from './interaction/createFocusManager';
+
 export type { ScopedRouterOptions, ScopedRouterResult, KeyEventDescriptor } from './interaction/ScopedKeyboardRouter';
 export { routeKeyEvent } from './interaction/ScopedKeyboardRouter';
