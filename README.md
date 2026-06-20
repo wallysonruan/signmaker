@@ -16,7 +16,7 @@ directly from any other framework.
 |---|---|
 | [`@wallysonruan/signmaker-fsw-engine`](packages/fsw) | Pure TypeScript FSW engine: parse, generate, validate, convert FSW ↔ SWU, symbol key algebra |
 | [`@wallysonruan/signmaker-layout-engine`](packages/layout) | Bounding-box calculation, FSW ↔ screen coordinate transforms, sign normalization |
-| [`@wallysonruan/signmaker-editor-engine`](packages/editor) | Immutable editor state, commands, undo/redo history, selection, drag engine, keyboard bindings |
+| [`@wallysonruan/signmaker-editor-engine`](packages/editor) | Immutable editor state, commands, command-based undo/redo history, selection, drag engine, keyboard bindings, and the composable interaction layer (command bus, scope manager, `createSignMaker` composition root) |
 | [`@wallysonruan/signmaker-renderer`](packages/renderer) | SVG symbol rendering via Sutton SignWriting TrueType fonts |
 | [`@wallysonruan/signmaker-vue`](packages/vue) | Vue 3 composables and components |
 | [`app`](app) | Demo application built with Vue 3 + Vite (private, not published) |
@@ -59,12 +59,36 @@ npm install @wallysonruan/signmaker-vue
 
 ### Composables
 
-```typescript
-import { useEditorState, useSymbolDrag, useKeyboard } from '@wallysonruan/signmaker-vue';
+`useSignMaker()` is the recommended single entry point. It builds the
+framework-agnostic composition root (`createSignMaker`) and layers Vue
+reactivity plus the scope/keyboard/focus wiring on top:
 
-const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
+```typescript
+import { useSignMaker } from '@wallysonruan/signmaker-vue';
+
+const {
+  state, canUndo, canRedo,        // reactive editor state
+  dispatch, replaceState, undo, redo,
+  scope, paletteNav, attach,      // reactive interaction state + keyboard
+  bus, history, scopeManager, focusManager, // replaceable ports
+} = useSignMaker();
+
+// Attach the keyboard to a scoped element (not document):
+const detach = attach(rootEl);    // call onUnmounted(detach)
+```
+
+Inject your own port to slot SignMaker into a larger application — e.g. a shared
+undo stack: `useSignMaker({ history: myHistory })`.
+
+Lower-level composables remain available for standalone use:
+`useEditorState` (state + history only), `useScopeManager` (scopes + focus),
+`usePaletteScope`, `useSymbolDrag`, and `useKeyboard`.
+
+```typescript
+import { useEditorState, useSymbolDrag } from '@wallysonruan/signmaker-vue';
+
+const { state, replaceState, dispatch } = useEditorState();
 const drag = useSymbolDrag(() => state.value, replaceState, dispatch);
-const kb   = useKeyboard(dispatch, undo, redo);
 ```
 
 ### Components
@@ -183,7 +207,11 @@ signmaker/
 │   ├── editor/                 # @wallysonruan/signmaker-editor-engine
 │   │   └── src/
 │   │       ├── commands/       # addSymbol, rotateSelected, mirrorSelected, …
-│   │       ├── CommandHistory.ts
+│   │       ├── interaction/    # createScopeManager, createPaletteScope, createCanvasScope, createFocusManager
+│   │       ├── createSignMaker.ts  # composition root wiring all ports
+│   │       ├── CommandBus.ts   # dispatch seam (before/after/intercept hooks)
+│   │       ├── HistoryManager.ts   # command-based HistoryPort + memento commands
+│   │       ├── CommandHistory.ts   # legacy snapshot history (standalone path)
 │   │       ├── SelectionEngine.ts
 │   │       ├── DragEngine.ts
 │   │       └── KeyboardBindings.ts
@@ -191,7 +219,7 @@ signmaker/
 │   └── vue/                    # @wallysonruan/signmaker-vue
 │       └── src/
 │           ├── components/     # SymbolPalette, SignEditorCanvas, SymbolHandles, FswPanel
-│           └── useEditorState, useSymbolDrag, useKeyboard
+│           └── useSignMaker, useEditorState, useScopeManager, usePaletteScope, useSymbolDrag, useKeyboard
 └── package.json                # npm workspace root
 ```
 

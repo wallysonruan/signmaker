@@ -1,9 +1,18 @@
 # RFC: Composable Interaction Architecture
 
-**Status:** Proposed
+**Status:** Accepted — Implemented
 **Date:** 2026-06
 **Authors:** SignMaker core team
 **Supersedes nothing** — extends the decisions in [`ARCHITECTURE.md`](../../ARCHITECTURE.md)
+
+> **Implementation note.** All seven migration phases below have shipped. The
+> command bus, command-based `HistoryPort`, generic `ScopeManager`,
+> `FocusManagerPort`, `createSignMaker` composition root, and the
+> `createPaletteScope`/`createCanvasScope` primitives all exist in
+> `@wallysonruan/signmaker-editor-engine`; the Vue layer exposes `useSignMaker`
+> as the single entry point. Sections 1.x describe the **pre-migration**
+> codebase and are kept for historical context. `usePaletteNavigation.ts` has
+> been deleted as planned.
 
 ---
 
@@ -670,29 +679,37 @@ The dead `usePaletteNavigation.ts` is deleted (L9).
 
 Incremental phases, each independently shippable and keeping `make ci` green.
 Commit scopes per [`AGENTS.md`](../../AGENTS.md): `editor`, `vue`, `app`, `docs`.
+**All phases are complete** — status noted per phase.
 
-1. **Command bus behind existing dispatch** (`editor`, `vue`). Add
-   `createDefaultCommandBus`; route `useEditorState.dispatch` through it. No
-   behavior change; `beforeCommand`/`afterCommand`/`intercept` now available.
-2. **Generalize ScopeManager** (`editor`, `vue`). Replace the flat enum with
-   registerable named scopes built on `routeKeyEvent`; adapt `useScopeManager`.
-   Palette/canvas behavior preserved; add `currentScope`, `onScopeChanged`,
-   lifecycle hooks, enable/disable.
-3. **Scope the keyboard + FocusManagerPort** (`vue`, `app`). Move the listener
-   from `document` to the SignMaker root element; route focus through
-   `DefaultFocusManager`; drop `watch(scope)` focus stealing.
-4. **Command-based history** (`editor`). Migrate `commands/symbols.ts` to
-   `Command { name, execute, undo }`; evolve `CommandHistory` into a command
-   stack behind `HistoryPort` with hooks. Snapshot path removed.
-5. **Composition root** (`editor`, `vue`, `app`). Add `createSignMaker(deps?)`;
-   refactor `App.vue` to consume it; expose port overrides.
-6. **Extract scope primitives & thin components** (`vue`). Ship
-   `createPaletteScope`/`createCanvasScope` and `usePaletteScope`/`useCanvasScope`;
-   reduce `SymbolPalette`/`SignEditorCanvas`/`SymbolHandles` to adapters; delete
-   `usePaletteNavigation.ts`.
+1. ✅ **Command bus behind existing dispatch** (`editor`, `vue`). Added
+   `createCommandBus` (`CommandBus.ts`); routed `useEditorState.dispatch` through
+   it. `beforeCommand`/`afterCommand`/`intercept` available.
+2. ✅ **Generalize ScopeManager** (`editor`, `vue`). Replaced the flat enum with
+   registerable named scopes (`createScopeManager.ts`); adapted `useScopeManager`.
+   Added `currentScope`, `onScopeChanged`, lifecycle hooks, enable/disable.
+3. ✅ **Scope the keyboard + FocusManagerPort** (`vue`, `app`). Listener moved
+   off `document` to the SignMaker root element; focus routed through
+   `createFocusManager`; `watch(scope)` focus stealing removed.
+4. ✅ **Command-based history** (`editor`). Introduced `ReversibleCommand` and
+   `createMementoCommand`; `createDefaultHistory` implements `HistoryPort` with
+   lifecycle hooks. The bus `apply` threads the command name into named history
+   entries. (The snapshot `CommandHistory` is retained for the standalone path
+   rather than removed.)
+5. ✅ **Composition root** (`editor`, `vue`, `app`). Added `createSignMaker(deps?)`
+   and the `useSignMaker` Vue umbrella; `App.vue` consumes it; all ports are
+   overridable.
+6. ✅ **Extract scope primitives & thin components** (`editor`, `vue`). Shipped
+   `createCanvasScope`/`createPaletteScope` (+ `usePaletteScope`); reduced
+   `SymbolPalette` to a thin adapter; deleted `usePaletteNavigation.ts`.
 
-Each phase has a clear rollback point because ports keep old and new wiring
+Each phase had a clear rollback point because ports keep old and new wiring
 behind a stable surface.
+
+> Two deviations from the original plan, both deliberate: the legacy snapshot
+> `CommandHistory` was **kept** (not removed) so the standalone path stays
+> available, and `SelectionManagerPort`/`ClipboardPort` (§5.4–5.5) remain
+> design-only — selection still lives inside `EditorState` and no clipboard
+> port was needed yet. Both are additive future work, not blockers.
 
 ---
 
