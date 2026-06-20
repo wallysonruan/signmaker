@@ -21,10 +21,18 @@ export * from './commands';
 
 export { getSelected, selectNone, selectById, cycleSelection } from './SelectionEngine';
 
+// Legacy snapshot-based functional history. Retained for the standalone path;
+// the default editor wiring now uses the command-based HistoryPort below.
 export type { History } from './CommandHistory';
 export {
   createHistory, apply, canUndo, canRedo, undo, redo,
 } from './CommandHistory';
+
+// Command-based, replaceable history (ports & adapters).
+export type {
+  ReversibleCommand, HistoryPort, HistoryCommandHook,
+} from './HistoryManager';
+export { createDefaultHistory, createMementoCommand } from './HistoryManager';
 
 export { stateFromFsw, stateToFsw, stateToNormalizedFsw } from './FSWBridge';
 

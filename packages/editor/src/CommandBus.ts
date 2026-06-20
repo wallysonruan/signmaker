@@ -78,8 +78,12 @@ export interface CommandBusPort {
 // ─── Default implementation ────────────────────────────────────────────────────
 
 export interface CommandBusInit {
-  /** Called to actually apply the transform to the current state. Must be synchronous. */
-  apply(transform: Command): EditorState;
+  /**
+   * Called to actually apply the transform to the current state. Must be
+   * synchronous. Receives the (possibly intercepted) transform and the command
+   * name so the apply step can record a named history entry.
+   */
+  apply(transform: Command, name: string): EditorState;
 }
 
 export function createCommandBus(init: CommandBusInit): CommandBusPort {
@@ -114,7 +118,7 @@ export function createCommandBus(init: CommandBusInit): CommandBusPort {
       if (matches(filter, name)) fn(name, payload);
     }
 
-    const state = init.apply(current);
+    const state = init.apply(current, name);
 
     for (const { filter, fn } of afters) {
       if (matches(filter, name)) fn(name, state, payload);

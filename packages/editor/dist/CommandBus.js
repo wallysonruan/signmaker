@@ -32,7 +32,7 @@ function createCommandBus(init) {
             if (matches(filter, name))
                 fn(name, payload);
         }
-        const state = init.apply(current);
+        const state = init.apply(current, name);
         for (const { filter, fn } of afters) {
             if (matches(filter, name))
                 fn(name, state, payload);

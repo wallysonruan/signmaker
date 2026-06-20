@@ -65,8 +65,12 @@ export interface CommandBusPort {
     intercept(nameFilter: string, handler: Interceptor): Unsubscribe;
 }
 export interface CommandBusInit {
-    /** Called to actually apply the transform to the current state. Must be synchronous. */
-    apply(transform: Command): EditorState;
+    /**
+     * Called to actually apply the transform to the current state. Must be
+     * synchronous. Receives the (possibly intercepted) transform and the command
+     * name so the apply step can record a named history entry.
+     */
+    apply(transform: Command, name: string): EditorState;
 }
 export declare function createCommandBus(init: CommandBusInit): CommandBusPort;
 //# sourceMappingURL=CommandBus.d.ts.map
