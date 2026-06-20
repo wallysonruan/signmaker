@@ -25,11 +25,11 @@ This ADR records the architectural decisions made to keep these concerns cleanly
 ```
 signmaker/
 ├── packages/
-│   ├── fsw/              @signwriter/fsw         — FSW/SWU engine (pure functions)
-│   ├── layout/           @signwriter/layout      — coordinate math, bounding box
-│   ├── editor/           @signwriter/editor      — immutable state, commands, history
-│   ├── renderer/         @signwriter/renderer    — SVG rendering, font loading
-│   └── vue/              @signwriter/vue         — Vue 3 composables and components
+│   ├── fsw/              @wallysonruan/signmaker-fsw-engine     — FSW/SWU engine (pure functions)
+│   ├── layout/           @wallysonruan/signmaker-layout-engine  — coordinate math, bounding box
+│   ├── editor/           @wallysonruan/signmaker-editor-engine  — immutable state, commands, history
+│   ├── renderer/         @wallysonruan/signmaker-renderer       — SVG rendering, font loading
+│   └── vue/              @wallysonruan/signmaker-vue            — Vue 3 composables and components
 └── app/                  Vite + Vue 3 reference application
 ```
 
@@ -48,13 +48,13 @@ renderer  ──►  fsw  ◄──  layout
                app
 ```
 
-The four core packages (`fsw`, `layout`, `editor`, `renderer`) have no framework dependency. They can be consumed directly from React, Svelte, or any other environment. `@signwriter/vue` is the actively maintained framework adapter; adapter contributions for other frameworks are welcome.
+The four core packages (`fsw`, `layout`, `editor`, `renderer`) have no framework dependency. They can be consumed directly from React, Svelte, or any other environment. `@wallysonruan/signmaker-vue` is the actively maintained framework adapter; adapter contributions for other frameworks are welcome.
 
 ---
 
 ## Package Reference
 
-### `@signwriter/fsw` — The FSW Engine
+### `@wallysonruan/signmaker-fsw-engine` — The FSW Engine
 
 All FSW/SWU operations as **pure functions**. No DOM, no side effects, no async.
 
@@ -97,9 +97,9 @@ interface SymbolPlacement {
 
 ---
 
-### `@signwriter/layout` — Coordinate Math
+### `@wallysonruan/signmaker-layout-engine` — Coordinate Math
 
-Pure functions for the spatial mathematics of sign layout. Depends on `@signwriter/fsw`; accepts a `SizeProvider` interface so font-metric concerns never leak in.
+Pure functions for the spatial mathematics of sign layout. Depends on `@wallysonruan/signmaker-fsw-engine`; accepts a `SizeProvider` interface so font-metric concerns never leak in.
 
 **`SizeProvider` interface:**
 
@@ -141,7 +141,7 @@ Screen → FSW: fsw_x = screen_x + 500 - midWidth
 
 ---
 
-### `@signwriter/editor` — State Machine
+### `@wallysonruan/signmaker-editor-engine` — State Machine
 
 The heart of the library. Defines an **immutable editor state** and a **command pattern** for all mutations. No DOM, no framework, fully testable in Node.js.
 
@@ -250,7 +250,7 @@ DEFAULT_BINDINGS: ReadonlyArray<readonly [KeyBinding, ActionName]>
 
 ---
 
-### `@signwriter/renderer` — SVG Rendering
+### `@wallysonruan/signmaker-renderer` — SVG Rendering
 
 Wraps `@sutton-signwriting/font-ttf` to produce SVG strings. The only package in the library that has a browser-specific concern: font loading.
 
@@ -274,7 +274,7 @@ waitForFonts(): Promise<void>             // Resolve when glyph measurement work
 **Usage pattern in any browser entry point:**
 
 ```typescript
-import { loadFonts, waitForFonts } from '@signwriter/renderer';
+import { loadFonts, waitForFonts } from '@wallysonruan/signmaker-renderer';
 
 loadFonts();                     // inject @font-face, kick off CDN download
 await waitForFonts();            // block until canvas measurement works
@@ -298,9 +298,9 @@ interface SignStyle {
 
 ---
 
-### `@signwriter/vue` — Vue 3 Composables
+### `@wallysonruan/signmaker-vue` — Vue 3 Composables
 
-Thin reactive wrappers. All business logic lives in `@signwriter/editor`; these composables wire reactivity.
+Thin reactive wrappers. All business logic lives in `@wallysonruan/signmaker-editor-engine`; these composables wire reactivity.
 
 **`useEditorState()`:**
 
@@ -368,15 +368,15 @@ Consequence: do not read `editorElement.state.selection` to drive focus rings or
 
 ### 3. `SizeProvider` is injected, not imported
 
-`@signwriter/layout` never imports from `@signwriter/renderer`. This makes every layout function testable in Node.js with a mock `SizeProvider`, without pulling in the `font-ttf` dependency (which requires DOM and a running browser to measure fonts). The injection point is explicit: any function that needs to know symbol dimensions accepts a `SizeProvider` parameter.
+`@wallysonruan/signmaker-layout-engine` never imports from `@wallysonruan/signmaker-renderer`. This makes every layout function testable in Node.js with a mock `SizeProvider`, without pulling in the `font-ttf` dependency (which requires DOM and a running browser to measure fonts). The injection point is explicit: any function that needs to know symbol dimensions accepts a `SizeProvider` parameter.
 
 ### 4. Font loading is the only async boundary
 
-Everything in `@signwriter/fsw`, `@signwriter/layout`, and `@signwriter/editor` is synchronous. The only `async` in the system is font readiness. `waitForFonts()` is the gate: mount the application after it resolves. Do not attempt to render symbol SVGs before this resolves — they will have `width="0" height="0"`.
+Everything in `@wallysonruan/signmaker-fsw-engine`, `@wallysonruan/signmaker-layout-engine`, and `@wallysonruan/signmaker-editor-engine` is synchronous. The only `async` in the system is font readiness. `waitForFonts()` is the gate: mount the application after it resolves. Do not attempt to render symbol SVGs before this resolves — they will have `width="0" height="0"`.
 
 ### 5. Framework wrappers own no business logic
 
-The Vue composables, React hooks, and web component are binding layers only. They translate framework events into `dispatch` / `replaceState` calls and expose reactive views of `EditorState`. If you find yourself adding FSW logic, coordinate math, or selection reasoning to a framework package, that code belongs in `@signwriter/editor` or `@signwriter/layout` instead.
+The Vue composables and framework adapters are binding layers only. They translate framework events into `dispatch` / `replaceState` calls and expose reactive views of `EditorState`. If you find yourself adding FSW logic, coordinate math, or selection reasoning to a framework package, that code belongs in `@wallysonruan/signmaker-editor-engine` or `@wallysonruan/signmaker-layout-engine` instead.
 
 ### 6. The live drag display offset lives outside history
 
@@ -485,14 +485,14 @@ The resulting SVG string is injected with `v-html` / `dangerouslySetInnerHTML`. 
 
 ## Adding a New Framework Binding
 
-If you are adding `@signwriter/svelte`, `@signwriter/solid`, or any other framework:
+If you are adding `@wallysonruan/signmaker-svelte`, `@wallysonruan/signmaker-solid`, or any other framework:
 
-1. **Do not copy logic from `@signwriter/editor`** — import it.
+1. **Do not copy logic from `@wallysonruan/signmaker-editor-engine`** — import it.
 2. Map `dispatch(command)` → the framework's state update primitive.
 3. Map `replaceState(state)` → a state update that does not create a history entry.
 4. Implement `{ attach(el): () => void }` for keyboard binding — not lifecycle-coupled.
 5. Implement live drag offset tracking locally (do not modify `DragEngine`).
-6. Gate the component mount on `waitForFonts()` from `@signwriter/renderer`.
+6. Gate the component mount on `waitForFonts()` from `@wallysonruan/signmaker-renderer`.
 
 ---
 
@@ -518,18 +518,18 @@ npm test --workspaces --if-present
 
 | Package | Tests |
 |---|---|
-| `@signwriter/fsw` | 93 |
-| `@signwriter/layout` | 49 |
-| `@signwriter/editor` | 144 |
-| `@signwriter/renderer` | 42 |
-| `@signwriter/vue` | 16 |
+| `@wallysonruan/signmaker-fsw-engine` | 93 |
+| `@wallysonruan/signmaker-layout-engine` | 49 |
+| `@wallysonruan/signmaker-editor-engine` | 144 |
+| `@wallysonruan/signmaker-renderer` | 42 |
+| `@wallysonruan/signmaker-vue` | 16 |
 | **Total** | **344** |
 
 **Testing philosophy:**
 
-- `@signwriter/fsw`, `@signwriter/layout`, `@signwriter/editor`: pure function tests, no DOM. Run identically in Node.js.
-- `@signwriter/renderer`: tests use Node.js path of `font-ttf` which bypasses canvas measurement. SVG structure is verified, not pixel output.
-- `@signwriter/vue`: uses `jsdom` environment with `@vue/test-utils`.
+- `@wallysonruan/signmaker-fsw-engine`, `@wallysonruan/signmaker-layout-engine`, `@wallysonruan/signmaker-editor-engine`: pure function tests, no DOM. Run identically in Node.js.
+- `@wallysonruan/signmaker-renderer`: tests use Node.js path of `font-ttf` which bypasses canvas measurement. SVG structure is verified, not pixel output.
+- `@wallysonruan/signmaker-vue`: uses `jsdom` environment with `@vue/test-utils`.
 
 ---
 
@@ -542,6 +542,6 @@ npm run build      # production build to app/dist/
 npm run typecheck  # vue-tsc --noEmit (no emit, type-check only)
 ```
 
-The app uses Vite source aliases to resolve `@signwriter/*` packages directly from TypeScript source, so packages do not need to be pre-built during development.
+The app uses Vite source aliases to resolve workspace packages directly from TypeScript source, so packages do not need to be pre-built during development.
 
 On first load the app calls `loadFonts()` then `waitForFonts()` before mounting. Expect a brief blank page (~0.5–2 seconds depending on CDN latency) while the three Sutton SignWriting TTF fonts download.

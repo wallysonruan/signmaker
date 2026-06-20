@@ -14,11 +14,11 @@ directly from any other framework.
 
 | Package | Description |
 |---|---|
-| [`@signwriter/fsw`](packages/fsw) | Pure TypeScript FSW engine: parse, generate, validate, convert FSW ↔ SWU, symbol key algebra |
-| [`@signwriter/layout`](packages/layout) | Bounding-box calculation, FSW ↔ screen coordinate transforms, sign normalization |
-| [`@signwriter/editor`](packages/editor) | Immutable editor state, commands, undo/redo history, selection, drag engine, keyboard bindings |
-| [`@signwriter/renderer`](packages/renderer) | SVG symbol rendering via Sutton SignWriting TrueType fonts |
-| [`@signwriter/vue`](packages/vue) | Vue 3 composables and components |
+| [`@wallysonruan/signmaker-fsw-engine`](packages/fsw) | Pure TypeScript FSW engine: parse, generate, validate, convert FSW ↔ SWU, symbol key algebra |
+| [`@wallysonruan/signmaker-layout-engine`](packages/layout) | Bounding-box calculation, FSW ↔ screen coordinate transforms, sign normalization |
+| [`@wallysonruan/signmaker-editor-engine`](packages/editor) | Immutable editor state, commands, undo/redo history, selection, drag engine, keyboard bindings |
+| [`@wallysonruan/signmaker-renderer`](packages/renderer) | SVG symbol rendering via Sutton SignWriting TrueType fonts |
+| [`@wallysonruan/signmaker-vue`](packages/vue) | Vue 3 composables and components |
 | [`app`](app) | Demo application built with Vue 3 + Vite (private, not published) |
 
 ---
@@ -49,18 +49,18 @@ It is **not** published to npm — it exists to show integration and serves as a
 
 ---
 
-## `@signwriter/vue`
+## `@wallysonruan/signmaker-vue`
 
 Vue 3 composables and components. Install alongside `vue`:
 
 ```bash
-npm install @signwriter/vue
+npm install @wallysonruan/signmaker-vue
 ```
 
 ### Composables
 
 ```typescript
-import { useEditorState, useSymbolDrag, useKeyboard } from '@signwriter/vue';
+import { useEditorState, useSymbolDrag, useKeyboard } from '@wallysonruan/signmaker-vue';
 
 const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
 const drag = useSymbolDrag(() => state.value, replaceState, dispatch);
@@ -75,7 +75,7 @@ import {
   SignEditorCanvas, // drag-and-drop canvas with selection handles
   SymbolHandles,    // rotate / flip / copy overlay (used inside SignEditorCanvas)
   FswPanel,         // footer bar with live FSW display and load input
-} from '@signwriter/vue';
+} from '@wallysonruan/signmaker-vue';
 ```
 
 **`SymbolPalette`** — emits `add-symbol(key: string)` when a symbol is clicked or dropped.
@@ -89,21 +89,21 @@ HTML5 drag-and-drop from the palette, and renders the `SymbolHandles` overlay au
 
 ## Framework Adapters
 
-`@signwriter/vue` is the actively maintained framework adapter. The four core packages
-(`@signwriter/fsw`, `@signwriter/layout`, `@signwriter/editor`, `@signwriter/renderer`) are
+`@wallysonruan/signmaker-vue` is the actively maintained framework adapter. The four core packages
+(`@wallysonruan/signmaker-fsw-engine`, `@wallysonruan/signmaker-layout-engine`, `@wallysonruan/signmaker-editor-engine`, `@wallysonruan/signmaker-renderer`) are
 fully framework-agnostic — they have no Vue dependency and can be consumed directly from React,
 Svelte, or any other environment. Adapter contributions for other frameworks are welcome.
 
 ---
 
-## `@signwriter/editor`
+## `@wallysonruan/signmaker-editor-engine`
 
-Framework-agnostic state management. Core building block for both Vue and React packages.
+Framework-agnostic state management. Core building block for framework adapters.
 
 ```typescript
 import { EMPTY_STATE, addSymbol, rotateSelected, mirrorSelected,
          copySelected, deleteSelected, selectNone, getSelected,
-         createHistory, apply, undo, redo, canUndo, canRedo } from '@signwriter/editor';
+         createHistory, apply, undo, redo, canUndo, canRedo } from '@wallysonruan/signmaker-editor-engine';
 ```
 
 **State shape:**
@@ -126,12 +126,12 @@ interface EditorSymbol {
 
 ---
 
-## `@signwriter/fsw`
+## `@wallysonruan/signmaker-fsw-engine`
 
 Pure FSW string utilities with no DOM or font dependencies.
 
 ```typescript
-import { parseFsw, generateFsw, normalizeFsw, fsw2swu, swu2fsw } from '@signwriter/fsw';
+import { parseFsw, generateFsw, normalizeFsw, fsw2swu, swu2fsw } from '@wallysonruan/signmaker-fsw-engine';
 ```
 
 **FSW format:** `[A<sort>]? <box><coord> [<sym><coord>]*`
@@ -140,12 +140,12 @@ Example: `AS14c20S27106M518x529S14c20481x471S27106503x489`
 
 ---
 
-## `@signwriter/renderer`
+## `@wallysonruan/signmaker-renderer`
 
 Renders individual symbol SVGs using the Sutton SignWriting TrueType fonts.
 
 ```typescript
-import { renderSymbol, getSymbolSize } from '@signwriter/renderer';
+import { renderSymbol, getSymbolSize } from '@wallysonruan/signmaker-renderer';
 
 const svg  = renderSymbol('S14c20');        // returns SVG string
 const size = getSymbolSize('S14c20');       // { width, height } | null
@@ -164,7 +164,7 @@ make ci              # full validation: lint, typecheck, test, commitlint
 make test            # run all Jest tests
 make typecheck       # type-check the Vue package
 make lint            # type-check (ESLint target, extend as needed)
-make build           # build all packages required for @signwriter/vue
+make build           # build all packages required for @wallysonruan/signmaker-vue
 make release         # build + semantic-release (main branch only)
 ```
 
@@ -178,17 +178,17 @@ signmaker/
 │   │   └── main.ts
 │   └── vite.config.ts
 ├── packages/
-│   ├── fsw/                    # @signwriter/fsw
-│   ├── layout/                 # @signwriter/layout
-│   ├── editor/                 # @signwriter/editor
+│   ├── fsw/                    # @wallysonruan/signmaker-fsw-engine
+│   ├── layout/                 # @wallysonruan/signmaker-layout-engine
+│   ├── editor/                 # @wallysonruan/signmaker-editor-engine
 │   │   └── src/
 │   │       ├── commands/       # addSymbol, rotateSelected, mirrorSelected, …
 │   │       ├── CommandHistory.ts
 │   │       ├── SelectionEngine.ts
 │   │       ├── DragEngine.ts
 │   │       └── KeyboardBindings.ts
-│   ├── renderer/               # @signwriter/renderer
-│   └── vue/                    # @signwriter/vue
+│   ├── renderer/               # @wallysonruan/signmaker-renderer
+│   └── vue/                    # @wallysonruan/signmaker-vue
 │       └── src/
 │           ├── components/     # SymbolPalette, SignEditorCanvas, SymbolHandles, FswPanel
 │           └── useEditorState, useSymbolDrag, useKeyboard
@@ -213,7 +213,7 @@ test
     │
     ▼
 release  ← main branch only, after test passes
-    └── make release → semantic-release → npm publish @signwriter/vue
+    └── make release → semantic-release → npm publish @wallysonruan/signmaker-vue
 ```
 
 GitHub Actions is the orchestrator only. All logic lives in the `Makefile`
@@ -246,7 +246,7 @@ chore(deps): upgrade vite to 8.x
 
 ### Versioning
 
-`@signwriter/vue` uses [Semantic Release](https://github.com/semantic-release/semantic-release).
+`@wallysonruan/signmaker-vue` uses [Semantic Release](https://github.com/semantic-release/semantic-release).
 Versions are determined automatically from commit history on every merge to `main`.
 Releases are tagged `vue-vX.Y.Z`, published to npm, and a GitHub release is created
 with a generated changelog.
@@ -256,7 +256,7 @@ with a generated changelog.
 | Secret | Purpose |
 |---|---|
 | `GITHUB_TOKEN` | Auto-provided by GitHub Actions. Creates releases and pushes changelog commits. |
-| `NPM_TOKEN` | npm automation token. Publishes `@signwriter/vue` to the npm registry. |
+| `NPM_TOKEN` | npm automation token. Publishes `@wallysonruan/signmaker-vue` to the npm registry. |
 
 ### Local Release Process
 
