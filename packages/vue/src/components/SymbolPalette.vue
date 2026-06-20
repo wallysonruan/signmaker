@@ -7,8 +7,8 @@
     data-palette
     @keydown="handleKeydown"
   >
-    <!-- Level 0: group grid -->
-    <div v-if="navState.level === 0" class="palette-section">
+    <!-- Groups level: group grid -->
+    <div v-if="navState.level === 'groups'" class="palette-section">
       <div class="palette-title" aria-hidden="true">Symbol Groups</div>
       <div
         class="group-grid"
@@ -34,8 +34,8 @@
       </div>
     </div>
 
-    <!-- Level 1: base symbols within group -->
-    <div v-else-if="navState.level === 1 && navState.selectedGroup !== null" class="palette-section">
+    <!-- Bases level: base symbols within group -->
+    <div v-else-if="navState.level === 'bases' && navState.selectedGroup !== null" class="palette-section">
       <div class="palette-nav">
         <button class="back-btn" @click="onBack">&#8592; Groups</button>
         <span class="palette-title" aria-live="polite">{{ navState.selectedGroup }}</span>
@@ -64,8 +64,8 @@
       </div>
     </div>
 
-    <!-- Level 2: fill/rotation variants -->
-    <div v-else-if="navState.level === 2 && navState.selectedBase !== null" class="palette-section">
+    <!-- Variants level: fill/rotation variants -->
+    <div v-else-if="navState.level === 'variants' && navState.selectedBase !== null" class="palette-section">
       <div class="palette-nav">
         <button class="back-btn" @click="onBack">&#8592; Base</button>
         <span class="palette-title" aria-live="polite">{{ navState.selectedBase }}</span>
@@ -74,22 +74,22 @@
         <button
           role="tab"
           class="tab-btn"
-          :class="{ active: navState.variantTab === 0 }"
-          :aria-selected="navState.variantTab === 0"
-          @click="onSetTab(0)"
+          :class="{ active: navState.variantTab === 'first' }"
+          :aria-selected="navState.variantTab === 'first'"
+          @click="onSetTab('first')"
         >0–7</button>
         <button
           role="tab"
           class="tab-btn"
-          :class="{ active: navState.variantTab === 1 }"
-          :aria-selected="navState.variantTab === 1"
-          @click="onSetTab(1)"
+          :class="{ active: navState.variantTab === 'second' }"
+          :aria-selected="navState.variantTab === 'second'"
+          @click="onSetTab('second')"
         >8–f</button>
       </div>
       <div
         class="variant-grid"
         role="grid"
-        :aria-label="`Variants for ${navState.selectedBase}, rotations ${navState.variantTab === 0 ? '0–7' : '8–f'}`"
+        :aria-label="`Variants for ${navState.selectedBase}, rotations ${navState.variantTab === 'first' ? '0–7' : '8–f'}`"
         aria-rowcount="6"
       >
         <template v-for="fillIdx in 6" :key="fillIdx">
@@ -97,17 +97,17 @@
             v-for="rotIdx in 8"
             :key="rotIdx"
             class="symbol-btn"
-            :title="variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1)"
-            :aria-label="variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1)"
+            :title="variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1)"
+            :aria-label="variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1)"
             :tabindex="(fillIdx - 1) * 8 + (rotIdx - 1) === navState.focusedIndex ? 0 : -1"
             :aria-selected="(fillIdx - 1) * 8 + (rotIdx - 1) === navState.focusedIndex"
             draggable="true"
-            @dragstart="onDragStart($event, variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1))"
-            @click="emit('add-symbol', variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1))"
+            @dragstart="onDragStart($event, variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1))"
+            @click="emit('add-symbol', variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1))"
           >
             <span
               class="symbol-cell"
-              v-html="renderGroupIcon(variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab * 8) + rotIdx - 1))"
+              v-html="renderGroupIcon(variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1))"
               aria-hidden="true"
             />
           </button>
@@ -130,6 +130,7 @@ import {
   paletteBack,
   paletteLevel2FocusedKey,
   type PaletteNavigationState,
+  type VariantTab,
 } from '@signwriter/editor';
 
 const props = defineProps<{
@@ -171,15 +172,15 @@ function focusActive(): boolean {
 
 const currentItems = computed<string[]>(() => {
   const s = navState.value;
-  if (s.level === 0) return GROUPS;
-  if (s.level === 1 && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];
+  if (s.level === 'groups') return GROUPS;
+  if (s.level === 'bases' && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];
   return [];
 });
 
-const paletteColumns = computed(() => navState.value.level === 2 ? 8 : 4);
+const paletteColumns = computed(() => navState.value.level === 'variants' ? 8 : 4);
 
 const paletteItemCount = computed(() => {
-  if (navState.value.level === 2) return 48; // 6 fills × 8 rots
+  if (navState.value.level === 'variants') return 48; // 6 fills × 8 rots
   return currentItems.value.length;
 });
 
@@ -193,7 +194,7 @@ function variantKey(baseKey: string, fillDigit: number, rotation: number): strin
 
 function focusedKeyAtCurrentLevel(): string | null {
   const s = navState.value;
-  if (s.level === 2) return paletteLevel2FocusedKey(s);
+  if (s.level === 'variants') return paletteLevel2FocusedKey(s);
   return currentItems.value[s.focusedIndex] ?? null;
 }
 
@@ -204,8 +205,8 @@ function onItemClick(key: string): void {
     emit('add-symbol', key);
   } else {
     // Legacy navigate mode
-    if (navState.value.level === 0) applyNav(paletteEnterGroup(navState.value, key));
-    else if (navState.value.level === 1) applyNav(paletteEnterBase(navState.value, key));
+    if (navState.value.level === 'groups') applyNav(paletteEnterGroup(navState.value, key));
+    else if (navState.value.level === 'bases') applyNav(paletteEnterBase(navState.value, key));
   }
 }
 
@@ -215,9 +216,9 @@ function onItemDblClick(idx: number, key: string): void {
     return;
   }
   // New model: dblclick expands
-  if (navState.value.level === 0) {
+  if (navState.value.level === 'groups') {
     applyNav(paletteEnterGroup({ ...navState.value, focusedIndex: idx }, key));
-  } else if (navState.value.level === 1) {
+  } else if (navState.value.level === 'bases') {
     applyNav(paletteEnterBase({ ...navState.value, focusedIndex: idx }, key));
   }
 }
@@ -226,7 +227,7 @@ function onBack(): void {
   applyNav(paletteBack(navState.value));
 }
 
-function onSetTab(tab: 0 | 1): void {
+function onSetTab(tab: VariantTab): void {
   applyNav(paletteSetVariantTab(navState.value, tab));
 }
 
@@ -242,12 +243,12 @@ function handleKeydown(e: KeyboardEvent): void {
   if (e.key === 'F6' || e.keyCode === 117) return;
 
   if (e.key === 'Escape') {
-    if (navState.value.level > 0) {
+    if (navState.value.level !== 'groups') {
       e.preventDefault();
       e.stopPropagation();
       applyNav(paletteBack(navState.value));
     }
-    // At level 0: let Escape bubble so useScopeManager can switch scope
+    // At groups level: let Escape bubble so useScopeManager can switch scope
     return;
   }
 
@@ -270,9 +271,9 @@ function handleKeydown(e: KeyboardEvent): void {
       const s = navState.value;
       const focused = focusedKeyAtCurrentLevel();
       if (focused === null) return;
-      if (s.level === 0) applyNav(paletteEnterGroup(s, focused));
-      else if (s.level === 1) applyNav(paletteEnterBase(s, focused));
-      else if (s.level === 2) applyNav(paletteSetVariantTab(s, s.variantTab === 0 ? 1 : 0));
+      if (s.level === 'groups') applyNav(paletteEnterGroup(s, focused));
+      else if (s.level === 'bases') applyNav(paletteEnterBase(s, focused));
+      else if (s.level === 'variants') applyNav(paletteSetVariantTab(s, s.variantTab === 'first' ? 'second' : 'first'));
     } else {
       // Add focused symbol to canvas
       const key = focusedKeyAtCurrentLevel();

@@ -51,18 +51,18 @@ describe('palette scope: Enter', () => {
 });
 
 describe('palette scope: Escape', () => {
-  test('at level 0 → toggleScope (exit to canvas)', () => {
-    expect(routeKeyEvent(key(27), paletteScope, { ...nav, level: 0 })).toEqual({ type: 'toggleScope' });
+  test('at groups level → toggleScope (exit to canvas)', () => {
+    expect(routeKeyEvent(key(27), paletteScope, { ...nav, level: 'groups' })).toEqual({ type: 'toggleScope' });
   });
 
-  test('at level 1 → paletteBack', () => {
-    const l1Nav = { ...nav, level: 1 as const, selectedGroup: 'S10000' };
-    expect(routeKeyEvent(key(27), paletteScope, l1Nav)).toEqual({ type: 'paletteBack' });
+  test('at bases level → paletteBack', () => {
+    const basesNav = { ...nav, level: 'bases' as const, selectedGroup: 'S10000' };
+    expect(routeKeyEvent(key(27), paletteScope, basesNav)).toEqual({ type: 'paletteBack' });
   });
 
-  test('at level 2 → paletteBack', () => {
-    const l2Nav = { ...nav, level: 2 as const, selectedGroup: 'S10000', selectedBase: 'S10000' };
-    expect(routeKeyEvent(key(27), paletteScope, l2Nav)).toEqual({ type: 'paletteBack' });
+  test('at variants level → paletteBack', () => {
+    const variantsNav = { ...nav, level: 'variants' as const, selectedGroup: 'S10000', selectedBase: 'S10000' };
+    expect(routeKeyEvent(key(27), paletteScope, variantsNav)).toEqual({ type: 'paletteBack' });
   });
 });
 

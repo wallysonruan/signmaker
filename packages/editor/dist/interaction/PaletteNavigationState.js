@@ -18,10 +18,10 @@ exports.paletteBack = paletteBack;
 exports.paletteColumns = paletteColumns;
 exports.paletteLevel2FocusedKey = paletteLevel2FocusedKey;
 exports.INITIAL_PALETTE_NAV = {
-    level: 0,
+    level: 'groups',
     selectedGroup: null,
     selectedBase: null,
-    variantTab: 0,
+    variantTab: 'first',
     focusedIndex: 0,
     focusStack: [],
 };
@@ -50,30 +50,30 @@ function paletteNavigate(state, direction, columns, itemCount) {
     }
     return { ...state, focusedIndex: idx };
 }
-/** Drill into level 1 (a group was chosen). */
+/** Drill into the bases level (a group was chosen). */
 function paletteEnterGroup(state, groupKey) {
     return {
         ...state,
-        level: 1,
+        level: 'bases',
         selectedGroup: groupKey,
         focusedIndex: 0,
         focusStack: [...state.focusStack, state.focusedIndex],
     };
 }
-/** Drill into level 2 (a base symbol was chosen). */
+/** Drill into the variants level (a base symbol was chosen). */
 function paletteEnterBase(state, baseKey) {
     return {
         ...state,
-        level: 2,
+        level: 'variants',
         selectedBase: baseKey.slice(0, 4) + '00',
-        variantTab: 0,
+        variantTab: 'first',
         focusedIndex: 0,
         focusStack: [...state.focusStack, state.focusedIndex],
     };
 }
-/** Switch variant tab at level 2 (rotations 0–7 vs 8–f). */
+/** Switch variant tab at the variants level (rotations 0–7 vs 8–f). */
 function paletteSetVariantTab(state, tab) {
-    if (state.level !== 2)
+    if (state.level !== 'variants')
         return state;
     return { ...state, variantTab: tab, focusedIndex: 0 };
 }
@@ -83,20 +83,20 @@ function paletteBack(state) {
     const stack = state.focusStack;
     const restoredIndex = stack.length > 0 ? ((_a = stack[stack.length - 1]) !== null && _a !== void 0 ? _a : 0) : 0;
     const newStack = stack.slice(0, -1);
-    if (state.level === 2) {
+    if (state.level === 'variants') {
         return {
             ...state,
-            level: 1,
+            level: 'bases',
             selectedBase: null,
-            variantTab: 0,
+            variantTab: 'first',
             focusedIndex: restoredIndex,
             focusStack: newStack,
         };
     }
-    if (state.level === 1) {
+    if (state.level === 'bases') {
         return {
             ...state,
-            level: 0,
+            level: 'groups',
             selectedGroup: null,
             focusedIndex: restoredIndex,
             focusStack: newStack,
@@ -106,19 +106,19 @@ function paletteBack(state) {
 }
 /** Number of grid columns at the current level. */
 function paletteColumns(state) {
-    return state.level === 2 ? 8 : 4;
+    return state.level === 'variants' ? 8 : 4;
 }
 /**
- * Compute the FSW key for the focused cell at level 2.
- * Returns null when not at level 2 or selectedBase is absent.
- * For levels 0/1 the caller should index into its own items array.
+ * Compute the FSW key for the focused cell at the variants level.
+ * Returns null when not at the variants level or selectedBase is absent.
+ * For groups/bases levels the caller should index into its own items array.
  */
 function paletteLevel2FocusedKey(state) {
-    if (state.level !== 2 || state.selectedBase === null)
+    if (state.level !== 'variants' || state.selectedBase === null)
         return null;
     const cols = 8;
     const fill = Math.floor(state.focusedIndex / cols);
-    const rot = (state.focusedIndex % cols) + state.variantTab * 8;
+    const rot = (state.focusedIndex % cols) + (state.variantTab === 'second' ? 8 : 0);
     if (fill >= 6)
         return null;
     return state.selectedBase.slice(0, 4) + fill.toString() + rot.toString(16);

@@ -427,18 +427,18 @@ var Y = {
 function se() {
 	let e = f(C), n = t(() => {
 		let t = e.value;
-		return t.level === 0 ? X : t.level === 1 && t.selectedGroup !== null ? Y[t.selectedGroup] ?? [] : [];
-	}), r = t(() => R(e.value)), i = t(() => e.value.level === 2 ? 48 : n.value.length);
+		return t.level === "groups" ? X : t.level === "bases" && t.selectedGroup !== null ? Y[t.selectedGroup] ?? [] : [];
+	}), r = t(() => R(e.value)), i = t(() => e.value.level === "variants" ? 48 : n.value.length);
 	function a(t) {
 		e.value = H(e.value, t, r.value, i.value);
 	}
 	let o = t(() => {
 		let t = e.value;
-		return t.level === 2 ? V(t) : n.value[t.focusedIndex] ?? null;
+		return t.level === "variants" ? V(t) : n.value[t.focusedIndex] ?? null;
 	});
 	function s() {
 		let t = e.value, n = o.value;
-		n !== null && (t.level === 0 ? e.value = B(t, n) : t.level === 1 && (e.value = z(t, n)));
+		n !== null && (t.level === "groups" ? e.value = B(t, n) : t.level === "bases" && (e.value = z(t, n)));
 	}
 	function c() {
 		e.value = L(e.value);
@@ -548,8 +548,8 @@ var le = {
 		}
 		let w = t(() => {
 			let e = y.value;
-			return e.level === 0 ? X : e.level === 1 && e.selectedGroup !== null ? Y[e.selectedGroup] ?? [] : [];
-		}), T = t(() => y.value.level === 2 ? 8 : 4), E = t(() => y.value.level === 2 ? 48 : w.value.length);
+			return e.level === "groups" ? X : e.level === "bases" && e.selectedGroup !== null ? Y[e.selectedGroup] ?? [] : [];
+		}), T = t(() => y.value.level === "variants" ? 8 : 4), E = t(() => y.value.level === "variants" ? 48 : w.value.length);
 		function D(e) {
 			return K(e);
 		}
@@ -558,16 +558,16 @@ var le = {
 		}
 		function k() {
 			let e = y.value;
-			return e.level === 2 ? V(e) : w.value[e.focusedIndex] ?? null;
+			return e.level === "variants" ? V(e) : w.value[e.focusedIndex] ?? null;
 		}
 		function A(e) {
-			(u.clickBehavior ?? "add") === "add" ? g("add-symbol", e) : y.value.level === 0 ? x(B(y.value, e)) : y.value.level === 1 && x(z(y.value, e));
+			(u.clickBehavior ?? "add") === "add" ? g("add-symbol", e) : y.value.level === "groups" ? x(B(y.value, e)) : y.value.level === "bases" && x(z(y.value, e));
 		}
 		function j(e, t) {
-			(u.clickBehavior ?? "add") !== "navigate" && (y.value.level === 0 ? x(B({
+			(u.clickBehavior ?? "add") !== "navigate" && (y.value.level === "groups" ? x(B({
 				...y.value,
 				focusedIndex: e
-			}, t)) : y.value.level === 1 && x(z({
+			}, t)) : y.value.level === "bases" && x(z({
 				...y.value,
 				focusedIndex: e
 			}, t)));
@@ -584,7 +584,7 @@ var le = {
 		function F(e) {
 			if (e.key === "F6" || e.keyCode === 117) return;
 			if (e.key === "Escape") {
-				y.value.level > 0 && (e.preventDefault(), e.stopPropagation(), x(L(y.value)));
+				y.value.level !== "groups" && (e.preventDefault(), e.stopPropagation(), x(L(y.value)));
 				return;
 			}
 			let t = {
@@ -600,7 +600,7 @@ var le = {
 			if (e.key === "Enter") if (e.preventDefault(), e.stopPropagation(), e.ctrlKey || e.metaKey) {
 				let e = y.value, t = k();
 				if (t === null) return;
-				e.level === 0 ? x(B(e, t)) : e.level === 1 ? x(z(e, t)) : e.level === 2 && x(U(e, +(e.variantTab === 0)));
+				e.level === "groups" ? x(B(e, t)) : e.level === "bases" ? x(z(e, t)) : e.level === "variants" && x(U(e, e.variantTab === "first" ? "second" : "first"));
 			} else {
 				let e = k();
 				e !== null && g("add-symbol", e);
@@ -619,7 +619,7 @@ var le = {
 			"aria-label": "Symbol palette",
 			"data-palette": "",
 			onKeydown: F
-		}, [y.value.level === 0 ? (d(), r("div", le, [a[2] ||= i("div", {
+		}, [y.value.level === "groups" ? (d(), r("div", le, [a[2] ||= i("div", {
 			class: "palette-title",
 			"aria-hidden": "true"
 		}, "Symbol Groups", -1), i("div", {
@@ -642,7 +642,7 @@ var le = {
 			class: "symbol-cell",
 			innerHTML: D(e),
 			"aria-hidden": "true"
-		}, null, 8, fe)], 40, de))), 128))], 8, ue)])) : y.value.level === 1 && y.value.selectedGroup !== null ? (d(), r("div", pe, [i("div", me, [i("button", {
+		}, null, 8, fe)], 40, de))), 128))], 8, ue)])) : y.value.level === "bases" && y.value.selectedGroup !== null ? (d(), r("div", pe, [i("div", me, [i("button", {
 			class: "back-btn",
 			onClick: M
 		}, "← Groups"), i("span", he, m(y.value.selectedGroup), 1)]), i("div", {
@@ -665,40 +665,40 @@ var le = {
 			class: "symbol-cell",
 			innerHTML: D(e),
 			"aria-hidden": "true"
-		}, null, 8, ve)], 40, _e))), 128))], 8, ge)])) : y.value.level === 2 && y.value.selectedBase !== null ? (d(), r("div", ye, [
+		}, null, 8, ve)], 40, _e))), 128))], 8, ge)])) : y.value.level === "variants" && y.value.selectedBase !== null ? (d(), r("div", ye, [
 			i("div", be, [i("button", {
 				class: "back-btn",
 				onClick: M
 			}, "← Base"), i("span", xe, m(y.value.selectedBase), 1)]),
 			i("div", Se, [i("button", {
 				role: "tab",
-				class: l(["tab-btn", { active: y.value.variantTab === 0 }]),
-				"aria-selected": y.value.variantTab === 0,
-				onClick: a[0] ||= (e) => N(0)
+				class: l(["tab-btn", { active: y.value.variantTab === "first" }]),
+				"aria-selected": y.value.variantTab === "first",
+				onClick: a[0] ||= (e) => N("first")
 			}, "0–7", 10, Ce), i("button", {
 				role: "tab",
-				class: l(["tab-btn", { active: y.value.variantTab === 1 }]),
-				"aria-selected": y.value.variantTab === 1,
-				onClick: a[1] ||= (e) => N(1)
+				class: l(["tab-btn", { active: y.value.variantTab === "second" }]),
+				"aria-selected": y.value.variantTab === "second",
+				onClick: a[1] ||= (e) => N("second")
 			}, "8–f", 10, we)]),
 			i("div", {
 				class: "variant-grid",
 				role: "grid",
-				"aria-label": `Variants for ${y.value.selectedBase}, rotations ${y.value.variantTab === 0 ? "0–7" : "8–f"}`,
+				"aria-label": `Variants for ${y.value.selectedBase}, rotations ${y.value.variantTab === "first" ? "0–7" : "8–f"}`,
 				"aria-rowcount": "6"
 			}, [(d(), r(e, null, p(6, (t) => (d(), r(e, { key: t }, [(d(), r(e, null, p(8, (e) => i("button", {
 				key: e,
 				class: "symbol-btn",
-				title: O(y.value.selectedBase, t - 1, y.value.variantTab * 8 + e - 1),
-				"aria-label": O(y.value.selectedBase, t - 1, y.value.variantTab * 8 + e - 1),
+				title: O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1),
+				"aria-label": O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1),
 				tabindex: (t - 1) * 8 + (e - 1) === y.value.focusedIndex ? 0 : -1,
 				"aria-selected": (t - 1) * 8 + (e - 1) === y.value.focusedIndex,
 				draggable: "true",
-				onDragstart: (n) => P(n, O(y.value.selectedBase, t - 1, y.value.variantTab * 8 + e - 1)),
-				onClick: (n) => g("add-symbol", O(y.value.selectedBase, t - 1, y.value.variantTab * 8 + e - 1))
+				onDragstart: (n) => P(n, O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1)),
+				onClick: (n) => g("add-symbol", O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1))
 			}, [i("span", {
 				class: "symbol-cell",
-				innerHTML: D(O(y.value.selectedBase, t - 1, y.value.variantTab * 8 + e - 1)),
+				innerHTML: D(O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1)),
 				"aria-hidden": "true"
 			}, null, 8, De)], 40, Ee)), 64))], 64))), 64))], 8, Te)
 		])) : n("", !0)], 544));
@@ -707,7 +707,7 @@ var le = {
 	let n = e.__vccOpts || e;
 	for (let [e, r] of t) n[e] = r;
 	return n;
-}, Q = /*#__PURE__*/ Z(Oe, [["__scopeId", "data-v-d6f3dbf0"]]), $ = /*#__PURE__*/ Z(/* @__PURE__ */ s({
+}, Q = /*#__PURE__*/ Z(Oe, [["__scopeId", "data-v-9ea5286e"]]), $ = /*#__PURE__*/ Z(/* @__PURE__ */ s({
 	__name: "SymbolHandles",
 	props: {
 		state: {},
