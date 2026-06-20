@@ -1,5 +1,7 @@
 export { useEditorState } from './useEditorState';
 export type { UseEditorStateReturn } from './useEditorState';
+export type { CommandBusPort, BeforeHook, AfterHook, Interceptor, Unsubscribe } from '@signwriter/editor';
+export { createCommandBus } from '@signwriter/editor';
 
 export { useSymbolDrag } from './useSymbolDrag';
 export type { UseSymbolDragReturn } from './useSymbolDrag';

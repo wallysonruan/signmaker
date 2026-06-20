@@ -1,5 +1,7 @@
 export type { EditorState, EditorSymbol, Command, IdGenerator } from './types';
 export { EMPTY_STATE } from './types';
+export type { CommandBusPort, CommandBusInit, Unsubscribe, InterceptorResult, DispatchResult, BeforeHook, AfterHook, Interceptor, } from './CommandBus';
+export { createCommandBus } from './CommandBus';
 export type { SizeProvider } from '@signwriter/layout';
 export * from './commands';
 export { getSelected, selectNone, selectById, cycleSelection } from './SelectionEngine';

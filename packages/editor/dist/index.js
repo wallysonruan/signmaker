@@ -14,9 +14,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.routeKeyEvent = exports.enterScope = exports.toggleScope = exports.createScopeState = exports.paletteLevel2FocusedKey = exports.paletteColumns = exports.paletteBack = exports.paletteSetVariantTab = exports.paletteEnterBase = exports.paletteEnterGroup = exports.paletteNavigate = exports.INITIAL_PALETTE_NAV = exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.EMPTY_STATE = void 0;
+exports.routeKeyEvent = exports.enterScope = exports.toggleScope = exports.createScopeState = exports.paletteLevel2FocusedKey = exports.paletteColumns = exports.paletteBack = exports.paletteSetVariantTab = exports.paletteEnterBase = exports.paletteEnterGroup = exports.paletteNavigate = exports.INITIAL_PALETTE_NAV = exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.createCommandBus = exports.EMPTY_STATE = void 0;
 var types_1 = require("./types");
 Object.defineProperty(exports, "EMPTY_STATE", { enumerable: true, get: function () { return types_1.EMPTY_STATE; } });
+var CommandBus_1 = require("./CommandBus");
+Object.defineProperty(exports, "createCommandBus", { enumerable: true, get: function () { return CommandBus_1.createCommandBus; } });
 __exportStar(require("./commands"), exports);
 var SelectionEngine_1 = require("./SelectionEngine");
 Object.defineProperty(exports, "getSelected", { enumerable: true, get: function () { return SelectionEngine_1.getSelected; } });

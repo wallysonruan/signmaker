@@ -1,6 +1,18 @@
 export type { EditorState, EditorSymbol, Command, IdGenerator } from './types';
 export { EMPTY_STATE } from './types';
 
+export type {
+  CommandBusPort,
+  CommandBusInit,
+  Unsubscribe,
+  InterceptorResult,
+  DispatchResult,
+  BeforeHook,
+  AfterHook,
+  Interceptor,
+} from './CommandBus';
+export { createCommandBus } from './CommandBus';
+
 // Re-exported so consumers of stateToFsw / stateToNormalizedFsw don't need
 // to add @signwriter/layout as a direct dependency.
 export type { SizeProvider } from '@signwriter/layout';
