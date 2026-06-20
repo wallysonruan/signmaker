@@ -10,3 +10,8 @@ pre-commit:
       run: npm run typecheck --workspace=packages/vue --if-present
     test:
       run: npm test -- --passWithNoTests
+
+pre-push:
+  commands:
+    commitlint:
+      run: bash scripts/commitlint.sh
