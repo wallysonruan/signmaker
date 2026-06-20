@@ -7,6 +7,7 @@
         <button
           class="btn"
           :disabled="!canUndo"
+          :aria-label="`Undo (Ctrl+Z)${!canUndo ? ', unavailable' : ''}`"
           @click="undo"
           title="Undo (Ctrl+Z)"
         >
@@ -15,12 +16,22 @@
         <button
           class="btn"
           :disabled="!canRedo"
+          :aria-label="`Redo (Ctrl+Shift+Z)${!canRedo ? ', unavailable' : ''}`"
           @click="redo"
-          title="Redo (Ctrl+Y)"
+          title="Redo (Ctrl+Shift+Z)"
         >
           Redo
         </button>
-        <span class="fsw-display" :title="currentFsw">
+        <!-- Scope indicator for sighted keyboard users -->
+        <span
+          class="scope-indicator"
+          aria-live="polite"
+          aria-label="Active scope"
+          :title="`Active scope: ${scope} (F6 to switch)`"
+        >
+          {{ scope === 'palette' ? '⌨ Palette' : '⌨ Canvas' }}
+        </span>
+        <span class="fsw-display" :title="currentFsw" aria-label="Current FSW string">
           {{ currentFsw || '(empty)' }}
         </span>
       </div>
@@ -29,10 +40,15 @@
     <!-- Main content area -->
     <div class="main-content">
       <!-- Symbol palette sidebar -->
-      <SymbolPalette @add-symbol="handleAddSymbol" />
+      <SymbolPalette
+        ref="paletteRef"
+        v-model:nav="paletteNav"
+        @add-symbol="handleAddSymbol"
+      />
 
       <!-- Sign editor canvas -->
       <SignEditorCanvas
+        ref="canvasRef"
         :state="state"
         :dispatch="dispatch"
         :replace-state="replaceState"
@@ -45,10 +61,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
 import {
   useEditorState,
-  useKeyboard,
+  useScopeManager,
   SymbolPalette,
   SignEditorCanvas,
   FswPanel,
@@ -59,7 +75,6 @@ import type { IdGenerator } from '@signwriter/editor';
 const { state, canUndo, canRedo, dispatch, replaceState, undo, redo } = useEditorState();
 
 const currentFsw = computed(() => stateToFsw(state.value));
-
 const idGen: IdGenerator = () => crypto.randomUUID();
 
 function handleAddSymbol(key: string) {
@@ -71,11 +86,26 @@ function handleLoadFsw(fsw: string) {
   replaceState(newState);
 }
 
-const kb = useKeyboard(dispatch, undo, redo);
+// ─── Scope management ──────────────────────────────────────────────────────────
+// useScopeManager exposes a writable `paletteNav` ref.
+// Vue auto-unwraps refs in templates, so v-model:nav="paletteNav" works:
+//   :nav reads paletteNav.value; @update:nav="paletteNav = $event" writes paletteNav.value.
+
+const { scope, paletteNav, attach } = useScopeManager(dispatch, undo, redo);
+
+// Template refs — expose({ focus }) is called when the scope switch fires.
+const paletteRef = ref<{ focus(): void } | null>(null);
+const canvasRef  = ref<{ focus(): void } | null>(null);
 
 onMounted(() => {
-  const detach = kb.attach(document);
+  const detach = attach(document);
   onUnmounted(detach);
+});
+
+// Move DOM focus to the appropriate component whenever the active scope changes.
+watch(scope, (s) => {
+  if (s === 'palette') paletteRef.value?.focus();
+  else                 canvasRef.value?.focus();
 });
 </script>
 
@@ -130,6 +160,20 @@ onMounted(() => {
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.scope-indicator {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  padding: 2px 6px;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .fsw-display {
