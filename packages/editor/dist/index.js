@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.routeKeyEvent = exports.createFocusManager = exports.createScopeManager = exports.createScope = exports.enterScope = exports.toggleScope = exports.createScopeState = exports.paletteLevel2FocusedKey = exports.paletteColumns = exports.paletteBack = exports.paletteSetVariantTab = exports.paletteEnterBase = exports.paletteEnterGroup = exports.paletteNavigate = exports.INITIAL_PALETTE_NAV = exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.createMementoCommand = exports.createDefaultHistory = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.createCommandBus = exports.EMPTY_STATE = void 0;
+exports.routeKeyEvent = exports.createFocusManager = exports.createScopeManager = exports.createScope = exports.enterScope = exports.toggleScope = exports.createScopeState = exports.paletteLevel2FocusedKey = exports.paletteColumns = exports.paletteBack = exports.paletteSetVariantTab = exports.paletteEnterBase = exports.paletteEnterGroup = exports.paletteNavigate = exports.INITIAL_PALETTE_NAV = exports.cancelDrag = exports.endDrag = exports.updateDrag = exports.startDrag = exports.actionToCommand = exports.lookupAction = exports.DEFAULT_BINDINGS = exports.stateToNormalizedFsw = exports.stateToFsw = exports.stateFromFsw = exports.createSignMaker = exports.createMementoCommand = exports.createDefaultHistory = exports.redo = exports.undo = exports.canRedo = exports.canUndo = exports.apply = exports.createHistory = exports.cycleSelection = exports.selectById = exports.selectNone = exports.getSelected = exports.createCommandBus = exports.EMPTY_STATE = void 0;
 var types_1 = require("./types");
 Object.defineProperty(exports, "EMPTY_STATE", { enumerable: true, get: function () { return types_1.EMPTY_STATE; } });
 var CommandBus_1 = require("./CommandBus");
@@ -35,6 +35,8 @@ Object.defineProperty(exports, "redo", { enumerable: true, get: function () { re
 var HistoryManager_1 = require("./HistoryManager");
 Object.defineProperty(exports, "createDefaultHistory", { enumerable: true, get: function () { return HistoryManager_1.createDefaultHistory; } });
 Object.defineProperty(exports, "createMementoCommand", { enumerable: true, get: function () { return HistoryManager_1.createMementoCommand; } });
+var createSignMaker_1 = require("./createSignMaker");
+Object.defineProperty(exports, "createSignMaker", { enumerable: true, get: function () { return createSignMaker_1.createSignMaker; } });
 var FSWBridge_1 = require("./FSWBridge");
 Object.defineProperty(exports, "stateFromFsw", { enumerable: true, get: function () { return FSWBridge_1.stateFromFsw; } });
 Object.defineProperty(exports, "stateToFsw", { enumerable: true, get: function () { return FSWBridge_1.stateToFsw; } });

@@ -9,6 +9,8 @@ export type { History } from './CommandHistory';
 export { createHistory, apply, canUndo, canRedo, undo, redo, } from './CommandHistory';
 export type { ReversibleCommand, HistoryPort, HistoryCommandHook, } from './HistoryManager';
 export { createDefaultHistory, createMementoCommand } from './HistoryManager';
+export type { SignMaker, SignMakerDeps } from './createSignMaker';
+export { createSignMaker } from './createSignMaker';
 export { stateFromFsw, stateToFsw, stateToNormalizedFsw } from './FSWBridge';
 export type { ActionName, KeyBinding } from './KeyboardBindings';
 export { DEFAULT_BINDINGS, lookupAction, actionToCommand, } from './KeyboardBindings';

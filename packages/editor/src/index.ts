@@ -34,6 +34,10 @@ export type {
 } from './HistoryManager';
 export { createDefaultHistory, createMementoCommand } from './HistoryManager';
 
+// Composition root (IoC) — wires all ports with replaceable defaults.
+export type { SignMaker, SignMakerDeps } from './createSignMaker';
+export { createSignMaker } from './createSignMaker';
+
 export { stateFromFsw, stateToFsw, stateToNormalizedFsw } from './FSWBridge';
 
 export type { ActionName, KeyBinding } from './KeyboardBindings';
