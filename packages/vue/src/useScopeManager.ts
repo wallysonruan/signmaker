@@ -2,16 +2,12 @@ import { ref, computed } from 'vue';
 import {
   createScope,
   createScopeManager,
+  createCanvasScope,
   createFocusManager,
   INITIAL_PALETTE_NAV,
-  actionToCommand,
-  lookupAction,
-  DEFAULT_BINDINGS,
   type Command,
   type PaletteNavigationState,
   type ScopedRouterOptions,
-  type ActionName,
-  type KeyBinding,
   type KeyEventDescriptor,
   type ScopeManager,
   type FocusManagerPort,
@@ -90,21 +86,12 @@ export function useScopeManager(
   const paletteNav = ref<PaletteNavigationState>(INITIAL_PALETTE_NAV);
   const focusManager = options.focusManager ?? createFocusManager();
 
-  const bindings = (options.canvasBindings ?? DEFAULT_BINDINGS) as
-    ReadonlyArray<readonly [KeyBinding, ActionName]>;
-
-  // Canvas scope owns the KeyboardBindings dispatch behaviour. Returns true
-  // when it matched (consumed) an action, so the caller can preventDefault.
-  const canvasScope = createScope('canvas', {
-    handleKey(e: KeyEventDescriptor): boolean {
-      const action = lookupAction(bindings, e.keyCode, e.shiftKey, e.ctrlKey);
-      if (action === null) return false;
-      if (action === 'undo') { onUndo(); return true; }
-      if (action === 'redo') { onRedo(); return true; }
-      const command = actionToCommand(action);
-      if (command !== null) dispatch(command);
-      return true;
-    },
+  // Canvas scope owns the KeyboardBindings dispatch behaviour.
+  const canvasScope = createCanvasScope({
+    dispatch,
+    onUndo,
+    onRedo,
+    bindings: options.canvasBindings,
   });
 
   // Palette scope consumes nothing at the document level — the SymbolPalette

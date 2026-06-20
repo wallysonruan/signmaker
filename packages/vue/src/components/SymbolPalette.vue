@@ -123,15 +123,14 @@ import { renderSymbol } from '@signwriter/renderer';
 import { ALPHABET, GROUPS } from '../data/alphabet';
 import {
   INITIAL_PALETTE_NAV,
-  paletteNavigate,
   paletteEnterGroup,
   paletteEnterBase,
   paletteSetVariantTab,
   paletteBack,
-  paletteLevel2FocusedKey,
   type PaletteNavigationState,
   type VariantTab,
 } from '@signwriter/editor';
+import { usePaletteScope } from '../usePaletteScope';
 
 const props = defineProps<{
   /** External navigation state. When provided the component is controlled (model-style). */
@@ -170,18 +169,17 @@ function focusActive(): boolean {
   return true;
 }
 
+// All keyboard navigation logic lives in the framework-agnostic palette scope.
+// The component only feeds it the current nav and reflects the result via
+// applyNav (which preserves the controlled v-model:nav contract).
+const paletteScope = usePaletteScope((key) => emit('add-symbol', key));
+paletteScope.onNavChanged((next) => applyNav(next));
+
 const currentItems = computed<string[]>(() => {
   const s = navState.value;
   if (s.level === 'groups') return GROUPS;
   if (s.level === 'bases' && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];
   return [];
-});
-
-const paletteColumns = computed(() => navState.value.level === 'variants' ? 8 : 4);
-
-const paletteItemCount = computed(() => {
-  if (navState.value.level === 'variants') return 48; // 6 fills × 8 rots
-  return currentItems.value.length;
 });
 
 function renderGroupIcon(key: string): string {
@@ -190,12 +188,6 @@ function renderGroupIcon(key: string): string {
 
 function variantKey(baseKey: string, fillDigit: number, rotation: number): string {
   return baseKey.slice(0, 4) + fillDigit.toString() + rotation.toString(16);
-}
-
-function focusedKeyAtCurrentLevel(): string | null {
-  const s = navState.value;
-  if (s.level === 'variants') return paletteLevel2FocusedKey(s);
-  return currentItems.value[s.focusedIndex] ?? null;
 }
 
 // ─── Click/dblclick interaction model ─────────────────────────────────────────
@@ -239,46 +231,22 @@ function onDragStart(e: DragEvent, key: string): void {
 // ─── Keyboard handling ─────────────────────────────────────────────────────────
 
 function handleKeydown(e: KeyboardEvent): void {
-  // F6 is handled globally by useScopeManager — let it bubble
-  if (e.key === 'F6' || e.keyCode === 117) return;
-
-  if (e.key === 'Escape') {
-    if (navState.value.level !== 'groups') {
-      e.preventDefault();
-      e.stopPropagation();
-      applyNav(paletteBack(navState.value));
-    }
-    // At groups level: let Escape bubble so useScopeManager can switch scope
-    return;
-  }
-
-  const dirMap: Record<string, 'up' | 'down' | 'left' | 'right'> = {
-    ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
-  };
-  const dir = dirMap[e.key];
-  if (dir) {
+  // Sync the scope to the current (possibly externally controlled) nav, then let
+  // it handle the key. Reference-equality in the scope makes this a no-op when
+  // nav is already in sync, so no redundant update:nav is emitted.
+  paletteScope.setNav(navState.value);
+  const consumed = paletteScope.scope.handleKey({
+    keyCode:  e.keyCode,
+    key:      e.key,
+    shiftKey: e.shiftKey,
+    ctrlKey:  e.ctrlKey,
+    metaKey:  e.metaKey,
+  });
+  // Consumed keys (arrows, Enter, Escape while backing out) are owned by the
+  // palette; F6 and Escape-at-groups are left to bubble for scope switching.
+  if (consumed) {
     e.preventDefault();
     e.stopPropagation();
-    applyNav(paletteNavigate(navState.value, dir, paletteColumns.value, paletteItemCount.value));
-    return;
-  }
-
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.ctrlKey || e.metaKey) {
-      // Expand: drill into next level
-      const s = navState.value;
-      const focused = focusedKeyAtCurrentLevel();
-      if (focused === null) return;
-      if (s.level === 'groups') applyNav(paletteEnterGroup(s, focused));
-      else if (s.level === 'bases') applyNav(paletteEnterBase(s, focused));
-      else if (s.level === 'variants') applyNav(paletteSetVariantTab(s, s.variantTab === 'first' ? 'second' : 'first'));
-    } else {
-      // Add focused symbol to canvas
-      const key = focusedKeyAtCurrentLevel();
-      if (key !== null) emit('add-symbol', key);
-    }
   }
 }
 
