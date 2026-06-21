@@ -188,7 +188,33 @@ setTerms(terms)
 setEntry(entry)
 ```
 
-**History (`CommandHistory`):**
+**History — two implementations:**
+
+*Command-based `HistoryPort` (`HistoryManager`, default for the editor wiring):*
+
+```typescript
+interface ReversibleCommand {           // a named, reversible command
+  readonly name: string;
+  execute(state: EditorState): EditorState;
+  undo(state: EditorState): EditorState;
+}
+
+createMementoCommand(name, transform)   // wrap a (state)=>state transform into a
+                                        // ReversibleCommand by capturing the
+                                        // pre-execute state (free, correct inverse)
+
+createDefaultHistory(initial): HistoryPort
+// push(command) / undo() / redo() / canUndo() / canRedo() / current()
+// replace(state) / clear()
+// lifecycle hooks: onPush/onUndo/onRedo/onClear, beforePush/afterPush, …
+```
+
+`HistoryPort` is a **replaceable port** — inject a custom implementation (event
+sourcing, a shared application-wide stack, collaboration) wherever a history is
+accepted. History depends on the `ReversibleCommand` interface, not the reverse,
+so an application can push its own command types onto a shared stack.
+
+*Legacy snapshot history (`CommandHistory`, retained for the standalone path):*
 
 ```typescript
 interface History {
@@ -248,6 +274,39 @@ DEFAULT_BINDINGS: ReadonlyArray<readonly [KeyBinding, ActionName]>
 
 `actionToCommand` returns `null` for `undo`, `redo`, and `center` because these require external context (the history stack, or a `SizeProvider` for normalization). Framework wrappers handle these cases directly.
 
+**Composable interaction layer (ports & adapters):**
+
+The editor engine also ships the framework-agnostic interaction layer that lets
+SignMaker participate inside a larger application through inversion of control,
+rather than owning interaction. Each concern is a **port** with a default
+adapter that a host can replace. See [`docs/rfc/composable-interaction-architecture.md`](docs/rfc/composable-interaction-architecture.md) for the full design.
+
+```typescript
+createSignMaker(deps?)        // composition root: wires the ports below with
+                             // replaceable defaults; returns the ports plus a
+                             // dispatch/undo/redo/replace facade. No DOM, no
+                             // reactivity — usable headless or from any framework.
+
+createCommandBus({ apply })   // CommandBusPort: the single dispatch seam carrying
+                             // beforeCommand / afterCommand / intercept hooks and
+                             // a command name threaded into history entries.
+
+createDefaultHistory(initial) // HistoryPort (see History, above).
+
+createScopeManager()          // generic, registerable named scopes forming a tree
+createScope(name, init?)      //   (palette, canvas, …) with enable/disable,
+createCanvasScope(deps)       //   enter/exit, currentScope(), onScopeChanged, and
+createPaletteScope(deps)      //   before/after enter/exit hooks. Canvas/palette
+                             //   keyboard behaviour lives in these scope factories.
+
+createFocusManager()          // FocusManagerPort: routes DOM focus on scope change
+                             // (targets registered by scope name) — no watch needed.
+```
+
+A host can register SignMaker's scopes alongside its own, share one undo stack
+across Form/Document/SignMaker commands, intercept or observe any command, or
+replace a service entirely — all without forking SignMaker.
+
 ---
 
 ### `@wallysonruan/signmaker-renderer` — SVG Rendering
@@ -302,7 +361,26 @@ interface SignStyle {
 
 Thin reactive wrappers. All business logic lives in `@wallysonruan/signmaker-editor-engine`; these composables wire reactivity.
 
-**`useEditorState()`:**
+**`useSignMaker()` — the recommended entry point:**
+
+```typescript
+const {
+  state, canUndo, canRedo,        // reactive editor state
+  scope, paletteNav,              // reactive interaction state
+  dispatch, replaceState, undo, redo,
+  attach,                         // (el: EventTarget) => () => void
+  bus, history, scopeManager, focusManager, signMaker, // ports
+} = useSignMaker(deps?);
+```
+
+Builds the framework-agnostic `createSignMaker` composition root and layers Vue
+reactivity on top: a `shallowRef` of the immutable current state, bumped by the
+history's lifecycle hooks (`onPush`/`onUndo`/`onRedo`/`onClear`). It reuses
+`useScopeManager` by sharing SignMaker's scope and focus managers, so there is
+exactly one scope tree. Inject any port via `deps`
+(`useSignMaker({ history, scopeManager })`) to embed SignMaker in a larger app.
+
+**`useEditorState()` — lower-level (state + history only):**
 
 ```typescript
 const {
@@ -313,10 +391,11 @@ const {
   replaceState,  // (state: EditorState) => void
   undo,          // () => void
   redo,          // () => void
-} = useEditorState();
+  bus, history,  // the underlying CommandBusPort / HistoryPort
+} = useEditorState(options?);
 ```
 
-Internally holds a `ref<History>`. `dispatch` calls `apply()`; `replaceState` directly updates `history.value.present` without touching `past`/`future`.
+Holds a `HistoryPort` (default `createDefaultHistory`, override via `options.history`) and a command bus. `dispatch` pushes a memento command; `replaceState` updates the current state without recording history.
 
 **`useSymbolDrag(getState, replaceState, dispatch)`:**
 
@@ -332,29 +411,47 @@ const {
 
 Tracks `activeDrag` as `ref<DragState | null>`. `onPointerMove` updates the drag delta but does **not** update state — the live drag position must be tracked separately in the component (see app architecture below). `onPointerUp` calls `dispatch((s) => endDrag(s, drag))`.
 
-**`useKeyboard(dispatch, onUndo, onRedo)`:**
+**`useScopeManager(dispatch, undo, redo, options?)` and `useKeyboard(dispatch, onUndo, onRedo)`:**
 
 ```typescript
-const { attach } = useKeyboard(dispatch, onUndo, onRedo);
+// useSignMaker wires this for you; use it directly for standalone control.
+const { scope, paletteNav, manager, focusManager, attach } =
+  useScopeManager(dispatch, undo, redo);
 
-// In onMounted:
-const detach = attach(document);   // or attach(editorElement)
+// In onMounted — attach to a SCOPED element, not document, so SignMaker does
+// not capture keys globally and can coexist with other widgets on the page:
+const detach = attach(rootEl);
 onUnmounted(detach);
 ```
 
-Returns `{ attach(el: EventTarget): () => void }`. Not lifecycle-coupled — callers choose where and when to attach. This makes it testable without a mounted component and usable with any event target.
+Both return `{ attach(el: EventTarget): () => void }`. Not lifecycle-coupled — callers choose where and when to attach. Prefer a scoped container element over `document`; focus is delegated to the `FocusManagerPort` on scope change rather than stolen by a `watch(scope)`. This makes them testable without a mounted component and usable with any event target.
 
 ---
 
 ## Key Design Decisions
 
-### 1. Commands are plain functions, not objects
+### 1. Commands are plain functions; history captures inverses via mementos
 
 `Command = (EditorState) => EditorState`
 
-Commands are not classes with an `execute()` and `undo()` method. History is just an array of `EditorState` snapshots. This makes undo/redo trivially correct: restoring previous state means returning the previous snapshot, with no risk of a partially-inverted command leaving state corrupt.
+Commands are authored as plain pure transforms, never as classes with
+hand-written `execute()`/`undo()` pairs. Correct undo never depends on a command
+being able to invert itself — a partially-inverted command can never corrupt
+state.
 
-The trade-off: state snapshots use more memory than command objects would. In practice, `EditorState` is shallow-immutable and every unmodified sub-tree is shared by reference, so the overhead is small even for long undo histories.
+The command-based `HistoryPort` keeps this guarantee while gaining named entries
+and lifecycle hooks: `createMementoCommand(name, transform)` wraps a transform
+into a `ReversibleCommand` whose `undo()` simply **restores the captured
+pre-execute state** (the memento pattern). Every transform — `addSymbol`,
+`rotateSelected`, `mirrorSelected`, fill/variation — gets a correct inverse for
+free, with no per-command reverse logic. The legacy snapshot `CommandHistory`
+embodied the same principle with a `past[]/present/future[]` triple and is
+retained for the standalone path.
+
+The trade-off is identical: restoring by stored value uses more memory than a
+true inverse command would. In practice `EditorState` is shallow-immutable and
+every unmodified sub-tree is shared by reference, so the overhead stays small
+even for long undo histories.
 
 ### 2. Selection is part of EditorState, not a separate UI concern
 

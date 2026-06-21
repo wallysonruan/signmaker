@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { useEditorState } from '../src/useEditorState';
-import { EMPTY_STATE, addSymbol } from '@signwriter/editor';
+import { EMPTY_STATE, addSymbol, createDefaultHistory } from '@signwriter/editor';
 
 let counter = 0;
 const idGen = () => `id${++counter}`;
@@ -59,6 +59,39 @@ describe('useEditorState', () => {
     expect(state.value.entry).toBe('transient');
     // canUndo should still reflect same depth (replaceState doesn't add to past)
     expect(canUndo.value).toBe(historyDepthAfterDispatch);
+  });
+
+  test('exposes the underlying history port', () => {
+    const { history, dispatch } = useEditorState();
+    expect(history.canUndo()).toBe(false);
+    dispatch(addSymbol('S14c20', 100, 200, idGen));
+    expect(history.canUndo()).toBe(true);
+  });
+
+  test('history hooks fire on dispatch (onPush)', () => {
+    const { history, dispatch } = useEditorState();
+    const pushed: string[] = [];
+    history.onPush((c) => pushed.push(c.name));
+    dispatch(addSymbol('S14c20', 100, 200, idGen));
+    expect(pushed).toHaveLength(1);
+  });
+
+  test('bus.dispatch(name, …) records a named history entry', () => {
+    const { history, bus } = useEditorState();
+    const names: string[] = [];
+    history.onPush((c) => names.push(c.name));
+    bus.dispatch('add-symbol', addSymbol('S14c20', 100, 200, idGen));
+    expect(names).toEqual(['add-symbol']);
+  });
+
+  test('accepts an injected history port', () => {
+    const injected = createDefaultHistory(EMPTY_STATE);
+    const { state, history, dispatch } = useEditorState({ history: injected });
+    expect(history).toBe(injected);
+    dispatch(addSymbol('S14c20', 100, 200, idGen));
+    // The injected port and the composable observe the same state.
+    expect(injected.current().symbols).toHaveLength(1);
+    expect(state.value.symbols).toHaveLength(1);
   });
 });
 
