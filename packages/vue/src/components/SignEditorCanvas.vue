@@ -194,7 +194,7 @@ defineExpose({ focus, dropSymbolAt });
 .canvas {
   flex: 1;
   position: relative;
-  min-height: 500px;
+  min-height: 0;
   overflow: hidden;
   background-color: #f9fafb;
   background-image:

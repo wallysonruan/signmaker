@@ -411,11 +411,100 @@ defineExpose({ focus });
 }
 
 @media (max-width: 767px) {
+  /* Palette owns a fixed share of the viewport — no page scroll ever */
   .palette {
     width: 100%;
-    max-height: 220px;
+    height: clamp(200px, 36vh, 280px);
+    max-height: none;
+    flex-shrink: 0;
     border-left: none;
     border-top: 1px solid #e2e8f0;
+    overflow: hidden;
+  }
+
+  /* Section fills the palette and lays out header + grid as a flex column */
+  .palette-section {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 3px 4px;
+    overflow: hidden;
+  }
+
+  /* Compact header text */
+  .palette-title {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    line-height: 1;
+    margin-bottom: 2px;
+    padding: 0;
+  }
+
+  /* Compact back-navigation bar */
+  .palette-nav {
+    flex-shrink: 0;
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+
+  .back-btn {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+  }
+
+  /* Compact rotation tab bar */
+  .tab-bar {
+    flex-shrink: 0;
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .tab-btn {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+  }
+
+  /* Groups and bases: 6 columns, keyboard-like rows */
+  .group-grid,
+  .symbol-grid {
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 38px;
+    gap: 2px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+  }
+
+  /* Variants: 8 columns, shorter rows to fit all 6×8 entries */
+  .variant-grid {
+    grid-template-columns: repeat(8, 1fr);
+    grid-auto-rows: 30px;
+    gap: 1px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+  }
+
+  /* Buttons fill their grid cell height instead of using aspect-ratio */
+  .group-btn,
+  .symbol-btn {
+    aspect-ratio: auto;
+    height: 100%;
+    padding: 1px;
+  }
+
+  /* Symbol cell expands to fill the button so the SVG scales with it */
+  .symbol-cell {
+    width: 100%;
+    height: 100%;
+  }
+
+  .symbol-cell :deep(svg) {
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 </style>
