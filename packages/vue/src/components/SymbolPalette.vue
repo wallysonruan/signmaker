@@ -118,7 +118,7 @@
 import { ref, computed, nextTick, onUnmounted } from 'vue';
 import { renderSymbol } from '@signwriter/renderer';
 import { usePaletteDrag } from '../usePaletteDrag';
-import { ALPHABET, GROUPS } from '../data/alphabet';
+import { ALPHABET, GROUPS } from '@signwriter/editor';
 import {
   INITIAL_PALETTE_NAV,
   paletteEnterGroup,
@@ -129,7 +129,7 @@ import {
   type VariantTab,
 } from '@signwriter/editor';
 import { usePaletteScope } from '../usePaletteScope';
-import { debounce } from '../debounce';
+import { debounce } from '@signwriter/editor';
 
 const props = defineProps<{
   /** External navigation state. When provided the component is controlled (model-style). */
@@ -179,7 +179,7 @@ function focusActive(): boolean {
 const paletteScope = usePaletteScope((key) => emit('add-symbol', key));
 paletteScope.onNavChanged((next) => applyNav(next));
 
-const currentItems = computed<string[]>(() => {
+const currentItems = computed<readonly string[]>(() => {
   const s = navState.value;
   if (s.level === 'groups') return GROUPS;
   if (s.level === 'bases' && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];

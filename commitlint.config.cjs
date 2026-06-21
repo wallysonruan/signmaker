@@ -10,6 +10,7 @@ module.exports = {
         'layout',
         'editor',
         'renderer',
+        'interactions',
         'vue',
         'app',
         'ci',

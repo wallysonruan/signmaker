@@ -5,6 +5,7 @@
     { "path": "./packages/layout" },
     { "path": "./packages/editor" },
     { "path": "./packages/renderer" },
+    { "path": "./packages/interactions" },
     { "path": "./packages/vue" }
   ]
 }

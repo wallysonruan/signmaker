@@ -15,8 +15,8 @@ export type { UseViewportReturn } from './useViewport';
 export { usePaletteDrag } from './usePaletteDrag';
 export type { UsePaletteDragReturn } from './usePaletteDrag';
 
-export { debounce } from './debounce';
-export type { DebouncedFn } from './debounce';
+export { debounce } from '@signwriter/editor';
+export type { DebouncedFn } from '@signwriter/editor';
 
 export { useKeyboard } from './useKeyboard';
 export type { UseKeyboardReturn } from './useKeyboard';

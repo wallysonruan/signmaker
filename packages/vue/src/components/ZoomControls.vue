@@ -56,11 +56,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import {
-  VIEWPORT_MIN_ZOOM,
-  VIEWPORT_MAX_ZOOM,
-  type ViewportState,
-} from '@signwriter/editor';
+import { createZoomSliderModel, type ViewportState } from '@signwriter/editor';
 
 const props = defineProps<{
   viewport: ViewportState;
@@ -74,22 +70,15 @@ const emit = defineEmits<{
   'set-zoom': [scale: number];
 }>();
 
-const LOG_MIN = Math.log(VIEWPORT_MIN_ZOOM);
-const LOG_MAX = Math.log(VIEWPORT_MAX_ZOOM);
+const zm = createZoomSliderModel();
 
-const pctText = computed(() => `${Math.round(props.viewport.scale * 100)}%`);
-const atMin   = computed(() => props.viewport.scale <= VIEWPORT_MIN_ZOOM);
-const atMax   = computed(() => props.viewport.scale >= VIEWPORT_MAX_ZOOM);
-
-/** Map scale → slider position [0, 100]. */
-const sliderPos = computed(() =>
-  ((Math.log(props.viewport.scale) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * 100,
-);
+const pctText   = computed(() => zm.formatScale(props.viewport.scale));
+const atMin     = computed(() => zm.atMin(props.viewport.scale));
+const atMax     = computed(() => zm.atMax(props.viewport.scale));
+const sliderPos = computed(() => zm.scaleToSlider(props.viewport.scale));
 
 function onSlider(e: Event): void {
-  const t     = Number((e.target as HTMLInputElement).value) / 100;
-  const scale = Math.exp(LOG_MIN + t * (LOG_MAX - LOG_MIN));
-  emit('set-zoom', scale);
+  emit('set-zoom', zm.sliderToScale(Number((e.target as HTMLInputElement).value)));
 }
 </script>
 
