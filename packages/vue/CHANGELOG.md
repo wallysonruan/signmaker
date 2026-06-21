@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.3.0...vue-v1.4.0) (2026-06-21)
+
+### Features
+
+* **vue:** redesign mobile layout as viewport-filling sign editor with keyboard-like palette ([#11](https://github.com/wallysonruan/signmaker/issues/11)) ([4dd170c](https://github.com/wallysonruan/signmaker/commit/4dd170c56a1aff2499ac55ec48191fd2c75919c7)), closes [#app](https://github.com/wallysonruan/signmaker/issues/app)
+
 ## [1.3.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.2.0...vue-v1.3.0) (2026-06-21)
 
 ### Features
