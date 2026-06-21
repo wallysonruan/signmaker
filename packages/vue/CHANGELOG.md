@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.2.0...vue-v1.3.0) (2026-06-21)
+
+### Features
+
+* **vue:** add delete handle to symbol manipulation toolbar ([#10](https://github.com/wallysonruan/signmaker/issues/10)) ([6cdbc6a](https://github.com/wallysonruan/signmaker/commit/6cdbc6a1ae05b1b883bf8a073d24a5228ae9ac25))
+
 ## [1.2.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.1.1...vue-v1.2.0) (2026-06-21)
 
 ### Features
