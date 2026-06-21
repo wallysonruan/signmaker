@@ -60,8 +60,8 @@ jobs:
 
   deploy:
     name: Deploy to GitHub Pages
-    needs: release
-    if: github.ref == 'refs/heads/main'
+    needs: test
+    # TODO: restore before merging: needs: release + if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write

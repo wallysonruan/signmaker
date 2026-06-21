@@ -44,6 +44,7 @@ import {
   copySelected,
   deleteSelected,
 } from '@signwriter/editor';
+import type { ViewportState } from '@signwriter/editor';
 import { getSymbolSize } from '@signwriter/renderer';
 import type { EditorState, Command } from '@signwriter/editor';
 
@@ -53,6 +54,7 @@ const props = defineProps<{
   midWidth: number;
   midHeight: number;
   isDragging: boolean;
+  viewport: ViewportState;
 }>();
 
 const selected = computed(() => {
@@ -65,11 +67,12 @@ const box = computed(() => {
   const sym = selected.value;
   if (!sym) return null;
   const size = getSymbolSize(sym.key) ?? { width: 40, height: 40 };
+  const { scale, offsetX, offsetY } = props.viewport;
   return {
-    left:   sym.x - 500 + props.midWidth,
-    top:    sym.y - 500 + props.midHeight,
-    width:  size.width,
-    height: size.height,
+    left:   (sym.x - 500) * scale + props.midWidth + offsetX,
+    top:    (sym.y - 500) * scale + props.midHeight + offsetY,
+    width:  size.width  * scale,
+    height: size.height * scale,
   };
 });
 

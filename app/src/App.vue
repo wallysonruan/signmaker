@@ -88,7 +88,8 @@ onMounted(() => {
 .app-layout {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  height: 100vh;   /* fallback */
+  height: 100dvh;
   overflow: hidden;
 }
 

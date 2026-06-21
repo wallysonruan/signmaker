@@ -12,6 +12,7 @@ html, body, #app {
 #app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh;   /* fallback for browsers without dvh support */
+  height: 100dvh;  /* shrinks to exclude the browser toolbar */
   overflow: hidden;
 }

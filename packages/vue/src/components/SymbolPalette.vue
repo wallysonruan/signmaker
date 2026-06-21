@@ -268,12 +268,32 @@ defineExpose({ focus });
 .palette {
   width: 280px;
   flex-shrink: 0;
+  min-height: 0; /* Allow flex to constrain height so overflow-y: auto triggers */
   background: #f8fafc;
   border-left: 1px solid #e2e8f0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   outline: none;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.palette::-webkit-scrollbar {
+  width: 6px;
+}
+
+.palette::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.palette::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.palette::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .palette-section {
@@ -411,11 +431,123 @@ defineExpose({ focus });
 }
 
 @media (max-width: 767px) {
+  /* Palette shrinks to fit its content, but never taller than this cap */
   .palette {
     width: 100%;
-    max-height: 220px;
+    max-height: clamp(200px, 36vh, 280px);   /* fallback */
+    max-height: clamp(200px, 36dvh, 280px);  /* tracks dynamic viewport */
+    flex-shrink: 0;
     border-left: none;
     border-top: 1px solid #e2e8f0;
+    overflow: hidden;
+  }
+
+  /* Section fills the palette and lays out header + grid as a flex column */
+  .palette-section {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 3px 4px;
+    overflow: hidden;
+  }
+
+  /* Compact header text */
+  .palette-title {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    line-height: 1;
+    margin-bottom: 2px;
+    padding: 0;
+  }
+
+  /* Compact back-navigation bar */
+  .palette-nav {
+    flex-shrink: 0;
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+
+  .back-btn {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+  }
+
+  /* Compact rotation tab bar */
+  .tab-bar {
+    flex-shrink: 0;
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .tab-btn {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+  }
+
+  /* Groups and bases: 6 columns, keyboard-like rows */
+  .group-grid,
+  .symbol-grid {
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 38px;
+    gap: 2px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  /* Variants: 8 columns, shorter rows to fit all 6×8 entries */
+  .variant-grid {
+    grid-template-columns: repeat(8, 1fr);
+    grid-auto-rows: 30px;
+    gap: 1px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .group-grid::-webkit-scrollbar,
+  .symbol-grid::-webkit-scrollbar,
+  .variant-grid::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .group-grid::-webkit-scrollbar-track,
+  .symbol-grid::-webkit-scrollbar-track,
+  .variant-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .group-grid::-webkit-scrollbar-thumb,
+  .symbol-grid::-webkit-scrollbar-thumb,
+  .variant-grid::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+  }
+
+  /* Buttons fill their grid cell height instead of using aspect-ratio */
+  .group-btn,
+  .symbol-btn {
+    aspect-ratio: auto;
+    height: 100%;
+    padding: 1px;
+  }
+
+  /* Symbol cell expands to fill the button so the SVG scales with it */
+  .symbol-cell {
+    width: 100%;
+    height: 100%;
+  }
+
+  .symbol-cell :deep(svg) {
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 </style>

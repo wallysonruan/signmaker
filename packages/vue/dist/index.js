@@ -1,12 +1,12 @@
-import { Fragment as e, computed as t, createCommentVNode as n, createElementBlock as r, createElementVNode as i, createStaticVNode as a, createVNode as o, defineComponent as s, getCurrentInstance as c, nextTick as l, normalizeClass as u, normalizeStyle as d, onUnmounted as f, openBlock as p, ref as m, renderList as h, shallowRef as g, toDisplayString as _, triggerRef as v, unref as y, vModelText as b, watch as x, withDirectives as S, withKeys as C, withModifiers as w } from "vue";
-import { DEFAULT_BINDINGS as T, EMPTY_STATE as E, INITIAL_PALETTE_NAV as D, actionToCommand as O, addSymbol as k, cancelDrag as A, copySelected as j, createCanvasScope as M, createCanvasScope as N, createCommandBus as P, createCommandBus as F, createDefaultHistory as I, createDefaultHistory as L, createFocusManager as ee, createFocusManager as te, createMementoCommand as ne, createMementoCommand as re, createPaletteScope as ie, createPaletteScope as ae, createScope as oe, createScope as se, createScopeManager as ce, createScopeManager as le, createSignMaker as ue, createSignMaker as de, endDrag as fe, getSelected as pe, lookupAction as me, mirrorSelected as R, paletteBack as z, paletteEnterBase as B, paletteEnterGroup as V, paletteSetVariantTab as he, rotateSelected as H, selectNone as ge, startDrag as _e, updateDrag as ve } from "@signwriter/editor";
-import { getSymbolSize as ye, renderSymbol as U } from "@signwriter/renderer";
+import { Fragment as e, computed as t, createCommentVNode as n, createElementBlock as r, createElementVNode as i, createStaticVNode as a, createVNode as o, defineComponent as s, getCurrentInstance as c, nextTick as l, normalizeClass as u, normalizeStyle as d, onBeforeUnmount as f, onMounted as p, onUnmounted as m, openBlock as h, readonly as g, ref as _, renderList as v, shallowRef as y, toDisplayString as b, triggerRef as x, unref as S, vModelText as C, watch as w, withDirectives as T, withKeys as E, withModifiers as D } from "vue";
+import { DEFAULT_BINDINGS as O, EMPTY_STATE as k, INITIAL_PALETTE_NAV as A, VIEWPORT_DEFAULT as j, VIEWPORT_MAX_ZOOM as M, VIEWPORT_MIN_ZOOM as N, VIEWPORT_ZOOM_STEP as P, actionToCommand as F, addSymbol as ee, cancelDrag as te, copySelected as ne, createCanvasScope as re, createCanvasScope as I, createCommandBus as L, createCommandBus as ie, createDefaultHistory as R, createDefaultHistory as ae, createFocusManager as oe, createFocusManager as z, createMementoCommand as B, createMementoCommand as V, createPaletteScope as se, createPaletteScope as ce, createScope as H, createScope as U, createScopeManager as W, createScopeManager as G, createSignMaker as K, createSignMaker as le, deleteSelected as ue, endDrag as de, fitContent as fe, getSelected as pe, lookupAction as me, mirrorSelected as q, paletteBack as he, paletteEnterBase as ge, paletteEnterGroup as _e, paletteSetVariantTab as J, panViewport as ve, resetViewport as Y, rotateSelected as ye, screenToWorld as be, selectNone as xe, startDrag as Se, updateDrag as Ce, zoomAt as X } from "@signwriter/editor";
+import { getSymbolSize as we, renderSymbol as Te } from "@signwriter/renderer";
 //#region src/useEditorState.ts
-function be(e = {}) {
-	let n = e.history ?? L(E), r = g(n.current()), i = () => {
-		r.value = n.current(), v(r);
-	}, a = F({ apply(e, t) {
-		return n.push(re(t, e)), i(), n.current();
+function Ee(e = {}) {
+	let n = e.history ?? ae(k), r = y(n.current()), i = () => {
+		r.value = n.current(), x(r);
+	}, a = ie({ apply(e, t) {
+		return n.push(V(t, e)), i(), n.current();
 	} }), o = t(() => r.value), s = t(() => (r.value, n.canUndo())), c = t(() => (r.value, n.canRedo()));
 	function l(e) {
 		a.dispatch("", e);
@@ -34,41 +34,78 @@ function be(e = {}) {
 }
 //#endregion
 //#region src/useSymbolDrag.ts
-function W(e, n, r) {
-	let i = m(null), a = m(0), o = m(0), s = t(() => i.value !== null);
-	function c(t, r, s) {
-		let { editorState: c, drag: l } = _e(e(), t);
-		i.value = l, a.value = r, o.value = s, n(c);
+function De(e, n, r, i = () => 1) {
+	let a = _(null), o = _(0), s = _(0), c = t(() => a.value !== null);
+	function l(t, r, i) {
+		let { editorState: c, drag: l } = Se(e(), t);
+		a.value = l, o.value = r, s.value = i, n(c);
 	}
-	function l(e, t) {
-		if (i.value === null) return;
-		let n = e - a.value, r = t - o.value;
-		i.value = ve(i.value, n, r);
-	}
-	function u() {
-		if (i.value === null) return;
-		let e = i.value;
-		i.value = null, r((t) => fe(t, e));
+	function u(e, t) {
+		if (a.value === null) return;
+		let n = i(), r = (e - o.value) / n, c = (t - s.value) / n;
+		a.value = Ce(a.value, r, c);
 	}
 	function d() {
-		i.value !== null && (i.value = null, n(A(e())));
+		if (a.value === null) return;
+		let e = a.value;
+		a.value = null, r((t) => de(t, e));
+	}
+	function f() {
+		a.value !== null && (a.value = null, n(te(e())));
 	}
 	return {
-		isDragging: s,
-		onPointerDown: c,
-		onPointerMove: l,
-		onPointerUp: u,
-		onPointerCancel: d
+		isDragging: c,
+		onPointerDown: l,
+		onPointerMove: u,
+		onPointerUp: d,
+		onPointerCancel: f
+	};
+}
+//#endregion
+//#region src/useViewport.ts
+function Oe() {
+	let e = _(j);
+	function t(t, n, r, i) {
+		e.value = X(e.value, t, n, P, r, i);
+	}
+	function n(t, n, r, i) {
+		e.value = X(e.value, t, n, 1 / P, r, i);
+	}
+	function r(t, n, r, i, a) {
+		e.value = X(e.value, t, n, r, i, a);
+	}
+	function i(t, n, r) {
+		let i = t / e.value.scale;
+		e.value = X(e.value, n, r, i, n, r);
+	}
+	function a() {
+		e.value = Y();
+	}
+	function o(t, n, r) {
+		e.value = fe(t, we, n, r);
+	}
+	function s(t, n) {
+		e.value = ve(e.value, t, n);
+	}
+	return {
+		viewport: g(e),
+		zoomIn: t,
+		zoomOut: n,
+		zoomAtPoint: r,
+		setZoom: i,
+		reset: a,
+		fit: o,
+		pan: s
 	};
 }
 //#endregion
 //#region src/usePaletteDrag.ts
-var xe = 10;
-function G(e) {
-	let n = m(null), r = m(null), i = null, a = t(() => r.value !== null);
+var ke = 10;
+function Ae(e) {
+	let n = _(null), r = _(null), i = null, a = t(() => r.value !== null);
 	function o(e, t, n) {
 		let r = document.createElement("div");
-		r.innerHTML = U(e), r.style.cssText = [
+		r.innerHTML = Te(e), r.style.cssText = [
 			"position:fixed",
 			`left:${t}px`,
 			`top:${n}px`,
@@ -95,7 +132,7 @@ function G(e) {
 		i?.remove(), i = null;
 	}
 	function l() {
-		n.value = null, r.value = null, s(), document.removeEventListener("pointermove", d), document.removeEventListener("pointerup", p), document.removeEventListener("pointercancel", h);
+		n.value = null, r.value = null, s(), document.removeEventListener("pointermove", d), document.removeEventListener("pointerup", f), document.removeEventListener("pointercancel", p);
 	}
 	function u(e, t) {
 		t.button !== 0 && t.pointerType === "mouse" || (n.value = {
@@ -103,7 +140,7 @@ function G(e) {
 			startX: t.clientX,
 			startY: t.clientY,
 			pointerId: t.pointerId
-		}, document.addEventListener("pointermove", d, { passive: !1 }), document.addEventListener("pointerup", p), document.addEventListener("pointercancel", h));
+		}, document.addEventListener("pointermove", d, { passive: !1 }), document.addEventListener("pointerup", f), document.addEventListener("pointercancel", p));
 	}
 	function d(e) {
 		if (r.value !== null) {
@@ -113,7 +150,7 @@ function G(e) {
 		}
 		if (n.value === null || e.pointerId !== n.value.pointerId) return;
 		let t = e.clientX - n.value.startX, a = e.clientY - n.value.startY;
-		if (Math.hypot(t, a) > xe) {
+		if (Math.hypot(t, a) > ke) {
 			let t = n.value.key;
 			n.value = null, r.value = {
 				key: t,
@@ -121,7 +158,7 @@ function G(e) {
 			}, i = o(t, e.clientX, e.clientY), e.preventDefault();
 		}
 	}
-	function p(t) {
+	function f(t) {
 		if (r.value !== null && t.pointerId === r.value.pointerId) {
 			let n = r.value.key;
 			l(), document.elementsFromPoint(t.clientX, t.clientY).some((e) => e.hasAttribute("data-canvas")) && e(n, t.clientX, t.clientY);
@@ -129,17 +166,17 @@ function G(e) {
 		}
 		n.value !== null && t.pointerId === n.value.pointerId && l();
 	}
-	function h(e) {
+	function p(e) {
 		(r.value !== null && e.pointerId === r.value.pointerId || n.value !== null && e.pointerId === n.value.pointerId) && l();
 	}
-	return c() && f(l), {
+	return c() && m(l), {
 		isDragging: a,
 		onButtonPointerDown: u
 	};
 }
 //#endregion
 //#region src/debounce.ts
-function K(e, t) {
+function je(e, t) {
 	let n = null;
 	function r(...r) {
 		n !== null && clearTimeout(n), n = setTimeout(() => {
@@ -152,10 +189,10 @@ function K(e, t) {
 }
 //#endregion
 //#region src/useKeyboard.ts
-function Se(e, t, n) {
+function Me(e, t, n) {
 	function r(r) {
 		function i(r) {
-			let i = r, a = me(T, i.keyCode, i.shiftKey, i.ctrlKey);
+			let i = r, a = me(O, i.keyCode, i.shiftKey, i.ctrlKey);
 			if (a === null) return;
 			if ((i.keyCode === 8 || i.keyCode === 9 || i.keyCode === 191) && i.preventDefault(), a === "undo") {
 				t();
@@ -165,7 +202,7 @@ function Se(e, t, n) {
 				n();
 				return;
 			}
-			let o = O(a);
+			let o = F(a);
 			o !== null && e(o);
 		}
 		return r.addEventListener("keydown", i), () => {
@@ -176,7 +213,7 @@ function Se(e, t, n) {
 }
 //#endregion
 //#region src/data/alphabet.ts
-var q = {
+var Z = {
 	S10000: [
 		"S10000",
 		"S10110",
@@ -513,29 +550,29 @@ var q = {
 		"S38a00",
 		"S38b00"
 	]
-}, J = Object.keys(q);
+}, Q = Object.keys(Z);
 //#endregion
 //#region src/usePaletteScope.ts
-function Y(e, t) {
-	return ae({
+function Ne(e, t) {
+	return ce({
 		onAddSymbol: e,
 		initialNav: t,
-		itemsAt: (e) => e.level === "groups" ? J : e.level === "bases" && e.selectedGroup !== null ? q[e.selectedGroup] ?? [] : [],
+		itemsAt: (e) => e.level === "groups" ? Q : e.level === "bases" && e.selectedGroup !== null ? Z[e.selectedGroup] ?? [] : [],
 		columnsAt: (e) => e.level === "variants" ? 8 : 4,
-		itemCountAt: (e) => e.level === "variants" ? 48 : e.level === "groups" ? J.length : e.level === "bases" && e.selectedGroup !== null ? (q[e.selectedGroup] ?? []).length : 0
+		itemCountAt: (e) => e.level === "variants" ? 48 : e.level === "groups" ? Q.length : e.level === "bases" && e.selectedGroup !== null ? (Z[e.selectedGroup] ?? []).length : 0
 	});
 }
 //#endregion
 //#region src/useScopeManager.ts
-function X(e, n, r, i = {}) {
-	let a = m(D), o = i.focusManager ?? te(), s = N({
+function Pe(e, n, r, i = {}) {
+	let a = _(A), o = i.focusManager ?? z(), s = I({
 		dispatch: e,
 		onUndo: n,
 		onRedo: r,
 		bindings: i.canvasBindings
-	}), c = se("palette"), l = i.scopeManager ?? le();
+	}), c = U("palette"), l = i.scopeManager ?? G();
 	l.register(s), l.register(c);
-	let u = m("canvas");
+	let u = _("canvas");
 	l.onScopeChanged((e) => {
 		(e === "palette" || e === "canvas") && (u.value = e), e !== null && o.focusScope(e);
 	}), l.enter("canvas");
@@ -569,9 +606,9 @@ function X(e, n, r, i = {}) {
 }
 //#endregion
 //#region src/useSignMaker.ts
-function Ce(e = {}) {
-	let { router: n, ...r } = e, i = de(r), a = g(i.getState()), o = () => {
-		a.value = i.getState(), v(a);
+function Fe(e = {}) {
+	let { router: n, ...r } = e, i = le(r), a = y(i.getState()), o = () => {
+		a.value = i.getState(), x(a);
 	};
 	i.history.onPush(o), i.history.onUndo(o), i.history.onRedo(o), i.history.onClear(o);
 	let s = t(() => a.value), c = t(() => (a.value, i.canUndo())), l = t(() => (a.value, i.canRedo()));
@@ -587,7 +624,7 @@ function Ce(e = {}) {
 	function p() {
 		i.redo();
 	}
-	let { scope: m, paletteNav: h, attach: _ } = X(u, f, p, {
+	let { scope: m, paletteNav: h, attach: g } = Pe(u, f, p, {
 		scopeManager: i.scopeManager,
 		focusManager: i.focusManager,
 		...n
@@ -607,15 +644,15 @@ function Ce(e = {}) {
 		replaceState: d,
 		undo: f,
 		redo: p,
-		attach: _
+		attach: g
 	};
 }
 //#endregion
 //#region src/components/SymbolPalette.vue?vue&type=script&setup=true&lang.ts
-var we = {
+var Ie = {
 	key: 0,
 	class: "palette-section"
-}, Te = ["aria-rowcount"], Ee = [
+}, Le = ["aria-rowcount"], Re = [
 	"title",
 	"aria-label",
 	"tabindex",
@@ -623,13 +660,13 @@ var we = {
 	"onPointerdown",
 	"onClick",
 	"onDblclick"
-], De = ["innerHTML"], Oe = {
+], ze = ["innerHTML"], Be = {
 	key: 1,
 	class: "palette-section"
-}, ke = { class: "palette-nav" }, Ae = {
+}, Ve = { class: "palette-nav" }, He = {
 	class: "palette-title",
 	"aria-live": "polite"
-}, je = ["aria-label", "aria-rowcount"], Me = [
+}, Ue = ["aria-label", "aria-rowcount"], We = [
 	"title",
 	"aria-label",
 	"tabindex",
@@ -637,24 +674,24 @@ var we = {
 	"onPointerdown",
 	"onClick",
 	"onDblclick"
-], Ne = ["innerHTML"], Pe = {
+], Ge = ["innerHTML"], Ke = {
 	key: 2,
 	class: "palette-section"
-}, Fe = { class: "palette-nav" }, Ie = {
+}, qe = { class: "palette-nav" }, Je = {
 	class: "palette-title",
 	"aria-live": "polite"
-}, Le = {
+}, Ye = {
 	class: "tab-bar",
 	role: "tablist",
 	"aria-label": "Rotation range"
-}, Re = ["aria-selected"], ze = ["aria-selected"], Be = ["aria-label"], Ve = [
+}, Xe = ["aria-selected"], Ze = ["aria-selected"], Qe = ["aria-label"], $e = [
 	"title",
 	"aria-label",
 	"tabindex",
 	"aria-selected",
 	"onPointerdown",
 	"onClick"
-], He = ["innerHTML"], Ue = /*@__PURE__*/ s({
+], et = ["innerHTML"], tt = /*@__PURE__*/ s({
 	__name: "SymbolPalette",
 	props: {
 		nav: {},
@@ -666,51 +703,51 @@ var we = {
 		"update:nav"
 	],
 	setup(a, { expose: o, emit: s }) {
-		let c = a, d = s, g = m(null), v = m(D), b = G((e, t, n) => {
+		let c = a, d = s, f = _(null), p = _(A), g = Ae((e, t, n) => {
 			d("palette-drop", e, t, n);
-		}), x = t(() => c.nav ?? v.value);
-		function S(e) {
-			c.nav === void 0 ? v.value = e : d("update:nav", e), l(() => C());
+		}), y = t(() => c.nav ?? p.value);
+		function x(e) {
+			c.nav === void 0 ? p.value = e : d("update:nav", e), l(() => C());
 		}
 		function C() {
-			if (!g.value) return !1;
-			let e = g.value.querySelector("[tabindex=\"0\"]");
+			if (!f.value) return !1;
+			let e = f.value.querySelector("[tabindex=\"0\"]");
 			return e ? (e.focus(), !0) : !1;
 		}
-		let T = Y((e) => d("add-symbol", e));
-		T.onNavChanged((e) => S(e));
-		let E = t(() => {
-			let e = x.value;
-			return e.level === "groups" ? J : e.level === "bases" && e.selectedGroup !== null ? q[e.selectedGroup] ?? [] : [];
+		let w = Ne((e) => d("add-symbol", e));
+		w.onNavChanged((e) => x(e));
+		let T = t(() => {
+			let e = y.value;
+			return e.level === "groups" ? Q : e.level === "bases" && e.selectedGroup !== null ? Z[e.selectedGroup] ?? [] : [];
 		});
-		function O(e) {
-			return U(e);
+		function E(e) {
+			return Te(e);
 		}
-		function k(e, t, n) {
+		function O(e, t, n) {
 			return e.slice(0, 4) + t.toString() + n.toString(16);
 		}
-		let A = K((e) => d("add-symbol", e), 300);
-		f(() => A.cancel());
+		let k = je((e) => d("add-symbol", e), 300);
+		m(() => k.cancel());
 		function j(e) {
-			(c.clickBehavior ?? "add") === "add" ? A(e) : x.value.level === "groups" ? S(V(x.value, e)) : x.value.level === "bases" && S(B(x.value, e));
+			(c.clickBehavior ?? "add") === "add" ? k(e) : y.value.level === "groups" ? x(_e(y.value, e)) : y.value.level === "bases" && x(ge(y.value, e));
 		}
 		function M(e, t) {
-			(c.clickBehavior ?? "add") !== "navigate" && (A.cancel(), x.value.level === "groups" ? S(V({
-				...x.value,
+			(c.clickBehavior ?? "add") !== "navigate" && (k.cancel(), y.value.level === "groups" ? x(_e({
+				...y.value,
 				focusedIndex: e
-			}, t)) : x.value.level === "bases" && S(B({
-				...x.value,
+			}, t)) : y.value.level === "bases" && x(ge({
+				...y.value,
 				focusedIndex: e
 			}, t)));
 		}
 		function N() {
-			S(z(x.value));
+			x(he(y.value));
 		}
 		function P(e) {
-			S(he(x.value, e));
+			x(J(y.value, e));
 		}
 		function F(e) {
-			T.setNav(x.value), T.scope.handleKey({
+			w.setNav(y.value), w.scope.handleKey({
 				keyCode: e.keyCode,
 				key: e.key,
 				shiftKey: e.shiftKey,
@@ -718,112 +755,113 @@ var we = {
 				metaKey: e.metaKey
 			}) && (e.preventDefault(), e.stopPropagation());
 		}
-		function I() {
+		function ee() {
 			l(() => {
-				C() || g.value?.focus();
+				C() || f.value?.focus();
 			});
 		}
-		return o({ focus: I }), (t, a) => (p(), r("aside", {
+		return o({ focus: ee }), (t, a) => (h(), r("aside", {
 			ref_key: "paletteEl",
-			ref: g,
+			ref: f,
 			class: "palette",
 			role: "navigation",
 			"aria-label": "Symbol palette",
 			"data-palette": "",
 			onKeydown: F
-		}, [x.value.level === "groups" ? (p(), r("div", we, [a[2] ||= i("div", {
+		}, [y.value.level === "groups" ? (h(), r("div", Ie, [a[2] ||= i("div", {
 			class: "palette-title",
 			"aria-hidden": "true"
 		}, "Symbol Groups", -1), i("div", {
 			class: "group-grid",
 			role: "grid",
 			"aria-label": "Symbol groups",
-			"aria-rowcount": Math.ceil(y(J).length / 4)
-		}, [(p(!0), r(e, null, h(y(J), (e, t) => (p(), r("button", {
+			"aria-rowcount": Math.ceil(S(Q).length / 4)
+		}, [(h(!0), r(e, null, v(S(Q), (e, t) => (h(), r("button", {
 			key: e,
 			class: "group-btn",
 			title: e,
 			"aria-label": e,
-			tabindex: t === x.value.focusedIndex ? 0 : -1,
-			"aria-selected": t === x.value.focusedIndex,
-			onPointerdown: (t) => y(b).onButtonPointerDown(e, t),
+			tabindex: t === y.value.focusedIndex ? 0 : -1,
+			"aria-selected": t === y.value.focusedIndex,
+			onPointerdown: (t) => S(g).onButtonPointerDown(e, t),
 			onClick: (t) => j(e),
-			onDblclick: w((n) => M(t, e), ["prevent"])
+			onDblclick: D((n) => M(t, e), ["prevent"])
 		}, [i("span", {
 			class: "symbol-cell",
-			innerHTML: O(e),
+			innerHTML: E(e),
 			"aria-hidden": "true"
-		}, null, 8, De)], 40, Ee))), 128))], 8, Te)])) : x.value.level === "bases" && x.value.selectedGroup !== null ? (p(), r("div", Oe, [i("div", ke, [i("button", {
+		}, null, 8, ze)], 40, Re))), 128))], 8, Le)])) : y.value.level === "bases" && y.value.selectedGroup !== null ? (h(), r("div", Be, [i("div", Ve, [i("button", {
 			class: "back-btn",
 			onClick: N
-		}, "← Groups"), i("span", Ae, _(x.value.selectedGroup), 1)]), i("div", {
+		}, "← Groups"), i("span", He, b(y.value.selectedGroup), 1)]), i("div", {
 			class: "symbol-grid",
 			role: "grid",
-			"aria-label": `Symbols in ${x.value.selectedGroup}`,
-			"aria-rowcount": Math.ceil(E.value.length / 4)
-		}, [(p(!0), r(e, null, h(E.value, (e, t) => (p(), r("button", {
+			"aria-label": `Symbols in ${y.value.selectedGroup}`,
+			"aria-rowcount": Math.ceil(T.value.length / 4)
+		}, [(h(!0), r(e, null, v(T.value, (e, t) => (h(), r("button", {
 			key: e,
 			class: "symbol-btn",
 			title: e,
 			"aria-label": e,
-			tabindex: t === x.value.focusedIndex ? 0 : -1,
-			"aria-selected": t === x.value.focusedIndex,
-			onPointerdown: (t) => y(b).onButtonPointerDown(e, t),
+			tabindex: t === y.value.focusedIndex ? 0 : -1,
+			"aria-selected": t === y.value.focusedIndex,
+			onPointerdown: (t) => S(g).onButtonPointerDown(e, t),
 			onClick: (t) => j(e),
-			onDblclick: w((n) => M(t, e), ["prevent"])
+			onDblclick: D((n) => M(t, e), ["prevent"])
 		}, [i("span", {
 			class: "symbol-cell",
-			innerHTML: O(e),
+			innerHTML: E(e),
 			"aria-hidden": "true"
-		}, null, 8, Ne)], 40, Me))), 128))], 8, je)])) : x.value.level === "variants" && x.value.selectedBase !== null ? (p(), r("div", Pe, [
-			i("div", Fe, [i("button", {
+		}, null, 8, Ge)], 40, We))), 128))], 8, Ue)])) : y.value.level === "variants" && y.value.selectedBase !== null ? (h(), r("div", Ke, [
+			i("div", qe, [i("button", {
 				class: "back-btn",
 				onClick: N
-			}, "← Base"), i("span", Ie, _(x.value.selectedBase), 1)]),
-			i("div", Le, [i("button", {
+			}, "← Base"), i("span", Je, b(y.value.selectedBase), 1)]),
+			i("div", Ye, [i("button", {
 				role: "tab",
-				class: u(["tab-btn", { active: x.value.variantTab === "first" }]),
-				"aria-selected": x.value.variantTab === "first",
+				class: u(["tab-btn", { active: y.value.variantTab === "first" }]),
+				"aria-selected": y.value.variantTab === "first",
 				onClick: a[0] ||= (e) => P("first")
-			}, "0–7", 10, Re), i("button", {
+			}, "0–7", 10, Xe), i("button", {
 				role: "tab",
-				class: u(["tab-btn", { active: x.value.variantTab === "second" }]),
-				"aria-selected": x.value.variantTab === "second",
+				class: u(["tab-btn", { active: y.value.variantTab === "second" }]),
+				"aria-selected": y.value.variantTab === "second",
 				onClick: a[1] ||= (e) => P("second")
-			}, "8–f", 10, ze)]),
+			}, "8–f", 10, Ze)]),
 			i("div", {
 				class: "variant-grid",
 				role: "grid",
-				"aria-label": `Variants for ${x.value.selectedBase}, rotations ${x.value.variantTab === "first" ? "0–7" : "8–f"}`,
+				"aria-label": `Variants for ${y.value.selectedBase}, rotations ${y.value.variantTab === "first" ? "0–7" : "8–f"}`,
 				"aria-rowcount": "6"
-			}, [(p(), r(e, null, h(6, (t) => (p(), r(e, { key: t }, [(p(), r(e, null, h(8, (e) => i("button", {
+			}, [(h(), r(e, null, v(6, (t) => (h(), r(e, { key: t }, [(h(), r(e, null, v(8, (e) => i("button", {
 				key: e,
 				class: "symbol-btn",
-				title: k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1),
-				"aria-label": k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1),
-				tabindex: (t - 1) * 8 + (e - 1) === x.value.focusedIndex ? 0 : -1,
-				"aria-selected": (t - 1) * 8 + (e - 1) === x.value.focusedIndex,
-				onPointerdown: (n) => y(b).onButtonPointerDown(k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1), n),
-				onClick: (n) => d("add-symbol", k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1))
+				title: O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1),
+				"aria-label": O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1),
+				tabindex: (t - 1) * 8 + (e - 1) === y.value.focusedIndex ? 0 : -1,
+				"aria-selected": (t - 1) * 8 + (e - 1) === y.value.focusedIndex,
+				onPointerdown: (n) => S(g).onButtonPointerDown(O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1), n),
+				onClick: (n) => d("add-symbol", O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1))
 			}, [i("span", {
 				class: "symbol-cell",
-				innerHTML: O(k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1)),
+				innerHTML: E(O(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1)),
 				"aria-hidden": "true"
-			}, null, 8, He)], 40, Ve)), 64))], 64))), 64))], 8, Be)
+			}, null, 8, et)], 40, $e)), 64))], 64))), 64))], 8, Qe)
 		])) : n("", !0)], 544));
 	}
-}), Z = (e, t) => {
+}), $ = (e, t) => {
 	let n = e.__vccOpts || e;
 	for (let [e, r] of t) n[e] = r;
 	return n;
-}, We = /*#__PURE__*/ Z(Ue, [["__scopeId", "data-v-956ed457"]]), Q = /*#__PURE__*/ Z(/* @__PURE__ */ s({
+}, nt = /*#__PURE__*/ $(tt, [["__scopeId", "data-v-6ad2c853"]]), rt = /*#__PURE__*/ $(/* @__PURE__ */ s({
 	__name: "SymbolHandles",
 	props: {
 		state: {},
 		dispatch: { type: Function },
 		midWidth: {},
 		midHeight: {},
-		isDragging: { type: Boolean }
+		isDragging: { type: Boolean },
+		viewport: {}
 	},
 	setup(e) {
 		let o = e, s = t(() => {
@@ -833,15 +871,15 @@ var we = {
 		}), c = t(() => {
 			let e = s.value;
 			if (!e) return null;
-			let t = ye(e.key) ?? {
+			let t = we(e.key) ?? {
 				width: 40,
 				height: 40
-			};
+			}, { scale: n, offsetX: r, offsetY: i } = o.viewport;
 			return {
-				left: e.x - 500 + o.midWidth,
-				top: e.y - 500 + o.midHeight,
-				width: t.width,
-				height: t.height
+				left: (e.x - 500) * n + o.midWidth + r,
+				top: (e.y - 500) * n + o.midHeight + i,
+				width: t.width * n,
+				height: t.height * n
 			};
 		}), l = t(() => {
 			let e = c.value;
@@ -856,28 +894,31 @@ var we = {
 			} : {};
 		});
 		function u() {
-			o.dispatch(H(-1));
+			o.dispatch(ye(-1));
 		}
 		function f() {
-			o.dispatch(H(1));
+			o.dispatch(ye(1));
+		}
+		function p() {
+			o.dispatch(q());
 		}
 		function m() {
-			o.dispatch(R());
-		}
-		function h() {
-			o.dispatch((e) => R()(H(4)(e)));
+			o.dispatch((e) => q()(ye(4)(e)));
 		}
 		function g() {
-			o.dispatch(j(() => crypto.randomUUID()));
+			o.dispatch(ne(() => crypto.randomUUID()));
 		}
-		return (e, t) => c.value ? (p(), r("div", {
+		function _() {
+			o.dispatch(ue());
+		}
+		return (e, t) => c.value ? (h(), r("div", {
 			key: 0,
 			class: "handles-root",
 			style: d(l.value),
-			onClick: t[0] ||= w(() => {}, ["stop"]),
-			onPointerdown: t[1] ||= w(() => {}, ["stop"])
+			onClick: t[0] ||= D(() => {}, ["stop"]),
+			onPointerdown: t[1] ||= D(() => {}, ["stop"])
 		}, [
-			t[2] ||= a("<div class=\"handles-box\" data-v-26e112d3><span class=\"handle handle--tl\" data-v-26e112d3></span><span class=\"handle handle--tr\" data-v-26e112d3></span><span class=\"handle handle--bl\" data-v-26e112d3></span><span class=\"handle handle--br\" data-v-26e112d3></span></div>", 1),
+			t[2] ||= a("<div class=\"handles-box\" data-v-a9f99ba5><span class=\"handle handle--tl\" data-v-a9f99ba5></span><span class=\"handle handle--tr\" data-v-a9f99ba5></span><span class=\"handle handle--bl\" data-v-a9f99ba5></span><span class=\"handle handle--br\" data-v-a9f99ba5></span></div>", 1),
 			i("div", { class: "handles-toolbar handles-toolbar--top" }, [i("button", {
 				class: "handle-btn",
 				title: "Rotate counter-clockwise",
@@ -891,183 +932,485 @@ var we = {
 				i("button", {
 					class: "handle-btn",
 					title: "Flip horizontal",
-					onClick: m
+					onClick: p
 				}, "⟺"),
 				i("button", {
 					class: "handle-btn",
 					title: "Flip vertical",
-					onClick: h
+					onClick: m
 				}, "↕"),
 				i("button", {
 					class: "handle-btn handle-btn--copy",
 					title: "Copy symbol",
 					onClick: g
-				}, "⊕")
+				}, "⊕"),
+				i("button", {
+					class: "handle-btn handle-btn--delete",
+					title: "Delete symbol (Backspace)",
+					"aria-label": "Delete symbol",
+					onClick: _
+				}, "✕")
 			])
 		], 36)) : n("", !0);
 	}
-}), [["__scopeId", "data-v-26e112d3"]]), $ = [
+}), [["__scopeId", "data-v-a9f99ba5"]]), it = {
+	class: "zoom-controls",
+	role: "toolbar",
+	"aria-label": "Zoom controls"
+}, at = { class: "zoom-row" }, ot = ["disabled"], st = ["disabled"], ct = {
+	class: "zoom-slider-row",
+	"aria-hidden": "true"
+}, lt = ["value"], ut = /*#__PURE__*/ $(/* @__PURE__ */ s({
+	__name: "ZoomControls",
+	props: { viewport: {} },
+	emits: [
+		"zoom-in",
+		"zoom-out",
+		"reset",
+		"fit",
+		"set-zoom"
+	],
+	setup(e, { emit: n }) {
+		let a = e, o = n, s = Math.log(N), c = Math.log(M), l = t(() => `${Math.round(a.viewport.scale * 100)}%`), u = t(() => a.viewport.scale <= N), d = t(() => a.viewport.scale >= M), f = t(() => (Math.log(a.viewport.scale) - s) / (c - s) * 100);
+		function p(e) {
+			let t = Number(e.target.value) / 100;
+			o("set-zoom", Math.exp(s + t * (c - s)));
+		}
+		return (e, t) => (h(), r("div", it, [i("div", at, [
+			i("button", {
+				class: "zoom-btn",
+				title: "Zoom out (Ctrl+−)",
+				"aria-label": "Zoom out",
+				disabled: u.value,
+				onClick: t[0] ||= (t) => e.$emit("zoom-out")
+			}, "−", 8, ot),
+			i("button", {
+				class: "zoom-pct",
+				title: "Reset zoom to 100% (Ctrl+0)",
+				"aria-label": "`Current zoom: ${pctText}. Click to reset.`",
+				onClick: t[1] ||= (t) => e.$emit("reset")
+			}, b(l.value), 1),
+			i("button", {
+				class: "zoom-btn",
+				title: "Zoom in (Ctrl+=)",
+				"aria-label": "Zoom in",
+				disabled: d.value,
+				onClick: t[2] ||= (t) => e.$emit("zoom-in")
+			}, "+", 8, st),
+			i("button", {
+				class: "zoom-btn zoom-btn--fit",
+				title: "Fit content to view (Ctrl+Shift+F)",
+				"aria-label": "Fit content",
+				onClick: t[3] ||= (t) => e.$emit("fit")
+			}, "⊡")
+		]), i("div", ct, [i("input", {
+			type: "range",
+			class: "zoom-slider",
+			min: "0",
+			max: "100",
+			step: "0.1",
+			value: f.value,
+			title: "Drag to adjust zoom",
+			onInput: p,
+			onPointerdown: t[4] ||= D(() => {}, ["stop"]),
+			onClick: t[5] ||= D(() => {}, ["stop"])
+		}, null, 40, lt)])]));
+	}
+}), [["__scopeId", "data-v-4faf52d2"]]), dt = [
 	"tabindex",
+	"data-symbol-id",
 	"aria-label",
-	"aria-selected",
-	"onPointerdown"
-], Ge = ["innerHTML"], Ke = /*#__PURE__*/ Z(/* @__PURE__ */ s({
+	"aria-selected"
+], ft = ["innerHTML"], pt = /*#__PURE__*/ $(/* @__PURE__ */ s({
 	__name: "SignEditorCanvas",
 	props: {
 		state: {},
 		dispatch: { type: Function },
 		replaceState: { type: Function }
 	},
-	setup(n, { expose: a }) {
-		let s = n, c = m(null), l = m(null), f = t(() => c.value ? c.value.clientWidth / 2 : 300), g = t(() => c.value ? c.value.clientHeight / 2 : 250), _ = m(null), v = m(null), b = W(() => s.state, (e) => s.replaceState(e), (e) => s.dispatch(e));
-		function S(e) {
-			return U(e);
+	setup(a, { expose: s }) {
+		let c = a, m = _(null), g = _(null), y = _(null), b = _(600), x = _(500), C = t(() => b.value / 2), T = t(() => x.value / 2), { viewport: E, zoomIn: O, zoomOut: k, zoomAtPoint: A, setZoom: j, reset: M, fit: N, pan: F } = Oe(), te = t(() => ({ transform: `translate(${C.value + E.value.offsetX}px, ${T.value + E.value.offsetY}px) scale(${E.value.scale})` }));
+		function ne() {
+			O(C.value, T.value, C.value, T.value);
 		}
-		function C(e) {
-			let t = e.x, n = e.y;
-			return _.value?.symbolId === e.id && (t += _.value.dx, n += _.value.dy), {
+		function re() {
+			k(C.value, T.value, C.value, T.value);
+		}
+		function I() {
+			N(c.state.symbols, b.value, x.value);
+		}
+		let L = t(() => E.value.scale > 1), ie = t(() => {
+			let e = E.value.scale;
+			return {
+				width: b.value * e * 2 + "px",
+				height: x.value * e * 2 + "px",
+				pointerEvents: "none"
+			};
+		}), R = !1;
+		function ae() {
+			let e = y.value;
+			if (!e) return;
+			R = !0;
+			let t = E.value;
+			e.scrollLeft = C.value * t.scale - t.offsetX, e.scrollTop = T.value * t.scale - t.offsetY, requestAnimationFrame(() => {
+				R = !1;
+			});
+		}
+		function oe(e) {
+			if (R) return;
+			let t = e.target, n = E.value, r = C.value * n.scale - t.scrollLeft, i = T.value * n.scale - t.scrollTop, a = r - n.offsetX, o = i - n.offsetY;
+			(Math.abs(a) > .5 || Math.abs(o) > .5) && F(a, o);
+		}
+		w(() => E.value, () => {
+			L.value && ae();
+		}, { flush: "post" }), w(L, (e) => {
+			e && l(() => ae());
+		});
+		let z = _(null), B = _(null), V = De(() => c.state, (e) => c.replaceState(e), (e) => c.dispatch(e), () => E.value.scale);
+		function se(e) {
+			return Te(e);
+		}
+		function ce(e) {
+			let t = e.x - 500, n = e.y - 500;
+			return z.value?.symbolId === e.id && (t += z.value.dx, n += z.value.dy), {
 				position: "absolute",
-				left: t - 500 + f.value + "px",
-				top: n - 500 + g.value + "px",
-				cursor: b.isDragging.value ? "grabbing" : "grab",
-				zIndex: s.state.selection.has(e.id) ? "10" : "1"
+				left: t + "px",
+				top: n + "px",
+				cursor: V.isDragging.value ? "grabbing" : "grab",
+				zIndex: c.state.selection.has(e.id) ? "10" : "1"
 			};
 		}
-		function T(e, t) {
-			t.currentTarget.setPointerCapture(t.pointerId), t.stopPropagation(), v.value = {
-				x: t.clientX,
-				y: t.clientY
-			}, _.value = {
-				symbolId: e.id,
-				dx: 0,
-				dy: 0
-			}, b.onPointerDown(e.id, t.clientX, t.clientY);
+		let H = /* @__PURE__ */ new Map(), U = _(null), W = _(!1), G = !1, K = 0;
+		function le() {
+			if (H.size < 2) return null;
+			let [e, t] = [...H.values()];
+			return {
+				midX: (e.x + t.x) / 2,
+				midY: (e.y + t.y) / 2,
+				dist: Math.hypot(t.x - e.x, t.y - e.y)
+			};
 		}
-		function E(e) {
-			!_.value || !v.value || (_.value = {
-				..._.value,
-				dx: e.clientX - v.value.x,
-				dy: e.clientY - v.value.y
-			}, b.onPointerMove(e.clientX, e.clientY));
+		function ue(e) {
+			if (H.set(e.pointerId, {
+				x: e.clientX,
+				y: e.clientY
+			}), m.value?.setPointerCapture(e.pointerId), H.size >= 2) {
+				V.isDragging.value && V.onPointerCancel(), z.value = null, B.value = null, U.value = null, K = le()?.dist ?? 0;
+				return;
+			}
+			if (e.button === 1 || e.button === 0 && W.value) {
+				e.preventDefault(), U.value = {
+					x: e.clientX,
+					y: e.clientY,
+					pointerId: e.pointerId
+				};
+				return;
+			}
+			if (e.button === 0) {
+				let t = e.target.closest("[data-symbol-id]")?.getAttribute("data-symbol-id") ?? null, n = t ? c.state.symbols.find((e) => e.id === t) ?? null : null;
+				n ? (B.value = {
+					x: e.clientX,
+					y: e.clientY
+				}, z.value = {
+					symbolId: n.id,
+					dx: 0,
+					dy: 0
+				}, V.onPointerDown(n.id, e.clientX, e.clientY)) : (G = !1, U.value = {
+					x: e.clientX,
+					y: e.clientY,
+					pointerId: e.pointerId
+				});
+			}
 		}
-		function D(e) {
-			_.value = null, v.value = null, b.onPointerUp();
+		function de(e) {
+			if (H.set(e.pointerId, {
+				x: e.clientX,
+				y: e.clientY
+			}), H.size >= 2) {
+				let e = le();
+				if (e && K > 0) {
+					let t = e.dist / K, n = m.value.getBoundingClientRect();
+					A(e.midX - n.left, e.midY - n.top, t, C.value, T.value);
+				}
+				K = e?.dist ?? 0;
+				return;
+			}
+			if (U.value?.pointerId === e.pointerId) {
+				let t = e.clientX - U.value.x, n = e.clientY - U.value.y;
+				!G && Math.hypot(t, n) > 4 && (G = !0), U.value = {
+					...U.value,
+					x: e.clientX,
+					y: e.clientY
+				}, F(t, n);
+				return;
+			}
+			if (!z.value || !B.value) return;
+			let t = E.value.scale, n = (e.clientX - B.value.x) / t, r = (e.clientY - B.value.y) / t;
+			z.value = {
+				...z.value,
+				dx: n,
+				dy: r
+			}, V.onPointerMove(e.clientX, e.clientY);
 		}
-		function O(e) {
-			_.value = null, v.value = null, b.onPointerCancel();
+		function fe(e) {
+			if (H.delete(e.pointerId), U.value?.pointerId === e.pointerId) {
+				U.value = null;
+				return;
+			}
+			if (z.value && V.isDragging.value) {
+				z.value = null, B.value = null, V.onPointerUp();
+				return;
+			}
 		}
-		function A(e) {
-			s.dispatch((e) => ge(e));
+		function pe(e) {
+			if (H.delete(e.pointerId), U.value?.pointerId === e.pointerId) {
+				U.value = null;
+				return;
+			}
+			z.value && (z.value = null, B.value = null, V.onPointerCancel());
 		}
-		function j(e, t, n) {
-			if (!c.value) return;
-			let r = c.value.getBoundingClientRect(), i = Math.round(t - r.left - f.value + 500), a = Math.round(n - r.top - g.value + 500);
-			s.dispatch(k(e, i, a, () => crypto.randomUUID()));
+		function me(e) {
+			if (G) {
+				G = !1;
+				return;
+			}
+			c.dispatch((e) => xe(e));
 		}
-		function M(e) {
-			l.value && (l.value.textContent = "", requestAnimationFrame(() => {
-				l.value && (l.value.textContent = e);
+		function q(e) {
+			if (!m.value) return;
+			if (e.preventDefault(), e.ctrlKey) {
+				let t = m.value.getBoundingClientRect();
+				A(e.clientX - t.left, e.clientY - t.top, P ** (-(e.deltaMode === 0 ? e.deltaY : e.deltaY * 16) / 100), C.value, T.value);
+				return;
+			}
+			let t = e.deltaMode === 0 ? e.deltaX : e.deltaX * 16, n = e.deltaMode === 0 ? e.deltaY : e.deltaY * 16;
+			F(-t, -n);
+		}
+		function he(e) {
+			let t = e.ctrlKey || e.metaKey;
+			if (e.key === " " && !e.repeat) {
+				W.value = !0, e.preventDefault();
+				return;
+			}
+			if (t) switch (e.key) {
+				case "=":
+				case "+":
+					e.preventDefault(), ne();
+					break;
+				case "-":
+				case "_":
+					e.preventDefault(), re();
+					break;
+				case "0":
+					e.preventDefault(), M();
+					break;
+				case "F":
+				case "f":
+					e.shiftKey && (e.preventDefault(), I());
+					break;
+			}
+		}
+		function ge(e) {
+			e.key === " " && (W.value = !1);
+		}
+		function _e(e, t, n) {
+			if (!m.value) return;
+			let r = m.value.getBoundingClientRect(), { x: i, y: a } = be(t - r.left, n - r.top, E.value, C.value, T.value);
+			c.dispatch(ee(e, Math.round(i), Math.round(a), () => crypto.randomUUID()));
+		}
+		function J(e) {
+			g.value && (g.value.textContent = "", requestAnimationFrame(() => {
+				g.value && (g.value.textContent = e);
 			}));
 		}
-		x(() => s.state, (e, t) => {
+		w(() => c.state, (e, t) => {
 			let n = e.symbols.length - t.symbols.length;
 			if (n > 0) {
 				let t = e.symbols[e.symbols.length - 1];
-				M(`Symbol ${t?.key ?? ""} added`);
+				J(`Symbol ${t?.key ?? ""} added`);
 			} else if (n < 0) {
 				let e = Math.abs(n);
-				M(e === 1 ? "Symbol deleted" : `${e} symbols deleted`);
-			} else if (e.selection.size !== t.selection.size) if (e.selection.size === 0) M("Selection cleared");
+				J(e === 1 ? "Symbol deleted" : `${e} symbols deleted`);
+			} else if (e.selection.size !== t.selection.size) if (e.selection.size === 0) J("Selection cleared");
 			else {
 				let t = [...e.selection], n = e.symbols.find((e) => e.id === t[0]);
-				M(n ? `${n.key} selected` : "Symbol selected");
+				J(n ? `${n.key} selected` : "Symbol selected");
 			}
-		}, { deep: !1 }), x(() => s.state.selection, (e) => {
-			if (e.size !== 1 || !c.value) return;
-			let t = c.value.querySelector("[aria-selected=\"true\"]");
-			c.value.contains(document.activeElement) && t?.focus();
+		}, { deep: !1 }), w(() => c.state.selection, (e) => {
+			if (e.size !== 1 || !m.value) return;
+			let t = m.value.querySelector("[aria-selected=\"true\"]");
+			m.value.contains(document.activeElement) && t?.focus();
 		}, { deep: !0 });
-		function N() {
-			(c.value?.querySelector("[aria-selected=\"true\"]") ?? c.value)?.focus();
+		function ve() {
+			(m.value?.querySelector("[aria-selected=\"true\"]") ?? m.value)?.focus();
 		}
-		return a({
-			focus: N,
-			dropSymbolAt: j
-		}), (t, a) => (p(), r("div", {
+		let Y = null;
+		return p(() => {
+			m.value && (b.value = m.value.clientWidth, x.value = m.value.clientHeight, Y = new ResizeObserver((e) => {
+				let t = e[0];
+				t && (b.value = t.contentRect.width, x.value = t.contentRect.height);
+			}), Y.observe(m.value), m.value.addEventListener("wheel", q, { passive: !1 }));
+		}), f(() => {
+			m.value?.removeEventListener("wheel", q), Y?.disconnect();
+		}), s({
+			focus: ve,
+			dropSymbolAt: _e
+		}), (t, s) => (h(), r("div", {
 			ref_key: "canvasEl",
-			ref: c,
-			class: "canvas",
+			ref: m,
+			class: u(["canvas", { "canvas--pan": W.value }]),
 			role: "region",
 			"aria-label": "Sign canvas",
 			tabindex: 0,
 			"data-canvas": "",
-			onClick: A,
-			onPointermove: E,
-			onPointerup: D,
-			onPointercancel: O
+			onClick: me,
+			onPointerdown: ue,
+			onPointermove: de,
+			onPointerup: fe,
+			onPointercancel: pe,
+			onKeydown: he,
+			onKeyup: ge
 		}, [
-			(p(!0), r(e, null, h(n.state.symbols, (e) => (p(), r("div", {
+			L.value ? (h(), r("div", {
+				key: 0,
+				ref_key: "scrollLayerEl",
+				ref: y,
+				class: "canvas-scroll-layer",
+				onScrollPassive: oe
+			}, [i("div", {
+				class: "canvas-scroll-sizer",
+				style: d(ie.value)
+			}, null, 4)], 544)) : n("", !0),
+			i("div", {
+				class: "canvas-content",
+				style: d(te.value)
+			}, [(h(!0), r(e, null, v(a.state.symbols, (e) => (h(), r("div", {
 				key: e.id,
-				class: u(["symbol-wrapper", { selected: n.state.selection.has(e.id) }]),
-				style: d(C(e)),
-				tabindex: n.state.selection.has(e.id) ? 0 : -1,
+				class: u(["symbol-wrapper", { selected: a.state.selection.has(e.id) }]),
+				style: d(ce(e)),
+				tabindex: a.state.selection.has(e.id) ? 0 : -1,
+				"data-symbol-id": e.id,
 				role: "img",
 				"aria-label": `Symbol ${e.key}`,
-				"aria-selected": n.state.selection.has(e.id),
-				onPointerdown: (t) => T(e, t),
-				onClick: a[0] ||= w(() => {}, ["stop"])
+				"aria-selected": a.state.selection.has(e.id),
+				onClick: s[0] ||= D(() => {}, ["stop"])
 			}, [i("span", {
-				innerHTML: S(e.key),
+				innerHTML: se(e.key),
 				"aria-hidden": "true"
-			}, null, 8, Ge)], 46, $))), 128)),
-			o(Q, {
-				state: n.state,
-				dispatch: n.dispatch,
-				"mid-width": f.value,
-				"mid-height": g.value,
-				"is-dragging": y(b).isDragging.value
+			}, null, 8, ft)], 14, dt))), 128))], 4),
+			o(ut, {
+				viewport: S(E),
+				onZoomIn: ne,
+				onZoomOut: re,
+				onReset: s[1] ||= (e) => S(M)(),
+				onFit: I,
+				onSetZoom: s[2] ||= (e) => S(j)(e, C.value, T.value)
+			}, null, 8, ["viewport"]),
+			o(rt, {
+				state: a.state,
+				dispatch: a.dispatch,
+				"mid-width": C.value,
+				"mid-height": T.value,
+				"is-dragging": S(V).isDragging.value,
+				viewport: S(E)
 			}, null, 8, [
 				"state",
 				"dispatch",
 				"mid-width",
 				"mid-height",
-				"is-dragging"
+				"is-dragging",
+				"viewport"
 			]),
 			i("div", {
 				ref_key: "liveRegion",
-				ref: l,
+				ref: g,
 				class: "sr-only",
 				role: "status",
 				"aria-live": "polite",
 				"aria-atomic": "true"
 			}, null, 512)
-		], 544));
+		], 34));
 	}
-}), [["__scopeId", "data-v-c1765804"]]), qe = { class: "fsw-panel" }, Je = { class: "fsw-current" }, Ye = { class: "fsw-input-group" }, Xe = /*#__PURE__*/ Z(/* @__PURE__ */ s({
+}), [["__scopeId", "data-v-99187571"]]), mt = { class: "fsw-panel" }, ht = { class: "fsw-current" }, gt = { class: "fsw-input-group" }, _t = /*#__PURE__*/ $(/* @__PURE__ */ s({
 	__name: "FswPanel",
 	props: { fsw: {} },
 	emits: ["load-fsw"],
 	setup(e, { emit: t }) {
-		let n = t, a = m("");
+		let n = t, a = _("");
 		function o() {
 			let e = a.value.trim();
 			e && (n("load-fsw", e), a.value = "");
 		}
-		return (t, n) => (p(), r("footer", qe, [
+		return (t, n) => (h(), r("footer", mt, [
 			n[1] ||= i("span", { class: "fsw-label" }, "FSW:", -1),
-			i("span", Je, _(e.fsw || "(empty)"), 1),
-			i("div", Ye, [S(i("input", {
+			i("span", ht, b(e.fsw || "(empty)"), 1),
+			i("div", gt, [T(i("input", {
 				"onUpdate:modelValue": n[0] ||= (e) => a.value = e,
 				class: "fsw-input",
 				type: "text",
 				placeholder: "Paste FSW to load a sign…",
-				onKeydown: C(o, ["enter"])
-			}, null, 544), [[b, a.value]]), i("button", {
+				onKeydown: E(o, ["enter"])
+			}, null, 544), [[C, a.value]]), i("button", {
 				class: "fsw-load-btn",
 				onClick: o
 			}, "Load")])
 		]));
 	}
-}), [["__scopeId", "data-v-393d8782"]]);
+}), [["__scopeId", "data-v-393d8782"]]), vt = {
+	class: "toolbar",
+	"aria-label": "Editor toolbar"
+}, yt = [
+	"disabled",
+	"aria-disabled",
+	"aria-label"
+], bt = [
+	"disabled",
+	"aria-disabled",
+	"aria-label"
+], xt = /*#__PURE__*/ $(/* @__PURE__ */ s({
+	__name: "ToolbarPanel",
+	props: {
+		canUndo: { type: Boolean },
+		canRedo: { type: Boolean }
+	},
+	emits: [
+		"undo",
+		"redo",
+		"copy-fsw",
+		"paste-fsw"
+	],
+	setup(e) {
+		return (t, n) => (h(), r("nav", vt, [
+			i("button", {
+				class: "tool-btn",
+				disabled: !e.canUndo,
+				"aria-disabled": !e.canUndo,
+				"aria-label": `Undo${e.canUndo ? "" : ", unavailable"} (Ctrl+Z)`,
+				title: "Undo (Ctrl+Z)",
+				onClick: n[0] ||= (e) => t.$emit("undo")
+			}, " Undo ", 8, yt),
+			i("button", {
+				class: "tool-btn",
+				disabled: !e.canRedo,
+				"aria-disabled": !e.canRedo,
+				"aria-label": `Redo${e.canRedo ? "" : ", unavailable"} (Ctrl+Shift+Z)`,
+				title: "Redo (Ctrl+Shift+Z)",
+				onClick: n[1] ||= (e) => t.$emit("redo")
+			}, " Redo ", 8, bt),
+			i("button", {
+				class: "tool-btn",
+				"aria-label": "Copy FSW to clipboard",
+				title: "Copy FSW",
+				onClick: n[2] ||= (e) => t.$emit("copy-fsw")
+			}, " Copy FSW "),
+			i("button", {
+				class: "tool-btn",
+				"aria-label": "Paste FSW from clipboard",
+				title: "Paste FSW",
+				onClick: n[3] ||= (e) => t.$emit("paste-fsw")
+			}, " Paste FSW ")
+		]));
+	}
+}), [["__scopeId", "data-v-11fd1b9c"]]);
 //#endregion
-export { Xe as FswPanel, Ke as SignEditorCanvas, Q as SymbolHandles, We as SymbolPalette, M as createCanvasScope, P as createCommandBus, I as createDefaultHistory, ee as createFocusManager, ne as createMementoCommand, ie as createPaletteScope, oe as createScope, ce as createScopeManager, ue as createSignMaker, K as debounce, be as useEditorState, Se as useKeyboard, G as usePaletteDrag, Y as usePaletteScope, X as useScopeManager, Ce as useSignMaker, W as useSymbolDrag };
+export { _t as FswPanel, pt as SignEditorCanvas, rt as SymbolHandles, nt as SymbolPalette, xt as ToolbarPanel, ut as ZoomControls, re as createCanvasScope, L as createCommandBus, R as createDefaultHistory, oe as createFocusManager, B as createMementoCommand, se as createPaletteScope, H as createScope, W as createScopeManager, K as createSignMaker, je as debounce, Ee as useEditorState, Me as useKeyboard, Ae as usePaletteDrag, Ne as usePaletteScope, Pe as useScopeManager, Fe as useSignMaker, De as useSymbolDrag, Oe as useViewport };

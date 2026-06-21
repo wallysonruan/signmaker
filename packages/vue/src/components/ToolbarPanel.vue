@@ -100,15 +100,17 @@ defineEmits<{
     border-left: none;
     border-right: none;
     border-top: 1px solid #334155;
-    padding: 8px 16px;
+    padding: 4px 8px;
     width: 100%;
     justify-content: center;
-    gap: 8px;
+    gap: 4px;
   }
 
   .tool-btn {
     flex: 1;
-    max-width: 100px;
+    max-width: 80px;
+    padding: 5px 4px;
+    font-size: 0.75rem;
   }
 }
 </style>
