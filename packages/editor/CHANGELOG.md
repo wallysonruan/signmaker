@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/wallysonruan/signmaker/compare/editor-v1.0.0...editor-v1.1.0) (2026-06-21)
+
+### Features
+
+* **editor:** add debounce, alphabet data, and ZoomSliderModel ([#12](https://github.com/wallysonruan/signmaker/issues/12)) ([7423c81](https://github.com/wallysonruan/signmaker/commit/7423c81f2881240b419c955df43f4b3c5f4b2cce)), closes [#e2e8f0](https://github.com/wallysonruan/signmaker/issues/e2e8f0)
+
 ## 1.0.0 (2026-06-20)
 
 ### Features
