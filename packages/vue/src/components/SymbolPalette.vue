@@ -268,12 +268,32 @@ defineExpose({ focus });
 .palette {
   width: 280px;
   flex-shrink: 0;
+  min-height: 0; /* Allow flex to constrain height so overflow-y: auto triggers */
   background: #f8fafc;
   border-left: 1px solid #e2e8f0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   outline: none;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.palette::-webkit-scrollbar {
+  width: 6px;
+}
+
+.palette::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.palette::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.palette::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .palette-section {
@@ -475,6 +495,8 @@ defineExpose({ focus });
     min-height: 0;
     overflow-y: auto;
     align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
   }
 
   /* Variants: 8 columns, shorter rows to fit all 6×8 entries */
@@ -486,6 +508,27 @@ defineExpose({ focus });
     min-height: 0;
     overflow-y: auto;
     align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .group-grid::-webkit-scrollbar,
+  .symbol-grid::-webkit-scrollbar,
+  .variant-grid::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .group-grid::-webkit-scrollbar-track,
+  .symbol-grid::-webkit-scrollbar-track,
+  .variant-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .group-grid::-webkit-scrollbar-thumb,
+  .symbol-grid::-webkit-scrollbar-thumb,
+  .variant-grid::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
   }
 
   /* Buttons fill their grid cell height instead of using aspect-ratio */

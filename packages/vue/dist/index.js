@@ -1,12 +1,12 @@
 import { Fragment as e, computed as t, createCommentVNode as n, createElementBlock as r, createElementVNode as i, createStaticVNode as a, createVNode as o, defineComponent as s, getCurrentInstance as c, nextTick as l, normalizeClass as u, normalizeStyle as d, onBeforeUnmount as f, onMounted as p, onUnmounted as m, openBlock as h, readonly as g, ref as _, renderList as v, shallowRef as y, toDisplayString as b, triggerRef as x, unref as S, vModelText as C, watch as w, withDirectives as T, withKeys as E, withModifiers as D } from "vue";
-import { DEFAULT_BINDINGS as O, EMPTY_STATE as k, INITIAL_PALETTE_NAV as A, VIEWPORT_DEFAULT as j, VIEWPORT_MAX_ZOOM as M, VIEWPORT_MIN_ZOOM as N, VIEWPORT_ZOOM_STEP as P, actionToCommand as F, addSymbol as ee, cancelDrag as I, copySelected as L, createCanvasScope as R, createCanvasScope as z, createCommandBus as te, createCommandBus as ne, createDefaultHistory as B, createDefaultHistory as V, createFocusManager as H, createFocusManager as U, createMementoCommand as W, createMementoCommand as re, createPaletteScope as ie, createPaletteScope as ae, createScope as oe, createScope as se, createScopeManager as G, createScopeManager as ce, createSignMaker as le, createSignMaker as ue, deleteSelected as K, endDrag as de, fitContent as q, getSelected as fe, lookupAction as pe, mirrorSelected as me, paletteBack as he, paletteEnterBase as ge, paletteEnterGroup as _e, paletteSetVariantTab as ve, panViewport as ye, resetViewport as be, rotateSelected as J, screenToWorld as xe, selectNone as Se, startDrag as Ce, updateDrag as we, zoomAt as Y } from "@signwriter/editor";
-import { getSymbolSize as Te, renderSymbol as X } from "@signwriter/renderer";
+import { DEFAULT_BINDINGS as O, EMPTY_STATE as k, INITIAL_PALETTE_NAV as A, VIEWPORT_DEFAULT as j, VIEWPORT_MAX_ZOOM as M, VIEWPORT_MIN_ZOOM as N, VIEWPORT_ZOOM_STEP as P, actionToCommand as F, addSymbol as ee, cancelDrag as te, copySelected as ne, createCanvasScope as re, createCanvasScope as I, createCommandBus as L, createCommandBus as ie, createDefaultHistory as R, createDefaultHistory as ae, createFocusManager as oe, createFocusManager as z, createMementoCommand as B, createMementoCommand as V, createPaletteScope as se, createPaletteScope as ce, createScope as H, createScope as U, createScopeManager as W, createScopeManager as G, createSignMaker as K, createSignMaker as le, deleteSelected as ue, endDrag as de, fitContent as fe, getSelected as pe, lookupAction as me, mirrorSelected as q, paletteBack as he, paletteEnterBase as ge, paletteEnterGroup as _e, paletteSetVariantTab as J, panViewport as ve, resetViewport as Y, rotateSelected as ye, screenToWorld as be, selectNone as xe, startDrag as Se, updateDrag as Ce, zoomAt as X } from "@signwriter/editor";
+import { getSymbolSize as we, renderSymbol as Te } from "@signwriter/renderer";
 //#region src/useEditorState.ts
 function Ee(e = {}) {
-	let n = e.history ?? V(k), r = y(n.current()), i = () => {
+	let n = e.history ?? ae(k), r = y(n.current()), i = () => {
 		r.value = n.current(), x(r);
-	}, a = ne({ apply(e, t) {
-		return n.push(re(t, e)), i(), n.current();
+	}, a = ie({ apply(e, t) {
+		return n.push(V(t, e)), i(), n.current();
 	} }), o = t(() => r.value), s = t(() => (r.value, n.canUndo())), c = t(() => (r.value, n.canRedo()));
 	function l(e) {
 		a.dispatch("", e);
@@ -37,13 +37,13 @@ function Ee(e = {}) {
 function De(e, n, r, i = () => 1) {
 	let a = _(null), o = _(0), s = _(0), c = t(() => a.value !== null);
 	function l(t, r, i) {
-		let { editorState: c, drag: l } = Ce(e(), t);
+		let { editorState: c, drag: l } = Se(e(), t);
 		a.value = l, o.value = r, s.value = i, n(c);
 	}
 	function u(e, t) {
 		if (a.value === null) return;
 		let n = i(), r = (e - o.value) / n, c = (t - s.value) / n;
-		a.value = we(a.value, r, c);
+		a.value = Ce(a.value, r, c);
 	}
 	function d() {
 		if (a.value === null) return;
@@ -51,7 +51,7 @@ function De(e, n, r, i = () => 1) {
 		a.value = null, r((t) => de(t, e));
 	}
 	function f() {
-		a.value !== null && (a.value = null, n(I(e())));
+		a.value !== null && (a.value = null, n(te(e())));
 	}
 	return {
 		isDragging: c,
@@ -66,26 +66,26 @@ function De(e, n, r, i = () => 1) {
 function Oe() {
 	let e = _(j);
 	function t(t, n, r, i) {
-		e.value = Y(e.value, t, n, P, r, i);
+		e.value = X(e.value, t, n, P, r, i);
 	}
 	function n(t, n, r, i) {
-		e.value = Y(e.value, t, n, 1 / P, r, i);
+		e.value = X(e.value, t, n, 1 / P, r, i);
 	}
 	function r(t, n, r, i, a) {
-		e.value = Y(e.value, t, n, r, i, a);
+		e.value = X(e.value, t, n, r, i, a);
 	}
 	function i(t, n, r) {
 		let i = t / e.value.scale;
-		e.value = Y(e.value, n, r, i, n, r);
+		e.value = X(e.value, n, r, i, n, r);
 	}
 	function a() {
-		e.value = be();
+		e.value = Y();
 	}
 	function o(t, n, r) {
-		e.value = q(t, Te, n, r);
+		e.value = fe(t, we, n, r);
 	}
 	function s(t, n) {
-		e.value = ye(e.value, t, n);
+		e.value = ve(e.value, t, n);
 	}
 	return {
 		viewport: g(e),
@@ -105,7 +105,7 @@ function Ae(e) {
 	let n = _(null), r = _(null), i = null, a = t(() => r.value !== null);
 	function o(e, t, n) {
 		let r = document.createElement("div");
-		r.innerHTML = X(e), r.style.cssText = [
+		r.innerHTML = Te(e), r.style.cssText = [
 			"position:fixed",
 			`left:${t}px`,
 			`top:${n}px`,
@@ -192,7 +192,7 @@ function je(e, t) {
 function Me(e, t, n) {
 	function r(r) {
 		function i(r) {
-			let i = r, a = pe(O, i.keyCode, i.shiftKey, i.ctrlKey);
+			let i = r, a = me(O, i.keyCode, i.shiftKey, i.ctrlKey);
 			if (a === null) return;
 			if ((i.keyCode === 8 || i.keyCode === 9 || i.keyCode === 191) && i.preventDefault(), a === "undo") {
 				t();
@@ -554,7 +554,7 @@ var Z = {
 //#endregion
 //#region src/usePaletteScope.ts
 function Ne(e, t) {
-	return ae({
+	return ce({
 		onAddSymbol: e,
 		initialNav: t,
 		itemsAt: (e) => e.level === "groups" ? Q : e.level === "bases" && e.selectedGroup !== null ? Z[e.selectedGroup] ?? [] : [],
@@ -565,12 +565,12 @@ function Ne(e, t) {
 //#endregion
 //#region src/useScopeManager.ts
 function Pe(e, n, r, i = {}) {
-	let a = _(A), o = i.focusManager ?? U(), s = z({
+	let a = _(A), o = i.focusManager ?? z(), s = I({
 		dispatch: e,
 		onUndo: n,
 		onRedo: r,
 		bindings: i.canvasBindings
-	}), c = se("palette"), l = i.scopeManager ?? ce();
+	}), c = U("palette"), l = i.scopeManager ?? G();
 	l.register(s), l.register(c);
 	let u = _("canvas");
 	l.onScopeChanged((e) => {
@@ -607,7 +607,7 @@ function Pe(e, n, r, i = {}) {
 //#endregion
 //#region src/useSignMaker.ts
 function Fe(e = {}) {
-	let { router: n, ...r } = e, i = ue(r), a = y(i.getState()), o = () => {
+	let { router: n, ...r } = e, i = le(r), a = y(i.getState()), o = () => {
 		a.value = i.getState(), x(a);
 	};
 	i.history.onPush(o), i.history.onUndo(o), i.history.onRedo(o), i.history.onClear(o);
@@ -721,7 +721,7 @@ var Ie = {
 			return e.level === "groups" ? Q : e.level === "bases" && e.selectedGroup !== null ? Z[e.selectedGroup] ?? [] : [];
 		});
 		function E(e) {
-			return X(e);
+			return Te(e);
 		}
 		function O(e, t, n) {
 			return e.slice(0, 4) + t.toString() + n.toString(16);
@@ -744,7 +744,7 @@ var Ie = {
 			x(he(y.value));
 		}
 		function P(e) {
-			x(ve(y.value, e));
+			x(J(y.value, e));
 		}
 		function F(e) {
 			w.setNav(y.value), w.scope.handleKey({
@@ -853,7 +853,7 @@ var Ie = {
 	let n = e.__vccOpts || e;
 	for (let [e, r] of t) n[e] = r;
 	return n;
-}, nt = /*#__PURE__*/ $(tt, [["__scopeId", "data-v-bed8a344"]]), rt = /*#__PURE__*/ $(/* @__PURE__ */ s({
+}, nt = /*#__PURE__*/ $(tt, [["__scopeId", "data-v-6ad2c853"]]), rt = /*#__PURE__*/ $(/* @__PURE__ */ s({
 	__name: "SymbolHandles",
 	props: {
 		state: {},
@@ -866,12 +866,12 @@ var Ie = {
 	setup(e) {
 		let o = e, s = t(() => {
 			if (o.isDragging) return null;
-			let e = fe(o.state);
+			let e = pe(o.state);
 			return e.length === 1 ? e[0] : null;
 		}), c = t(() => {
 			let e = s.value;
 			if (!e) return null;
-			let t = Te(e.key) ?? {
+			let t = we(e.key) ?? {
 				width: 40,
 				height: 40
 			}, { scale: n, offsetX: r, offsetY: i } = o.viewport;
@@ -894,22 +894,22 @@ var Ie = {
 			} : {};
 		});
 		function u() {
-			o.dispatch(J(-1));
+			o.dispatch(ye(-1));
 		}
 		function f() {
-			o.dispatch(J(1));
+			o.dispatch(ye(1));
 		}
 		function p() {
-			o.dispatch(me());
+			o.dispatch(q());
 		}
 		function m() {
-			o.dispatch((e) => me()(J(4)(e)));
+			o.dispatch((e) => q()(ye(4)(e)));
 		}
 		function g() {
-			o.dispatch(L(() => crypto.randomUUID()));
+			o.dispatch(ne(() => crypto.randomUUID()));
 		}
 		function _() {
-			o.dispatch(K());
+			o.dispatch(ue());
 		}
 		return (e, t) => c.value ? (h(), r("div", {
 			key: 0,
@@ -1028,51 +1028,78 @@ var Ie = {
 		dispatch: { type: Function },
 		replaceState: { type: Function }
 	},
-	setup(n, { expose: a }) {
-		let s = n, c = _(null), l = _(null), m = _(600), g = _(500), y = t(() => m.value / 2), b = t(() => g.value / 2), { viewport: x, zoomIn: C, zoomOut: T, zoomAtPoint: E, setZoom: O, reset: k, fit: A, pan: j } = Oe(), M = t(() => ({ transform: `translate(${y.value + x.value.offsetX}px, ${b.value + x.value.offsetY}px) scale(${x.value.scale})` }));
-		function N() {
-			C(y.value, b.value, y.value, b.value);
+	setup(a, { expose: s }) {
+		let c = a, m = _(null), g = _(null), y = _(null), b = _(600), x = _(500), C = t(() => b.value / 2), T = t(() => x.value / 2), { viewport: E, zoomIn: O, zoomOut: k, zoomAtPoint: A, setZoom: j, reset: M, fit: N, pan: F } = Oe(), te = t(() => ({ transform: `translate(${C.value + E.value.offsetX}px, ${T.value + E.value.offsetY}px) scale(${E.value.scale})` }));
+		function ne() {
+			O(C.value, T.value, C.value, T.value);
 		}
-		function F() {
-			T(y.value, b.value, y.value, b.value);
+		function re() {
+			k(C.value, T.value, C.value, T.value);
 		}
 		function I() {
-			A(s.state.symbols, m.value, g.value);
+			N(c.state.symbols, b.value, x.value);
 		}
-		let L = _(null), R = _(null), z = De(() => s.state, (e) => s.replaceState(e), (e) => s.dispatch(e), () => x.value.scale);
-		function te(e) {
-			return X(e);
+		let L = t(() => E.value.scale > 1), ie = t(() => {
+			let e = E.value.scale;
+			return {
+				width: b.value * e * 2 + "px",
+				height: x.value * e * 2 + "px",
+				pointerEvents: "none"
+			};
+		}), R = !1;
+		function ae() {
+			let e = y.value;
+			if (!e) return;
+			R = !0;
+			let t = E.value;
+			e.scrollLeft = C.value * t.scale - t.offsetX, e.scrollTop = T.value * t.scale - t.offsetY, requestAnimationFrame(() => {
+				R = !1;
+			});
 		}
-		function ne(e) {
+		function oe(e) {
+			if (R) return;
+			let t = e.target, n = E.value, r = C.value * n.scale - t.scrollLeft, i = T.value * n.scale - t.scrollTop, a = r - n.offsetX, o = i - n.offsetY;
+			(Math.abs(a) > .5 || Math.abs(o) > .5) && F(a, o);
+		}
+		w(() => E.value, () => {
+			L.value && ae();
+		}, { flush: "post" }), w(L, (e) => {
+			e && l(() => ae());
+		});
+		let z = _(null), B = _(null), V = De(() => c.state, (e) => c.replaceState(e), (e) => c.dispatch(e), () => E.value.scale);
+		function se(e) {
+			return Te(e);
+		}
+		function ce(e) {
 			let t = e.x - 500, n = e.y - 500;
-			return L.value?.symbolId === e.id && (t += L.value.dx, n += L.value.dy), {
+			return z.value?.symbolId === e.id && (t += z.value.dx, n += z.value.dy), {
 				position: "absolute",
 				left: t + "px",
 				top: n + "px",
-				cursor: z.isDragging.value ? "grabbing" : "grab",
-				zIndex: s.state.selection.has(e.id) ? "10" : "1"
+				cursor: V.isDragging.value ? "grabbing" : "grab",
+				zIndex: c.state.selection.has(e.id) ? "10" : "1"
 			};
 		}
-		let B = /* @__PURE__ */ new Map(), V = _(null), H = _(!1), U = 0;
-		function W() {
-			if (B.size < 2) return null;
-			let [e, t] = [...B.values()];
+		let H = /* @__PURE__ */ new Map(), U = _(null), W = _(!1), G = !1, K = 0;
+		function le() {
+			if (H.size < 2) return null;
+			let [e, t] = [...H.values()];
 			return {
 				midX: (e.x + t.x) / 2,
 				midY: (e.y + t.y) / 2,
 				dist: Math.hypot(t.x - e.x, t.y - e.y)
 			};
 		}
-		function re(e) {
-			if (B.set(e.pointerId, {
+		function ue(e) {
+			if (H.set(e.pointerId, {
 				x: e.clientX,
 				y: e.clientY
-			}), c.value?.setPointerCapture(e.pointerId), B.size >= 2) {
-				z.isDragging.value && z.onPointerCancel(), L.value = null, R.value = null, V.value = null, U = W()?.dist ?? 0;
+			}), m.value?.setPointerCapture(e.pointerId), H.size >= 2) {
+				V.isDragging.value && V.onPointerCancel(), z.value = null, B.value = null, U.value = null, K = le()?.dist ?? 0;
 				return;
 			}
-			if (e.button === 1 || e.button === 0 && H.value) {
-				e.preventDefault(), V.value = {
+			if (e.button === 1 || e.button === 0 && W.value) {
+				e.preventDefault(), U.value = {
 					x: e.clientX,
 					y: e.clientY,
 					pointerId: e.pointerId
@@ -1080,95 +1107,102 @@ var Ie = {
 				return;
 			}
 			if (e.button === 0) {
-				let t = e.target.closest("[data-symbol-id]")?.getAttribute("data-symbol-id") ?? null, n = t ? s.state.symbols.find((e) => e.id === t) ?? null : null;
-				n && (R.value = {
+				let t = e.target.closest("[data-symbol-id]")?.getAttribute("data-symbol-id") ?? null, n = t ? c.state.symbols.find((e) => e.id === t) ?? null : null;
+				n ? (B.value = {
 					x: e.clientX,
 					y: e.clientY
-				}, L.value = {
+				}, z.value = {
 					symbolId: n.id,
 					dx: 0,
 					dy: 0
-				}, z.onPointerDown(n.id, e.clientX, e.clientY));
+				}, V.onPointerDown(n.id, e.clientX, e.clientY)) : (G = !1, U.value = {
+					x: e.clientX,
+					y: e.clientY,
+					pointerId: e.pointerId
+				});
 			}
 		}
-		function ie(e) {
-			if (B.set(e.pointerId, {
+		function de(e) {
+			if (H.set(e.pointerId, {
 				x: e.clientX,
 				y: e.clientY
-			}), B.size >= 2) {
-				let e = W();
-				if (e && U > 0) {
-					let t = e.dist / U, n = c.value.getBoundingClientRect();
-					E(e.midX - n.left, e.midY - n.top, t, y.value, b.value);
+			}), H.size >= 2) {
+				let e = le();
+				if (e && K > 0) {
+					let t = e.dist / K, n = m.value.getBoundingClientRect();
+					A(e.midX - n.left, e.midY - n.top, t, C.value, T.value);
 				}
-				U = e?.dist ?? 0;
+				K = e?.dist ?? 0;
 				return;
 			}
-			if (V.value?.pointerId === e.pointerId) {
-				let t = e.clientX - V.value.x, n = e.clientY - V.value.y;
-				V.value = {
-					...V.value,
+			if (U.value?.pointerId === e.pointerId) {
+				let t = e.clientX - U.value.x, n = e.clientY - U.value.y;
+				!G && Math.hypot(t, n) > 4 && (G = !0), U.value = {
+					...U.value,
 					x: e.clientX,
 					y: e.clientY
-				}, j(t, n);
+				}, F(t, n);
 				return;
 			}
-			if (!L.value || !R.value) return;
-			let t = x.value.scale, n = (e.clientX - R.value.x) / t, r = (e.clientY - R.value.y) / t;
-			L.value = {
-				...L.value,
+			if (!z.value || !B.value) return;
+			let t = E.value.scale, n = (e.clientX - B.value.x) / t, r = (e.clientY - B.value.y) / t;
+			z.value = {
+				...z.value,
 				dx: n,
 				dy: r
-			}, z.onPointerMove(e.clientX, e.clientY);
+			}, V.onPointerMove(e.clientX, e.clientY);
 		}
-		function ae(e) {
-			if (B.delete(e.pointerId), V.value?.pointerId === e.pointerId) {
-				V.value = null;
+		function fe(e) {
+			if (H.delete(e.pointerId), U.value?.pointerId === e.pointerId) {
+				U.value = null;
 				return;
 			}
-			if (L.value && z.isDragging.value) {
-				L.value = null, R.value = null, z.onPointerUp();
+			if (z.value && V.isDragging.value) {
+				z.value = null, B.value = null, V.onPointerUp();
 				return;
 			}
 		}
-		function oe(e) {
-			if (B.delete(e.pointerId), V.value?.pointerId === e.pointerId) {
-				V.value = null;
+		function pe(e) {
+			if (H.delete(e.pointerId), U.value?.pointerId === e.pointerId) {
+				U.value = null;
 				return;
 			}
-			L.value && (L.value = null, R.value = null, z.onPointerCancel());
+			z.value && (z.value = null, B.value = null, V.onPointerCancel());
 		}
-		function se(e) {
-			s.dispatch((e) => Se(e));
+		function me(e) {
+			if (G) {
+				G = !1;
+				return;
+			}
+			c.dispatch((e) => xe(e));
 		}
-		function G(e) {
-			if (!c.value) return;
-			if (e.ctrlKey) {
-				e.preventDefault();
-				let t = c.value.getBoundingClientRect();
-				E(e.clientX - t.left, e.clientY - t.top, P ** (-(e.deltaMode === 0 ? e.deltaY : e.deltaY * 16) / 100), y.value, b.value);
+		function q(e) {
+			if (!m.value) return;
+			if (e.preventDefault(), e.ctrlKey) {
+				let t = m.value.getBoundingClientRect();
+				A(e.clientX - t.left, e.clientY - t.top, P ** (-(e.deltaMode === 0 ? e.deltaY : e.deltaY * 16) / 100), C.value, T.value);
 				return;
 			}
 			let t = e.deltaMode === 0 ? e.deltaX : e.deltaX * 16, n = e.deltaMode === 0 ? e.deltaY : e.deltaY * 16;
-			j(-t, -n);
+			F(-t, -n);
 		}
-		function ce(e) {
+		function he(e) {
 			let t = e.ctrlKey || e.metaKey;
 			if (e.key === " " && !e.repeat) {
-				H.value = !0, e.preventDefault();
+				W.value = !0, e.preventDefault();
 				return;
 			}
 			if (t) switch (e.key) {
 				case "=":
 				case "+":
-					e.preventDefault(), N();
+					e.preventDefault(), ne();
 					break;
 				case "-":
 				case "_":
-					e.preventDefault(), F();
+					e.preventDefault(), re();
 					break;
 				case "0":
-					e.preventDefault(), k();
+					e.preventDefault(), M();
 					break;
 				case "F":
 				case "f":
@@ -1176,99 +1210,109 @@ var Ie = {
 					break;
 			}
 		}
-		function le(e) {
-			e.key === " " && (H.value = !1);
+		function ge(e) {
+			e.key === " " && (W.value = !1);
 		}
-		function ue(e, t, n) {
-			if (!c.value) return;
-			let r = c.value.getBoundingClientRect(), { x: i, y: a } = xe(t - r.left, n - r.top, x.value, y.value, b.value);
-			s.dispatch(ee(e, Math.round(i), Math.round(a), () => crypto.randomUUID()));
+		function _e(e, t, n) {
+			if (!m.value) return;
+			let r = m.value.getBoundingClientRect(), { x: i, y: a } = be(t - r.left, n - r.top, E.value, C.value, T.value);
+			c.dispatch(ee(e, Math.round(i), Math.round(a), () => crypto.randomUUID()));
 		}
-		function K(e) {
-			l.value && (l.value.textContent = "", requestAnimationFrame(() => {
-				l.value && (l.value.textContent = e);
+		function J(e) {
+			g.value && (g.value.textContent = "", requestAnimationFrame(() => {
+				g.value && (g.value.textContent = e);
 			}));
 		}
-		w(() => s.state, (e, t) => {
+		w(() => c.state, (e, t) => {
 			let n = e.symbols.length - t.symbols.length;
 			if (n > 0) {
 				let t = e.symbols[e.symbols.length - 1];
-				K(`Symbol ${t?.key ?? ""} added`);
+				J(`Symbol ${t?.key ?? ""} added`);
 			} else if (n < 0) {
 				let e = Math.abs(n);
-				K(e === 1 ? "Symbol deleted" : `${e} symbols deleted`);
-			} else if (e.selection.size !== t.selection.size) if (e.selection.size === 0) K("Selection cleared");
+				J(e === 1 ? "Symbol deleted" : `${e} symbols deleted`);
+			} else if (e.selection.size !== t.selection.size) if (e.selection.size === 0) J("Selection cleared");
 			else {
 				let t = [...e.selection], n = e.symbols.find((e) => e.id === t[0]);
-				K(n ? `${n.key} selected` : "Symbol selected");
+				J(n ? `${n.key} selected` : "Symbol selected");
 			}
-		}, { deep: !1 }), w(() => s.state.selection, (e) => {
-			if (e.size !== 1 || !c.value) return;
-			let t = c.value.querySelector("[aria-selected=\"true\"]");
-			c.value.contains(document.activeElement) && t?.focus();
+		}, { deep: !1 }), w(() => c.state.selection, (e) => {
+			if (e.size !== 1 || !m.value) return;
+			let t = m.value.querySelector("[aria-selected=\"true\"]");
+			m.value.contains(document.activeElement) && t?.focus();
 		}, { deep: !0 });
-		function de() {
-			(c.value?.querySelector("[aria-selected=\"true\"]") ?? c.value)?.focus();
+		function ve() {
+			(m.value?.querySelector("[aria-selected=\"true\"]") ?? m.value)?.focus();
 		}
-		let q = null;
+		let Y = null;
 		return p(() => {
-			c.value && (m.value = c.value.clientWidth, g.value = c.value.clientHeight, q = new ResizeObserver((e) => {
+			m.value && (b.value = m.value.clientWidth, x.value = m.value.clientHeight, Y = new ResizeObserver((e) => {
 				let t = e[0];
-				t && (m.value = t.contentRect.width, g.value = t.contentRect.height);
-			}), q.observe(c.value), c.value.addEventListener("wheel", G, { passive: !1 }));
+				t && (b.value = t.contentRect.width, x.value = t.contentRect.height);
+			}), Y.observe(m.value), m.value.addEventListener("wheel", q, { passive: !1 }));
 		}), f(() => {
-			c.value?.removeEventListener("wheel", G), q?.disconnect();
-		}), a({
-			focus: de,
-			dropSymbolAt: ue
-		}), (t, a) => (h(), r("div", {
+			m.value?.removeEventListener("wheel", q), Y?.disconnect();
+		}), s({
+			focus: ve,
+			dropSymbolAt: _e
+		}), (t, s) => (h(), r("div", {
 			ref_key: "canvasEl",
-			ref: c,
-			class: u(["canvas", { "canvas--pan": H.value }]),
+			ref: m,
+			class: u(["canvas", { "canvas--pan": W.value }]),
 			role: "region",
 			"aria-label": "Sign canvas",
 			tabindex: 0,
 			"data-canvas": "",
-			onClick: se,
-			onPointerdown: re,
-			onPointermove: ie,
-			onPointerup: ae,
-			onPointercancel: oe,
-			onKeydown: ce,
-			onKeyup: le
+			onClick: me,
+			onPointerdown: ue,
+			onPointermove: de,
+			onPointerup: fe,
+			onPointercancel: pe,
+			onKeydown: he,
+			onKeyup: ge
 		}, [
+			L.value ? (h(), r("div", {
+				key: 0,
+				ref_key: "scrollLayerEl",
+				ref: y,
+				class: "canvas-scroll-layer",
+				onScrollPassive: oe
+			}, [i("div", {
+				class: "canvas-scroll-sizer",
+				style: d(ie.value)
+			}, null, 4)], 544)) : n("", !0),
 			i("div", {
 				class: "canvas-content",
-				style: d(M.value)
-			}, [(h(!0), r(e, null, v(n.state.symbols, (e) => (h(), r("div", {
+				style: d(te.value)
+			}, [(h(!0), r(e, null, v(a.state.symbols, (e) => (h(), r("div", {
 				key: e.id,
-				class: u(["symbol-wrapper", { selected: n.state.selection.has(e.id) }]),
-				style: d(ne(e)),
-				tabindex: n.state.selection.has(e.id) ? 0 : -1,
+				class: u(["symbol-wrapper", { selected: a.state.selection.has(e.id) }]),
+				style: d(ce(e)),
+				tabindex: a.state.selection.has(e.id) ? 0 : -1,
 				"data-symbol-id": e.id,
 				role: "img",
 				"aria-label": `Symbol ${e.key}`,
-				"aria-selected": n.state.selection.has(e.id),
-				onClick: a[0] ||= D(() => {}, ["stop"])
+				"aria-selected": a.state.selection.has(e.id),
+				onClick: s[0] ||= D(() => {}, ["stop"])
 			}, [i("span", {
-				innerHTML: te(e.key),
+				innerHTML: se(e.key),
 				"aria-hidden": "true"
 			}, null, 8, ft)], 14, dt))), 128))], 4),
 			o(ut, {
-				viewport: S(x),
-				onZoomIn: N,
-				onZoomOut: F,
-				onReset: a[1] ||= (e) => S(k)(),
+				viewport: S(E),
+				onZoomIn: ne,
+				onZoomOut: re,
+				onReset: s[1] ||= (e) => S(M)(),
 				onFit: I,
-				onSetZoom: a[2] ||= (e) => S(O)(e, y.value, b.value)
+				onSetZoom: s[2] ||= (e) => S(j)(e, C.value, T.value)
 			}, null, 8, ["viewport"]),
 			o(rt, {
-				state: n.state,
-				dispatch: n.dispatch,
-				"mid-width": y.value,
-				"mid-height": b.value,
-				"is-dragging": S(z).isDragging.value,
-				viewport: S(x)
+				state: a.state,
+				dispatch: a.dispatch,
+				"mid-width": C.value,
+				"mid-height": T.value,
+				"is-dragging": S(V).isDragging.value,
+				viewport: S(E)
 			}, null, 8, [
 				"state",
 				"dispatch",
@@ -1279,7 +1323,7 @@ var Ie = {
 			]),
 			i("div", {
 				ref_key: "liveRegion",
-				ref: l,
+				ref: g,
 				class: "sr-only",
 				role: "status",
 				"aria-live": "polite",
@@ -1287,7 +1331,7 @@ var Ie = {
 			}, null, 512)
 		], 34));
 	}
-}), [["__scopeId", "data-v-03449b2c"]]), mt = { class: "fsw-panel" }, ht = { class: "fsw-current" }, gt = { class: "fsw-input-group" }, _t = /*#__PURE__*/ $(/* @__PURE__ */ s({
+}), [["__scopeId", "data-v-99187571"]]), mt = { class: "fsw-panel" }, ht = { class: "fsw-current" }, gt = { class: "fsw-input-group" }, _t = /*#__PURE__*/ $(/* @__PURE__ */ s({
 	__name: "FswPanel",
 	props: { fsw: {} },
 	emits: ["load-fsw"],
@@ -1369,4 +1413,4 @@ var Ie = {
 	}
 }), [["__scopeId", "data-v-11fd1b9c"]]);
 //#endregion
-export { _t as FswPanel, pt as SignEditorCanvas, rt as SymbolHandles, nt as SymbolPalette, xt as ToolbarPanel, ut as ZoomControls, R as createCanvasScope, te as createCommandBus, B as createDefaultHistory, H as createFocusManager, W as createMementoCommand, ie as createPaletteScope, oe as createScope, G as createScopeManager, le as createSignMaker, je as debounce, Ee as useEditorState, Me as useKeyboard, Ae as usePaletteDrag, Ne as usePaletteScope, Pe as useScopeManager, Fe as useSignMaker, De as useSymbolDrag, Oe as useViewport };
+export { _t as FswPanel, pt as SignEditorCanvas, rt as SymbolHandles, nt as SymbolPalette, xt as ToolbarPanel, ut as ZoomControls, re as createCanvasScope, L as createCommandBus, R as createDefaultHistory, oe as createFocusManager, B as createMementoCommand, se as createPaletteScope, H as createScope, W as createScopeManager, K as createSignMaker, je as debounce, Ee as useEditorState, Me as useKeyboard, Ae as usePaletteDrag, Ne as usePaletteScope, Pe as useScopeManager, Fe as useSignMaker, De as useSymbolDrag, Oe as useViewport };

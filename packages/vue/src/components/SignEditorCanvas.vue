@@ -15,6 +15,21 @@
     @keydown="onKeydown"
     @keyup="onKeyup"
   >
+    <!--
+      Virtual scroll layer — sits behind content (z-index 1).
+      Its phantom sizer makes the browser show scrollbars when zoomed in.
+      Wheel events are always preventDefault()'d so only scrollbar drags
+      move this layer; we translate those into viewport pans.
+    -->
+    <div
+      v-if="isZoomedIn"
+      ref="scrollLayerEl"
+      class="canvas-scroll-layer"
+      @scroll.passive="onScrollLayerScroll"
+    >
+      <div class="canvas-scroll-sizer" :style="scrollSizerStyle" />
+    </div>
+
     <!-- Content layer: symbols in FSW world space, scaled by viewport transform -->
     <div class="canvas-content" :style="contentStyle">
       <div
@@ -66,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { useSymbolDrag } from '../useSymbolDrag';
 import { useViewport } from '../useViewport';
 import { selectNone, addSymbol, screenToWorld, VIEWPORT_ZOOM_STEP } from '@signwriter/editor';
@@ -83,8 +98,9 @@ const props = defineProps<{
 
 // ─── Canvas element + size ────────────────────────────────────────────────────
 
-const canvasEl  = ref<HTMLElement | null>(null);
-const liveRegion = ref<HTMLElement | null>(null);
+const canvasEl    = ref<HTMLElement | null>(null);
+const liveRegion  = ref<HTMLElement | null>(null);
+const scrollLayerEl = ref<HTMLElement | null>(null);
 
 const canvasW = ref(600);
 const canvasH = ref(500);
@@ -111,6 +127,59 @@ function onZoomOut(): void {
 function onFit(): void {
   fit(props.state.symbols, canvasW.value, canvasH.value);
 }
+
+// ─── Virtual scroll layer (scrollbars when zoomed in) ─────────────────────────
+
+const isZoomedIn = computed(() => viewport.value.scale > 1);
+
+/** Phantom sizer: 2× the canvas at current scale so scrollbars have room. */
+const scrollSizerStyle = computed(() => {
+  const s = viewport.value.scale;
+  return {
+    width:  (canvasW.value  * s * 2) + 'px',
+    height: (canvasH.value * s * 2) + 'px',
+    pointerEvents: 'none' as const,
+  };
+});
+
+/**
+ * Sync: viewport → scrollLayer.
+ * scrollLeft = midW * scale - offsetX  (center = 0 pan)
+ * scrollTop  = midH * scale - offsetY
+ */
+let syncingScroll = false;
+
+function syncScrollFromViewport(): void {
+  const el = scrollLayerEl.value;
+  if (!el) return;
+  syncingScroll = true;
+  const vp = viewport.value;
+  el.scrollLeft = midWidth.value  * vp.scale - vp.offsetX;
+  el.scrollTop  = midHeight.value * vp.scale - vp.offsetY;
+  requestAnimationFrame(() => { syncingScroll = false; });
+}
+
+/** Sync: scrollLayer drag → viewport pan. */
+function onScrollLayerScroll(e: Event): void {
+  if (syncingScroll) return;
+  const el = e.target as HTMLElement;
+  const vp = viewport.value;
+  const newOffsetX = midWidth.value  * vp.scale - el.scrollLeft;
+  const newOffsetY = midHeight.value * vp.scale - el.scrollTop;
+  const dx = newOffsetX - vp.offsetX;
+  const dy = newOffsetY - vp.offsetY;
+  if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) pan(dx, dy);
+}
+
+// Keep scrollLayer in sync whenever the viewport changes.
+watch(() => viewport.value, () => {
+  if (isZoomedIn.value) syncScrollFromViewport();
+}, { flush: 'post' });
+
+// Initialise scroll position the first frame the layer is mounted.
+watch(isZoomedIn, (nowZoomed) => {
+  if (nowZoomed) nextTick(() => syncScrollFromViewport());
+});
 
 // ─── Symbol drag ──────────────────────────────────────────────────────────────
 
@@ -149,9 +218,11 @@ function symbolStyle(sym: EditorSymbol): Record<string, string> {
 // Track all active pointers for pinch detection
 const pointerMap = new Map<number, { x: number; y: number }>();
 
-// Pan state (middle mouse or space+drag)
-const panOrigin = ref<{ x: number; y: number; pointerId: number } | null>(null);
-const spaceDown = ref(false);
+// Pan state (middle mouse, space+drag, or background drag)
+const panOrigin  = ref<{ x: number; y: number; pointerId: number } | null>(null);
+const spaceDown  = ref(false);
+// Suppress the deselect-click when the user dragged the background instead
+let panMoved = false;
 
 // Pinch state: distance between two active pointers on last frame
 let prevPinchDist = 0;
@@ -188,7 +259,7 @@ function onCanvasPointerDown(e: PointerEvent): void {
     return;
   }
 
-  // Left button on a symbol = drag
+  // Left button: symbol drag or background pan
   if (e.button === 0) {
     const symbolEl = (e.target as Element).closest('[data-symbol-id]');
     const symbolId = symbolEl?.getAttribute('data-symbol-id') ?? null;
@@ -197,6 +268,10 @@ function onCanvasPointerDown(e: PointerEvent): void {
       dragOrigin.value = { x: e.clientX, y: e.clientY };
       dragOffset.value = { symbolId: sym.id, dx: 0, dy: 0 };
       drag.onPointerDown(sym.id, e.clientX, e.clientY);
+    } else {
+      // Background drag = pan (works on touch too, enables one-finger pan on mobile)
+      panMoved = false;
+      panOrigin.value = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
     }
   }
 }
@@ -220,6 +295,7 @@ function onCanvasPointerMove(e: PointerEvent): void {
   if (panOrigin.value?.pointerId === e.pointerId) {
     const dx = e.clientX - panOrigin.value.x;
     const dy = e.clientY - panOrigin.value.y;
+    if (!panMoved && Math.hypot(dx, dy) > 4) panMoved = true;
     panOrigin.value = { ...panOrigin.value, x: e.clientX, y: e.clientY };
     pan(dx, dy);
     return;
@@ -268,6 +344,7 @@ function onCanvasPointerCancel(e: PointerEvent): void {
 // ─── Canvas background click → deselect ──────────────────────────────────────
 
 function onCanvasClick(_e: MouseEvent): void {
+  if (panMoved) { panMoved = false; return; } // drag, not a click
   props.dispatch((state) => selectNone(state));
 }
 
@@ -275,14 +352,16 @@ function onCanvasClick(_e: MouseEvent): void {
 
 function onWheel(e: WheelEvent): void {
   if (!canvasEl.value) return;
+  // Always prevent default: we own all wheel events on the canvas.
+  // This stops the browser from scrolling the virtual scroll layer directly
+  // (only scrollbar drags move it; wheel goes through our pan/zoom logic).
+  e.preventDefault();
 
   // Ctrl+Wheel or trackpad pinch gesture (browser synthesises ctrlKey)
   if (e.ctrlKey) {
-    e.preventDefault();
-    const rect   = canvasEl.value.getBoundingClientRect();
+    const rect    = canvasEl.value.getBoundingClientRect();
     const screenX = e.clientX - rect.left;
     const screenY = e.clientY - rect.top;
-    // Normalise pixel / line / page deltas to a comparable magnitude
     const rawDelta = e.deltaMode === 0 ? e.deltaY : e.deltaY * 16;
     const factor   = Math.pow(VIEWPORT_ZOOM_STEP, -rawDelta / 100);
     zoomAtPoint(screenX, screenY, factor, midWidth.value, midHeight.value);
@@ -451,6 +530,38 @@ defineExpose({ focus, dropSymbolAt });
   cursor: grabbing;
 }
 
+/* Virtual scroll layer: behind all content but provides native scrollbars */
+.canvas-scroll-layer {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  z-index: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+}
+
+.canvas-scroll-layer::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.canvas-scroll-layer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.canvas-scroll-layer::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.45);
+  border-radius: 4px;
+}
+
+.canvas-scroll-layer::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+.canvas-scroll-layer::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 /* The content layer sits at (0,0) and is moved by the viewport transform */
 .canvas-content {
   position: absolute;
@@ -458,6 +569,7 @@ defineExpose({ focus, dropSymbolAt });
   left: 0;
   width: 0;
   height: 0;
+  z-index: 2; /* Above scroll layer (z-index: 1) */
   transform-origin: 0 0;
   will-change: transform;
 }
