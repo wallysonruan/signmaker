@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/wallysonruan/signmaker/compare/vue-v1.1.0...vue-v1.1.1) (2026-06-21)
+
+### Bug Fixes
+
+* **vue:** prevent double-click from adding symbol twice at groups/bases level ([#8](https://github.com/wallysonruan/signmaker/issues/8)) ([70defee](https://github.com/wallysonruan/signmaker/commit/70defee101c6e3e3ed37efd50c10051bdfb40d0f))
+
 ## [1.1.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.0.0...vue-v1.1.0) (2026-06-21)
 
 ### Features
