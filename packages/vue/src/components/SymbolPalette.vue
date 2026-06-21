@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, onUnmounted } from 'vue';
 import { renderSymbol } from '@signwriter/renderer';
 import { usePaletteDrag } from '../usePaletteDrag';
 import { ALPHABET, GROUPS } from '../data/alphabet';
@@ -129,6 +129,7 @@ import {
   type VariantTab,
 } from '@signwriter/editor';
 import { usePaletteScope } from '../usePaletteScope';
+import { debounce } from '../debounce';
 
 const props = defineProps<{
   /** External navigation state. When provided the component is controlled (model-style). */
@@ -195,11 +196,14 @@ function variantKey(baseKey: string, fillDigit: number, rotation: number): strin
 
 // ─── Click/dblclick interaction model ─────────────────────────────────────────
 
+const addSymbolDebounced = debounce((key: string) => emit('add-symbol', key), 300);
+onUnmounted(() => addSymbolDebounced.cancel());
+
 function onItemClick(key: string): void {
   if ((props.clickBehavior ?? 'add') === 'add') {
-    emit('add-symbol', key);
+    addSymbolDebounced(key);
   } else {
-    // Legacy navigate mode
+    // Legacy navigate mode — single click drills down immediately
     if (navState.value.level === 'groups') applyNav(paletteEnterGroup(navState.value, key));
     else if (navState.value.level === 'bases') applyNav(paletteEnterBase(navState.value, key));
   }
@@ -210,6 +214,8 @@ function onItemDblClick(idx: number, key: string): void {
     // Legacy mode: dblclick does nothing extra (single click already navigated)
     return;
   }
+  // Cancel any pending debounced add before expanding variants
+  addSymbolDebounced.cancel();
   // New model: dblclick expands
   if (navState.value.level === 'groups') {
     applyNav(paletteEnterGroup({ ...navState.value, focusedIndex: idx }, key));
