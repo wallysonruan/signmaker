@@ -84,6 +84,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build packages
+        run: make build
+
       - name: Build Vue app
         run: make build-app
 
