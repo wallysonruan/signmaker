@@ -4,6 +4,10 @@ export type { CommandBusPort, BeforeHook, AfterHook, Interceptor, Unsubscribe, H
 export { createCommandBus, createDefaultHistory, createMementoCommand } from '@signwriter/editor';
 export { useSymbolDrag } from './useSymbolDrag';
 export type { UseSymbolDragReturn } from './useSymbolDrag';
+export { usePaletteDrag } from './usePaletteDrag';
+export type { UsePaletteDragReturn } from './usePaletteDrag';
+export { debounce } from './debounce';
+export type { DebouncedFn } from './debounce';
 export { useKeyboard } from './useKeyboard';
 export type { UseKeyboardReturn } from './useKeyboard';
 export { usePaletteScope } from './usePaletteScope';

@@ -12,6 +12,9 @@ export type { UseSymbolDragReturn } from './useSymbolDrag';
 export { usePaletteDrag } from './usePaletteDrag';
 export type { UsePaletteDragReturn } from './usePaletteDrag';
 
+export { debounce } from './debounce';
+export type { DebouncedFn } from './debounce';
+
 export { useKeyboard } from './useKeyboard';
 export type { UseKeyboardReturn } from './useKeyboard';
 
