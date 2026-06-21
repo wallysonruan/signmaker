@@ -414,7 +414,8 @@ defineExpose({ focus });
   /* Palette owns a fixed share of the viewport — no page scroll ever */
   .palette {
     width: 100%;
-    height: clamp(200px, 36vh, 280px);
+    height: clamp(200px, 36vh, 280px);   /* fallback */
+    height: clamp(200px, 36dvh, 280px);  /* tracks dynamic viewport */
     max-height: none;
     flex-shrink: 0;
     border-left: none;
