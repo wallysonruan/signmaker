@@ -2,37 +2,56 @@
   <div
     ref="canvasEl"
     class="canvas"
+    :class="{ 'canvas--pan': spaceDown }"
     role="region"
     aria-label="Sign canvas"
     :tabindex="0"
     data-canvas
     @click="onCanvasClick"
+    @pointerdown="onCanvasPointerDown"
     @pointermove="onCanvasPointerMove"
     @pointerup="onCanvasPointerUp"
     @pointercancel="onCanvasPointerCancel"
+    @keydown="onKeydown"
+    @keyup="onKeyup"
   >
-    <div
-      v-for="sym in state.symbols"
-      :key="sym.id"
-      class="symbol-wrapper"
-      :class="{ selected: state.selection.has(sym.id) }"
-      :style="symbolStyle(sym)"
-      :tabindex="state.selection.has(sym.id) ? 0 : -1"
-      role="img"
-      :aria-label="`Symbol ${sym.key}`"
-      :aria-selected="state.selection.has(sym.id)"
-      @pointerdown="(e: PointerEvent) => onSymbolPointerDown(sym, e)"
-      @click.stop
-    >
-      <span v-html="renderSym(sym.key)" aria-hidden="true" />
+    <!-- Content layer: symbols in FSW world space, scaled by viewport transform -->
+    <div class="canvas-content" :style="contentStyle">
+      <div
+        v-for="sym in state.symbols"
+        :key="sym.id"
+        class="symbol-wrapper"
+        :class="{ selected: state.selection.has(sym.id) }"
+        :style="symbolStyle(sym)"
+        :tabindex="state.selection.has(sym.id) ? 0 : -1"
+        :data-symbol-id="sym.id"
+        role="img"
+        :aria-label="`Symbol ${sym.key}`"
+        :aria-selected="state.selection.has(sym.id)"
+        @click.stop
+      >
+        <span v-html="renderSym(sym.key)" aria-hidden="true" />
+      </div>
     </div>
 
+    <!-- Zoom controls — screen space, outside transform layer -->
+    <ZoomControls
+      :viewport="viewport"
+      @zoom-in="onZoomIn"
+      @zoom-out="onZoomOut"
+      @reset="reset()"
+      @fit="onFit"
+      @set-zoom="(s) => setZoom(s, midWidth, midHeight)"
+    />
+
+    <!-- Selection handles — screen space, outside transform layer -->
     <SymbolHandles
       :state="state"
       :dispatch="dispatch"
       :mid-width="midWidth"
       :mid-height="midHeight"
       :is-dragging="drag.isDragging.value"
+      :viewport="viewport"
     />
 
     <!-- Screen-reader live region for state change announcements -->
@@ -47,12 +66,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useSymbolDrag } from '../useSymbolDrag';
-import { selectNone, addSymbol } from '@signwriter/editor';
+import { useViewport } from '../useViewport';
+import { selectNone, addSymbol, screenToWorld, VIEWPORT_ZOOM_STEP } from '@signwriter/editor';
 import { renderSymbol } from '@signwriter/renderer';
 import type { EditorState, EditorSymbol, Command } from '@signwriter/editor';
 import SymbolHandles from './SymbolHandles.vue';
+import ZoomControls  from './ZoomControls.vue';
 
 const props = defineProps<{
   state: EditorState;
@@ -60,17 +81,39 @@ const props = defineProps<{
   replaceState: (state: EditorState) => void;
 }>();
 
-const canvasEl   = ref<HTMLElement | null>(null);
+// ─── Canvas element + size ────────────────────────────────────────────────────
+
+const canvasEl  = ref<HTMLElement | null>(null);
 const liveRegion = ref<HTMLElement | null>(null);
 
-const midWidth = computed(() => {
-  return canvasEl.value ? canvasEl.value.clientWidth / 2 : 300;
-});
-const midHeight = computed(() => {
-  return canvasEl.value ? canvasEl.value.clientHeight / 2 : 250;
-});
+const canvasW = ref(600);
+const canvasH = ref(500);
 
-// Local drag display offset (shows live position before commit)
+const midWidth  = computed(() => canvasW.value / 2);
+const midHeight = computed(() => canvasH.value / 2);
+
+// ─── Viewport ─────────────────────────────────────────────────────────────────
+
+const { viewport, zoomIn, zoomOut, zoomAtPoint, setZoom, reset, fit, pan } = useViewport();
+
+const contentStyle = computed(() => ({
+  transform: `translate(${midWidth.value + viewport.value.offsetX}px, ${midHeight.value + viewport.value.offsetY}px) scale(${viewport.value.scale})`,
+}));
+
+function onZoomIn(): void {
+  zoomIn(midWidth.value, midHeight.value, midWidth.value, midHeight.value);
+}
+
+function onZoomOut(): void {
+  zoomOut(midWidth.value, midHeight.value, midWidth.value, midHeight.value);
+}
+
+function onFit(): void {
+  fit(props.state.symbols, canvasW.value, canvasH.value);
+}
+
+// ─── Symbol drag ──────────────────────────────────────────────────────────────
+
 const dragOffset = ref<{ symbolId: string; dx: number; dy: number } | null>(null);
 const dragOrigin = ref<{ x: number; y: number } | null>(null);
 
@@ -78,6 +121,7 @@ const drag = useSymbolDrag(
   () => props.state,
   (s) => props.replaceState(s),
   (c) => props.dispatch(c),
+  () => viewport.value.scale,
 );
 
 function renderSym(key: string): string {
@@ -85,61 +129,223 @@ function renderSym(key: string): string {
 }
 
 function symbolStyle(sym: EditorSymbol): Record<string, string> {
-  let x = sym.x;
-  let y = sym.y;
+  let wx = sym.x - 500;
+  let wy = sym.y - 500;
   if (dragOffset.value?.symbolId === sym.id) {
-    x += dragOffset.value.dx;
-    y += dragOffset.value.dy;
+    wx += dragOffset.value.dx;
+    wy += dragOffset.value.dy;
   }
   return {
     position: 'absolute',
-    left: (x - 500 + midWidth.value) + 'px',
-    top:  (y - 500 + midHeight.value) + 'px',
+    left:   wx + 'px',
+    top:    wy + 'px',
     cursor: drag.isDragging.value ? 'grabbing' : 'grab',
     zIndex: props.state.selection.has(sym.id) ? '10' : '1',
   };
 }
 
-function onSymbolPointerDown(sym: EditorSymbol, e: PointerEvent): void {
-  (e.currentTarget as Element).setPointerCapture(e.pointerId);
-  e.stopPropagation();
-  dragOrigin.value = { x: e.clientX, y: e.clientY };
-  dragOffset.value = { symbolId: sym.id, dx: 0, dy: 0 };
-  drag.onPointerDown(sym.id, e.clientX, e.clientY);
+// ─── Pointer handling ─────────────────────────────────────────────────────────
+
+// Track all active pointers for pinch detection
+const pointerMap = new Map<number, { x: number; y: number }>();
+
+// Pan state (middle mouse or space+drag)
+const panOrigin = ref<{ x: number; y: number; pointerId: number } | null>(null);
+const spaceDown = ref(false);
+
+// Pinch state: distance between two active pointers on last frame
+let prevPinchDist = 0;
+
+function getPinchInfo(): { midX: number; midY: number; dist: number } | null {
+  if (pointerMap.size < 2) return null;
+  const [a, b] = [...pointerMap.values()];
+  return {
+    midX: (a.x + b.x) / 2,
+    midY: (a.y + b.y) / 2,
+    dist: Math.hypot(b.x - a.x, b.y - a.y),
+  };
+}
+
+function onCanvasPointerDown(e: PointerEvent): void {
+  pointerMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  canvasEl.value?.setPointerCapture(e.pointerId);
+
+  // Entering pinch mode: cancel any active drag / pan
+  if (pointerMap.size >= 2) {
+    if (drag.isDragging.value) drag.onPointerCancel();
+    dragOffset.value = null;
+    dragOrigin.value = null;
+    panOrigin.value  = null;
+    const info = getPinchInfo();
+    prevPinchDist = info?.dist ?? 0;
+    return;
+  }
+
+  // Middle mouse or space+left = pan
+  if (e.button === 1 || (e.button === 0 && spaceDown.value)) {
+    e.preventDefault();
+    panOrigin.value = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+    return;
+  }
+
+  // Left button on a symbol = drag
+  if (e.button === 0) {
+    const symbolEl = (e.target as Element).closest('[data-symbol-id]');
+    const symbolId = symbolEl?.getAttribute('data-symbol-id') ?? null;
+    const sym = symbolId ? props.state.symbols.find((s) => s.id === symbolId) ?? null : null;
+    if (sym) {
+      dragOrigin.value = { x: e.clientX, y: e.clientY };
+      dragOffset.value = { symbolId: sym.id, dx: 0, dy: 0 };
+      drag.onPointerDown(sym.id, e.clientX, e.clientY);
+    }
+  }
 }
 
 function onCanvasPointerMove(e: PointerEvent): void {
+  pointerMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  // Pinch zoom
+  if (pointerMap.size >= 2) {
+    const info = getPinchInfo();
+    if (info && prevPinchDist > 0) {
+      const factor = info.dist / prevPinchDist;
+      const rect = canvasEl.value!.getBoundingClientRect();
+      zoomAtPoint(info.midX - rect.left, info.midY - rect.top, factor, midWidth.value, midHeight.value);
+    }
+    prevPinchDist = info?.dist ?? 0;
+    return;
+  }
+
+  // Pan
+  if (panOrigin.value?.pointerId === e.pointerId) {
+    const dx = e.clientX - panOrigin.value.x;
+    const dy = e.clientY - panOrigin.value.y;
+    panOrigin.value = { ...panOrigin.value, x: e.clientX, y: e.clientY };
+    pan(dx, dy);
+    return;
+  }
+
+  // Symbol drag
   if (!dragOffset.value || !dragOrigin.value) return;
-  dragOffset.value = {
-    ...dragOffset.value,
-    dx: e.clientX - dragOrigin.value.x,
-    dy: e.clientY - dragOrigin.value.y,
-  };
+  const scale   = viewport.value.scale;
+  const worldDx = (e.clientX - dragOrigin.value.x) / scale;
+  const worldDy = (e.clientY - dragOrigin.value.y) / scale;
+  dragOffset.value = { ...dragOffset.value, dx: worldDx, dy: worldDy };
   drag.onPointerMove(e.clientX, e.clientY);
 }
 
-function onCanvasPointerUp(_e: PointerEvent): void {
-  dragOffset.value = null;
-  dragOrigin.value = null;
-  drag.onPointerUp();
+function onCanvasPointerUp(e: PointerEvent): void {
+  pointerMap.delete(e.pointerId);
+
+  if (panOrigin.value?.pointerId === e.pointerId) {
+    panOrigin.value = null;
+    return;
+  }
+
+  if (dragOffset.value && drag.isDragging.value) {
+    dragOffset.value = null;
+    dragOrigin.value = null;
+    drag.onPointerUp();
+    return;
+  }
 }
 
-function onCanvasPointerCancel(_e: PointerEvent): void {
-  dragOffset.value = null;
-  dragOrigin.value = null;
-  drag.onPointerCancel();
+function onCanvasPointerCancel(e: PointerEvent): void {
+  pointerMap.delete(e.pointerId);
+
+  if (panOrigin.value?.pointerId === e.pointerId) {
+    panOrigin.value = null;
+    return;
+  }
+
+  if (dragOffset.value) {
+    dragOffset.value = null;
+    dragOrigin.value = null;
+    drag.onPointerCancel();
+  }
 }
+
+// ─── Canvas background click → deselect ──────────────────────────────────────
 
 function onCanvasClick(_e: MouseEvent): void {
   props.dispatch((state) => selectNone(state));
 }
 
+// ─── Wheel (zoom + pan) — registered with { passive: false } in onMounted ────
+
+function onWheel(e: WheelEvent): void {
+  if (!canvasEl.value) return;
+
+  // Ctrl+Wheel or trackpad pinch gesture (browser synthesises ctrlKey)
+  if (e.ctrlKey) {
+    e.preventDefault();
+    const rect   = canvasEl.value.getBoundingClientRect();
+    const screenX = e.clientX - rect.left;
+    const screenY = e.clientY - rect.top;
+    // Normalise pixel / line / page deltas to a comparable magnitude
+    const rawDelta = e.deltaMode === 0 ? e.deltaY : e.deltaY * 16;
+    const factor   = Math.pow(VIEWPORT_ZOOM_STEP, -rawDelta / 100);
+    zoomAtPoint(screenX, screenY, factor, midWidth.value, midHeight.value);
+    return;
+  }
+
+  // Regular scroll → pan
+  const dx = e.deltaMode === 0 ? e.deltaX : e.deltaX * 16;
+  const dy = e.deltaMode === 0 ? e.deltaY : e.deltaY * 16;
+  pan(-dx, -dy);
+}
+
+// ─── Keyboard shortcuts ───────────────────────────────────────────────────────
+
+function onKeydown(e: KeyboardEvent): void {
+  const mod = e.ctrlKey || e.metaKey;
+
+  if (e.key === ' ' && !e.repeat) {
+    spaceDown.value = true;
+    e.preventDefault();
+    return;
+  }
+
+  if (!mod) return;
+
+  switch (e.key) {
+    case '=':
+    case '+':
+      e.preventDefault();
+      onZoomIn();
+      break;
+    case '-':
+    case '_':
+      e.preventDefault();
+      onZoomOut();
+      break;
+    case '0':
+      e.preventDefault();
+      reset();
+      break;
+    case 'F':
+    case 'f':
+      if (e.shiftKey) {
+        e.preventDefault();
+        onFit();
+      }
+      break;
+  }
+}
+
+function onKeyup(e: KeyboardEvent): void {
+  if (e.key === ' ') spaceDown.value = false;
+}
+
+// ─── Drop symbol from palette ─────────────────────────────────────────────────
+
 function dropSymbolAt(key: string, clientX: number, clientY: number): void {
   if (!canvasEl.value) return;
-  const rect = canvasEl.value.getBoundingClientRect();
-  const fswX = Math.round(clientX - rect.left - midWidth.value + 500);
-  const fswY = Math.round(clientY - rect.top - midHeight.value + 500);
-  props.dispatch(addSymbol(key, fswX, fswY, () => crypto.randomUUID()));
+  const rect    = canvasEl.value.getBoundingClientRect();
+  const screenX = clientX - rect.left;
+  const screenY = clientY - rect.top;
+  const { x: fswX, y: fswY } = screenToWorld(screenX, screenY, viewport.value, midWidth.value, midHeight.value);
+  props.dispatch(addSymbol(key, Math.round(fswX), Math.round(fswY), () => crypto.randomUUID()));
 }
 
 // ─── Accessibility: live region announcements ──────────────────────────────────
@@ -187,6 +393,33 @@ function focus(): void {
   (selected ?? canvasEl.value)?.focus();
 }
 
+// ─── Lifecycle ────────────────────────────────────────────────────────────────
+
+let resizeObserver: ResizeObserver | null = null;
+
+onMounted(() => {
+  if (canvasEl.value) {
+    canvasW.value = canvasEl.value.clientWidth;
+    canvasH.value = canvasEl.value.clientHeight;
+
+    resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        canvasW.value = entry.contentRect.width;
+        canvasH.value = entry.contentRect.height;
+      }
+    });
+    resizeObserver.observe(canvasEl.value);
+
+    canvasEl.value.addEventListener('wheel', onWheel, { passive: false });
+  }
+});
+
+onBeforeUnmount(() => {
+  canvasEl.value?.removeEventListener('wheel', onWheel);
+  resizeObserver?.disconnect();
+});
+
 defineExpose({ focus, dropSymbolAt });
 </script>
 
@@ -202,11 +435,31 @@ defineExpose({ focus, dropSymbolAt });
     linear-gradient(90deg, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
   background-size: 20px 20px;
   outline: none;
+  touch-action: none; /* Disable browser pan/zoom — we handle it */
 }
 
 .canvas:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: -2px;
+}
+
+.canvas--pan {
+  cursor: grab;
+}
+
+.canvas--pan:active {
+  cursor: grabbing;
+}
+
+/* The content layer sits at (0,0) and is moved by the viewport transform */
+.canvas-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
 .symbol-wrapper {

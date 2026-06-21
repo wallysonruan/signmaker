@@ -9,6 +9,9 @@ export { createCommandBus, createDefaultHistory, createMementoCommand } from '@s
 export { useSymbolDrag } from './useSymbolDrag';
 export type { UseSymbolDragReturn } from './useSymbolDrag';
 
+export { useViewport } from './useViewport';
+export type { UseViewportReturn } from './useViewport';
+
 export { usePaletteDrag } from './usePaletteDrag';
 export type { UsePaletteDragReturn } from './usePaletteDrag';
 
@@ -42,5 +45,6 @@ export { createSignMaker } from '@signwriter/editor';
 export { default as SymbolPalette }    from './components/SymbolPalette.vue';
 export { default as SignEditorCanvas } from './components/SignEditorCanvas.vue';
 export { default as SymbolHandles }    from './components/SymbolHandles.vue';
+export { default as ZoomControls }     from './components/ZoomControls.vue';
 export { default as FswPanel }         from './components/FswPanel.vue';
 export { default as ToolbarPanel }     from './components/ToolbarPanel.vue';
