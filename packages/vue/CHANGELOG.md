@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.0.0...vue-v1.1.0) (2026-06-21)
+
+### Features
+
+* **vue:** add touch-friendly pointer-based palette drag-and-drop ([#7](https://github.com/wallysonruan/signmaker/issues/7)) ([620f180](https://github.com/wallysonruan/signmaker/commit/620f18056537fd48a49f25d948b47a4ad79099ca))
+
 ## 1.0.0 (2026-06-20)
 
 ### Features
