@@ -269,7 +269,7 @@ defineExpose({ focus });
   width: 280px;
   flex-shrink: 0;
   background: #f8fafc;
-  border-right: 1px solid #e2e8f0;
+  border-left: 1px solid #e2e8f0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -408,5 +408,14 @@ defineExpose({ focus });
 .tab-btn:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .palette {
+    width: 100%;
+    max-height: 220px;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+  }
 }
 </style>
