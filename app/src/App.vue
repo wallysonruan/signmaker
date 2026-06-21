@@ -44,6 +44,7 @@
         ref="paletteRef"
         v-model:nav="paletteNav"
         @add-symbol="handleAddSymbol"
+        @palette-drop="onPaletteDrop"
       />
 
       <!-- Sign editor canvas -->
@@ -84,6 +85,10 @@ function handleAddSymbol(key: string) {
   dispatch(addSymbol(key, 500, 500, idGen));
 }
 
+function onPaletteDrop(key: string, clientX: number, clientY: number) {
+  canvasRef.value?.dropSymbolAt(key, clientX, clientY);
+}
+
 function handleLoadFsw(fsw: string) {
   const newState = stateFromFsw(fsw, idGen);
   replaceState(newState);
@@ -97,7 +102,7 @@ function handleLoadFsw(fsw: string) {
 // Template refs — expose({ focus }) is called by the focus manager on scope change.
 const rootRef    = ref<HTMLElement | null>(null);
 const paletteRef = ref<{ focus(): void } | null>(null);
-const canvasRef  = ref<{ focus(): void } | null>(null);
+const canvasRef  = ref<{ focus(): void; dropSymbolAt(key: string, clientX: number, clientY: number): void } | null>(null);
 
 onMounted(() => {
   // Register focus targets; the focus manager moves focus on scope changes.

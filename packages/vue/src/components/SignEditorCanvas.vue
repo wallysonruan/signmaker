@@ -10,8 +10,6 @@
     @pointermove="onCanvasPointerMove"
     @pointerup="onCanvasPointerUp"
     @pointercancel="onCanvasPointerCancel"
-    @dragover.prevent
-    @drop="onDrop"
   >
     <div
       v-for="sym in state.symbols"
@@ -136,13 +134,11 @@ function onCanvasClick(_e: MouseEvent): void {
   props.dispatch((state) => selectNone(state));
 }
 
-function onDrop(e: DragEvent): void {
-  e.preventDefault();
-  const key = e.dataTransfer?.getData('text/plain');
-  if (!key || !canvasEl.value) return;
+function dropSymbolAt(key: string, clientX: number, clientY: number): void {
+  if (!canvasEl.value) return;
   const rect = canvasEl.value.getBoundingClientRect();
-  const fswX = Math.round(e.clientX - rect.left - midWidth.value + 500);
-  const fswY = Math.round(e.clientY - rect.top - midHeight.value + 500);
+  const fswX = Math.round(clientX - rect.left - midWidth.value + 500);
+  const fswY = Math.round(clientY - rect.top - midHeight.value + 500);
   props.dispatch(addSymbol(key, fswX, fswY, () => crypto.randomUUID()));
 }
 
@@ -191,7 +187,7 @@ function focus(): void {
   (selected ?? canvasEl.value)?.focus();
 }
 
-defineExpose({ focus });
+defineExpose({ focus, dropSymbolAt });
 </script>
 
 <style scoped>
