@@ -1,5 +1,7 @@
 export type { EditorState, EditorSymbol, Command, IdGenerator } from './types';
 export { EMPTY_STATE } from './types';
+export type { ViewportState, } from './Viewport';
+export { VIEWPORT_MIN_ZOOM, VIEWPORT_MAX_ZOOM, VIEWPORT_ZOOM_STEP, VIEWPORT_DEFAULT, worldToScreen, screenToWorld, zoomAt, panViewport, resetViewport, fitContent, } from './Viewport';
 export type { CommandBusPort, CommandBusInit, Unsubscribe, InterceptorResult, DispatchResult, BeforeHook, AfterHook, Interceptor, } from './CommandBus';
 export { createCommandBus } from './CommandBus';
 export type { SizeProvider } from '@signwriter/layout';

@@ -7,5 +7,5 @@ export interface UseSymbolDragReturn {
     onPointerUp(): void;
     onPointerCancel(): void;
 }
-export declare function useSymbolDrag(getState: () => EditorState, replaceState: (s: EditorState) => void, dispatch: (c: Command) => void): UseSymbolDragReturn;
+export declare function useSymbolDrag(getState: () => EditorState, replaceState: (s: EditorState) => void, dispatch: (c: Command) => void, getScale?: () => number): UseSymbolDragReturn;
 //# sourceMappingURL=useSymbolDrag.d.ts.map
