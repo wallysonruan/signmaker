@@ -111,6 +111,52 @@ describe('useKeyboard', () => {
     expect(editorState.state.value.selection.size).toBe(0);
   });
 
+  test('Backspace key deletes selected symbol', () => {
+    const el = new MockEventTarget();
+    const editorState = useEditorState();
+    editorState.dispatch(addSymbol('S14c20', 100, 200, idGen));
+    expect(editorState.state.value.symbols).toHaveLength(1);
+    expect(editorState.state.value.selection.size).toBe(1);
+
+    const { attach } = useKeyboard(editorState.dispatch, editorState.undo, editorState.redo);
+    attach(el as unknown as EventTarget);
+
+    el.dispatchEvent(makeKeyEvent(8)); // Backspace = deleteSelected
+
+    expect(editorState.state.value.symbols).toHaveLength(0);
+    expect(editorState.state.value.selection.size).toBe(0);
+  });
+
+  test('Delete key deletes selected symbol', () => {
+    const el = new MockEventTarget();
+    const editorState = useEditorState();
+    editorState.dispatch(addSymbol('S14c20', 100, 200, idGen));
+    expect(editorState.state.value.symbols).toHaveLength(1);
+
+    const { attach } = useKeyboard(editorState.dispatch, editorState.undo, editorState.redo);
+    attach(el as unknown as EventTarget);
+
+    el.dispatchEvent(makeKeyEvent(46)); // Delete = deleteSelected
+
+    expect(editorState.state.value.symbols).toHaveLength(0);
+  });
+
+  test('delete is undoable (Backspace then Ctrl+Z restores symbol)', () => {
+    const el = new MockEventTarget();
+    const editorState = useEditorState();
+    editorState.dispatch(addSymbol('S14c20', 100, 200, idGen));
+
+    const { attach } = useKeyboard(editorState.dispatch, editorState.undo, editorState.redo);
+    attach(el as unknown as EventTarget);
+
+    el.dispatchEvent(makeKeyEvent(8));  // delete
+    expect(editorState.state.value.symbols).toHaveLength(0);
+
+    el.dispatchEvent(makeKeyEvent(90, { ctrlKey: true })); // Ctrl+Z = undo
+    expect(editorState.state.value.symbols).toHaveLength(1);
+    expect(editorState.state.value.symbols[0].key).toBe('S14c20');
+  });
+
   test('cleanup function removes the listener', () => {
     const el = new MockEventTarget();
     const dispatchMock = jest.fn();

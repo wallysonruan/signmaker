@@ -20,11 +20,17 @@
       <button class="handle-btn" title="Rotate clockwise" @click="rotateCW">↻</button>
     </div>
 
-    <!-- Toolbar below: flip + copy -->
+    <!-- Toolbar below: flip + copy + delete -->
     <div class="handles-toolbar handles-toolbar--bottom">
       <button class="handle-btn" title="Flip horizontal" @click="flipHorizontal">⟺</button>
       <button class="handle-btn" title="Flip vertical" @click="flipVertical">↕</button>
       <button class="handle-btn handle-btn--copy" title="Copy symbol" @click="copySymbol">⊕</button>
+      <button
+        class="handle-btn handle-btn--delete"
+        title="Delete symbol (Backspace)"
+        aria-label="Delete symbol"
+        @click="deleteSymbol"
+      >✕</button>
     </div>
   </div>
 </template>
@@ -36,6 +42,7 @@ import {
   rotateSelected,
   mirrorSelected,
   copySelected,
+  deleteSelected,
 } from '@signwriter/editor';
 import { getSymbolSize } from '@signwriter/renderer';
 import type { EditorState, Command } from '@signwriter/editor';
@@ -99,6 +106,10 @@ function flipVertical(): void {
 
 function copySymbol(): void {
   props.dispatch(copySelected(() => crypto.randomUUID()));
+}
+
+function deleteSymbol(): void {
+  props.dispatch(deleteSelected());
 }
 </script>
 
@@ -183,5 +194,20 @@ function copySymbol(): void {
 .handle-btn--copy:hover {
   background: #dcfce7;
   border-color: #4ade80;
+}
+
+.handle-btn--delete {
+  border-color: #fca5a5;
+  background: #fff1f2;
+  color: #dc2626;
+}
+
+.handle-btn--delete:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.handle-btn--delete:active {
+  background: #fecaca;
 }
 </style>
