@@ -4,7 +4,7 @@ PACKAGES := $(shell bash -c 'source scripts/packages.sh && echo "$${PACKAGES[*]}
 RELEASE_TARGETS     := $(addprefix release-,$(PACKAGES))
 RELEASE_DRY_TARGETS := $(addprefix release-dry-run-,$(PACKAGES))
 
-.PHONY: lint typecheck test commitlint build \
+.PHONY: lint typecheck test commitlint build build-app deploy-pages \
         release-all release-all-dry-run \
         $(RELEASE_TARGETS) $(RELEASE_DRY_TARGETS) \
         ci install
@@ -38,6 +38,12 @@ build:
 	npm run build --workspace=packages/editor
 	npm run build --workspace=packages/renderer
 	npm run build --workspace=packages/vue
+
+build-app:
+	npm run build --workspace=app
+
+deploy-pages:
+	bash scripts/deploy-pages.sh
 
 # ---------------------------------------------------------------------------
 # Release — per-package
