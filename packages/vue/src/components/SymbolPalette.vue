@@ -493,12 +493,12 @@ defineExpose({ focus });
     gap: 2px;
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     align-content: start;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-width: auto;
+    scrollbar-color: #94a3b8 #e2e8f0;
   }
 
   /* Variants: 8 columns, shorter rows to fit all 6×8 entries */
@@ -508,31 +508,39 @@ defineExpose({ focus });
     gap: 1px;
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     align-content: start;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-width: auto;
+    scrollbar-color: #94a3b8 #e2e8f0;
   }
 
   .group-grid::-webkit-scrollbar,
   .symbol-grid::-webkit-scrollbar,
   .variant-grid::-webkit-scrollbar {
-    width: 4px;
+    width: 14px;
   }
 
   .group-grid::-webkit-scrollbar-track,
   .symbol-grid::-webkit-scrollbar-track,
   .variant-grid::-webkit-scrollbar-track {
-    background: transparent;
+    background: #e2e8f0;
+    border-radius: 7px;
   }
 
   .group-grid::-webkit-scrollbar-thumb,
   .symbol-grid::-webkit-scrollbar-thumb,
   .variant-grid::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 2px;
+    background: #94a3b8;
+    border-radius: 7px;
+    border: 3px solid #e2e8f0;
+  }
+
+  .group-grid::-webkit-scrollbar-thumb:active,
+  .symbol-grid::-webkit-scrollbar-thumb:active,
+  .variant-grid::-webkit-scrollbar-thumb:active {
+    background: #64748b;
   }
 
   /* Buttons fill their grid cell height instead of using aspect-ratio */
@@ -541,9 +549,6 @@ defineExpose({ focus });
     aspect-ratio: auto;
     height: 100%;
     padding: 1px;
-    /* Allow vertical touch to scroll the grid; browser fires pointercancel
-       so createPaletteDragState resets cleanly if a scroll gesture wins. */
-    touch-action: pan-y;
   }
 
   /* Symbol cell expands to fill the button so the SVG scales with it */
