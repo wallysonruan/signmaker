@@ -118,7 +118,7 @@
 import { ref, computed, nextTick, onUnmounted } from 'vue';
 import { renderSymbol } from '@signwriter/renderer';
 import { usePaletteDrag } from '../usePaletteDrag';
-import { ALPHABET, GROUPS } from '../data/alphabet';
+import { ALPHABET, GROUPS } from '@signwriter/editor';
 import {
   INITIAL_PALETTE_NAV,
   paletteEnterGroup,
@@ -129,7 +129,7 @@ import {
   type VariantTab,
 } from '@signwriter/editor';
 import { usePaletteScope } from '../usePaletteScope';
-import { debounce } from '../debounce';
+import { debounce } from '@signwriter/editor';
 
 const props = defineProps<{
   /** External navigation state. When provided the component is controlled (model-style). */
@@ -179,7 +179,7 @@ function focusActive(): boolean {
 const paletteScope = usePaletteScope((key) => emit('add-symbol', key));
 paletteScope.onNavChanged((next) => applyNav(next));
 
-const currentItems = computed<string[]>(() => {
+const currentItems = computed<readonly string[]>(() => {
   const s = navState.value;
   if (s.level === 'groups') return GROUPS;
   if (s.level === 'bases' && s.selectedGroup !== null) return ALPHABET[s.selectedGroup] ?? [];
@@ -493,10 +493,11 @@ defineExpose({ focus });
     gap: 2px;
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
+    overscroll-behavior: contain;
     align-content: start;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-width: auto;
+    scrollbar-color: #94a3b8 #e2e8f0;
   }
 
   /* Variants: 8 columns, shorter rows to fit all 6×8 entries */
@@ -506,29 +507,38 @@ defineExpose({ focus });
     gap: 1px;
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
+    overscroll-behavior: contain;
     align-content: start;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-width: auto;
+    scrollbar-color: #94a3b8 #e2e8f0;
   }
 
   .group-grid::-webkit-scrollbar,
   .symbol-grid::-webkit-scrollbar,
   .variant-grid::-webkit-scrollbar {
-    width: 4px;
+    width: 14px;
   }
 
   .group-grid::-webkit-scrollbar-track,
   .symbol-grid::-webkit-scrollbar-track,
   .variant-grid::-webkit-scrollbar-track {
-    background: transparent;
+    background: #e2e8f0;
+    border-radius: 7px;
   }
 
   .group-grid::-webkit-scrollbar-thumb,
   .symbol-grid::-webkit-scrollbar-thumb,
   .variant-grid::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 2px;
+    background: #94a3b8;
+    border-radius: 7px;
+    border: 3px solid #e2e8f0;
+  }
+
+  .group-grid::-webkit-scrollbar-thumb:active,
+  .symbol-grid::-webkit-scrollbar-thumb:active,
+  .variant-grid::-webkit-scrollbar-thumb:active {
+    background: #64748b;
   }
 
   /* Buttons fill their grid cell height instead of using aspect-ratio */

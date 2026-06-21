@@ -37,6 +37,7 @@ build:
 	npm run build --workspace=packages/layout
 	npm run build --workspace=packages/editor
 	npm run build --workspace=packages/renderer
+	npm run build --workspace=packages/interactions
 	npm run build --workspace=packages/vue
 
 build-app:

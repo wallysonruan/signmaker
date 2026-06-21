@@ -1,9 +1,10 @@
 import {
   createPaletteScope,
+  ALPHABET,
+  GROUPS,
   type PaletteScope,
   type PaletteNavigationState,
 } from '@signwriter/editor';
-import { ALPHABET, GROUPS } from './data/alphabet';
 
 /**
  * Vue wrapper around the framework-agnostic createPaletteScope. Supplies the

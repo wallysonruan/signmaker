@@ -1,3 +1,11 @@
+export type { DebouncedFn } from './debounce';
+export { debounce } from './debounce';
+
+export { ALPHABET, GROUPS } from './data/alphabet';
+
+export type { ZoomSliderModel } from './ZoomSliderModel';
+export { createZoomSliderModel } from './ZoomSliderModel';
+
 export type { EditorState, EditorSymbol, Command, IdGenerator } from './types';
 export { EMPTY_STATE } from './types';
 

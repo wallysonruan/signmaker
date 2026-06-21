@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@signwriter/editor": "file:../editor",
+    "@signwriter/interactions": "file:../interactions",
     "@signwriter/renderer": "file:../renderer",
     "vue": "^3.5.38"
   },

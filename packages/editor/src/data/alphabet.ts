@@ -1,4 +1,4 @@
-export const ALPHABET: Record<string, string[]> = {
+export const ALPHABET: Readonly<Record<string, readonly string[]>> = {
   S10000: ['S10000', 'S10110', 'S10210', 'S10310', 'S10410', 'S10510', 'S10610', 'S10710', 'S10810', 'S10910', 'S10a10', 'S10b10', 'S10c10', 'S10d10'],
   S10e00: ['S10e00', 'S10f10', 'S11010', 'S11110', 'S11210', 'S11310', 'S11410', 'S11510', 'S11610', 'S11710', 'S11810', 'S11910', 'S11a10', 'S11b10', 'S11c10', 'S11d10'],
   S11e00: ['S11e00', 'S11f10', 'S12010', 'S12110', 'S12210', 'S12310', 'S12410', 'S12510', 'S12610', 'S12710', 'S12810', 'S12910', 'S12a10', 'S12b10', 'S12c10', 'S12d10', 'S12e10', 'S12f10', 'S13010', 'S13110', 'S13210', 'S13310', 'S13410', 'S13510', 'S13610', 'S13710', 'S13810', 'S13910', 'S13a10', 'S13b10', 'S13c10', 'S13d10', 'S13e10', 'S13f10', 'S14010', 'S14110', 'S14210', 'S14310'],
@@ -31,4 +31,4 @@ export const ALPHABET: Record<string, string[]> = {
   S38700: ['S38700', 'S38800', 'S38900', 'S38a00', 'S38b00'],
 };
 
-export const GROUPS: string[] = Object.keys(ALPHABET);
+export const GROUPS: readonly string[] = Object.keys(ALPHABET);

@@ -1,34 +1,18 @@
 import { ref, computed, onUnmounted, getCurrentInstance } from 'vue';
 import type { ComputedRef } from 'vue';
 import { renderSymbol } from '@signwriter/renderer';
+import { createPaletteDragState } from '@signwriter/interactions';
 
 export interface UsePaletteDragReturn {
   isDragging: ComputedRef<boolean>;
   onButtonPointerDown(key: string, e: PointerEvent): void;
 }
 
-interface PendingDrag {
-  key: string;
-  startX: number;
-  startY: number;
-  pointerId: number;
-}
-
-interface ActiveDrag {
-  key: string;
-  pointerId: number;
-}
-
-const DRAG_THRESHOLD = 10;
-
 export function usePaletteDrag(
   onDrop: (key: string, clientX: number, clientY: number) => void,
 ): UsePaletteDragReturn {
-  const pending = ref<PendingDrag | null>(null);
-  const active  = ref<ActiveDrag  | null>(null);
+  const isDraggingRef = ref(false);
   let ghost: HTMLElement | null = null;
-
-  const isDragging = computed(() => active.value !== null);
 
   function createGhost(key: string, x: number, y: number): HTMLElement {
     const el = document.createElement('div');
@@ -66,72 +50,41 @@ export function usePaletteDrag(
     ghost = null;
   }
 
-  function cleanup(): void {
-    pending.value = null;
-    active.value  = null;
-    removeGhost();
-    document.removeEventListener('pointermove',   onPointerMove);
-    document.removeEventListener('pointerup',     onPointerUp);
-    document.removeEventListener('pointercancel', onPointerCancel);
-  }
-
-  function onButtonPointerDown(key: string, e: PointerEvent): void {
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
-    pending.value = { key, startX: e.clientX, startY: e.clientY, pointerId: e.pointerId };
-    document.addEventListener('pointermove',   onPointerMove,   { passive: false } as AddEventListenerOptions);
-    document.addEventListener('pointerup',     onPointerUp);
-    document.addEventListener('pointercancel', onPointerCancel);
-  }
-
-  function onPointerMove(e: PointerEvent): void {
-    if (active.value !== null) {
-      if (e.pointerId !== active.value.pointerId) return;
-      e.preventDefault();
+  const controller = createPaletteDragState({
+    onDragStart(key, clientX, clientY) {
+      isDraggingRef.value = true;
+      ghost = createGhost(key, clientX, clientY);
+    },
+    onDragMove(clientX, clientY) {
       if (ghost) {
-        ghost.style.left = e.clientX + 'px';
-        ghost.style.top  = e.clientY + 'px';
+        ghost.style.left = clientX + 'px';
+        ghost.style.top  = clientY + 'px';
       }
-      return;
-    }
+    },
+    onDrop(key, clientX, clientY) {
+      isDraggingRef.value = false;
+      removeGhost();
+      onDrop(key, clientX, clientY);
+    },
+    onMiss() {
+      isDraggingRef.value = false;
+      removeGhost();
+    },
+    onCancel() {
+      isDraggingRef.value = false;
+      removeGhost();
+    },
+  });
 
-    if (pending.value === null || e.pointerId !== pending.value.pointerId) return;
-    const dx = e.clientX - pending.value.startX;
-    const dy = e.clientY - pending.value.startY;
-    if (Math.hypot(dx, dy) > DRAG_THRESHOLD) {
-      const key = pending.value.key;
-      pending.value = null;
-      active.value  = { key, pointerId: e.pointerId };
-      ghost = createGhost(key, e.clientX, e.clientY);
-      e.preventDefault();
-    }
+  if (getCurrentInstance()) {
+    onUnmounted(() => {
+      controller.dispose();
+      removeGhost();
+    });
   }
 
-  function onPointerUp(e: PointerEvent): void {
-    if (active.value !== null && e.pointerId === active.value.pointerId) {
-      const key = active.value.key;
-      cleanup();
-      const elements = document.elementsFromPoint(e.clientX, e.clientY);
-      const onCanvas = elements.some((el) => el.hasAttribute('data-canvas'));
-      if (onCanvas) {
-        onDrop(key, e.clientX, e.clientY);
-      }
-      return;
-    }
-    if (pending.value !== null && e.pointerId === pending.value.pointerId) {
-      cleanup();
-    }
-  }
-
-  function onPointerCancel(e: PointerEvent): void {
-    if (
-      (active.value !== null  && e.pointerId === active.value.pointerId) ||
-      (pending.value !== null && e.pointerId === pending.value.pointerId)
-    ) {
-      cleanup();
-    }
-  }
-
-  if (getCurrentInstance()) onUnmounted(cleanup);
-
-  return { isDragging, onButtonPointerDown };
+  return {
+    isDragging: computed(() => isDraggingRef.value),
+    onButtonPointerDown: (key, e) => controller.onButtonPointerDown(key, e),
+  };
 }

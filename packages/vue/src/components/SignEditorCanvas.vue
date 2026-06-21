@@ -7,13 +7,7 @@
     aria-label="Sign canvas"
     :tabindex="0"
     data-canvas
-    @click="onCanvasClick"
-    @pointerdown="onCanvasPointerDown"
-    @pointermove="onCanvasPointerMove"
-    @pointerup="onCanvasPointerUp"
-    @pointercancel="onCanvasPointerCancel"
     @keydown="onKeydown"
-    @keyup="onKeyup"
   >
     <!--
       Virtual scroll layer — sits behind content (z-index 1).
@@ -84,8 +78,9 @@
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { useSymbolDrag } from '../useSymbolDrag';
 import { useViewport } from '../useViewport';
-import { selectNone, addSymbol, screenToWorld, VIEWPORT_ZOOM_STEP } from '@signwriter/editor';
+import { selectNone, addSymbol, screenToWorld } from '@signwriter/editor';
 import { renderSymbol } from '@signwriter/renderer';
+import { createGestureController } from '@signwriter/interactions';
 import type { EditorState, EditorSymbol, Command } from '@signwriter/editor';
 import SymbolHandles from './SymbolHandles.vue';
 import ZoomControls  from './ZoomControls.vue';
@@ -213,178 +208,53 @@ function symbolStyle(sym: EditorSymbol): Record<string, string> {
   };
 }
 
-// ─── Pointer handling ─────────────────────────────────────────────────────────
+// ─── Gesture controller (pointer / pinch / wheel / pan / space) ──────────────
 
-// Track all active pointers for pinch detection
-const pointerMap = new Map<number, { x: number; y: number }>();
+const spaceDown = ref(false);
 
-// Pan state (middle mouse, space+drag, or background drag)
-const panOrigin  = ref<{ x: number; y: number; pointerId: number } | null>(null);
-const spaceDown  = ref(false);
-// Suppress the deselect-click when the user dragged the background instead
-let panMoved = false;
-
-// Pinch state: distance between two active pointers on last frame
-let prevPinchDist = 0;
-
-function getPinchInfo(): { midX: number; midY: number; dist: number } | null {
-  if (pointerMap.size < 2) return null;
-  const [a, b] = [...pointerMap.values()];
-  return {
-    midX: (a.x + b.x) / 2,
-    midY: (a.y + b.y) / 2,
-    dist: Math.hypot(b.x - a.x, b.y - a.y),
-  };
-}
-
-function onCanvasPointerDown(e: PointerEvent): void {
-  pointerMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  canvasEl.value?.setPointerCapture(e.pointerId);
-
-  // Entering pinch mode: cancel any active drag / pan
-  if (pointerMap.size >= 2) {
-    if (drag.isDragging.value) drag.onPointerCancel();
-    dragOffset.value = null;
-    dragOrigin.value = null;
-    panOrigin.value  = null;
-    const info = getPinchInfo();
-    prevPinchDist = info?.dist ?? 0;
-    return;
-  }
-
-  // Middle mouse or space+left = pan
-  if (e.button === 1 || (e.button === 0 && spaceDown.value)) {
-    e.preventDefault();
-    panOrigin.value = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
-    return;
-  }
-
-  // Left button: symbol drag or background pan
-  if (e.button === 0) {
-    const symbolEl = (e.target as Element).closest('[data-symbol-id]');
-    const symbolId = symbolEl?.getAttribute('data-symbol-id') ?? null;
-    const sym = symbolId ? props.state.symbols.find((s) => s.id === symbolId) ?? null : null;
-    if (sym) {
-      dragOrigin.value = { x: e.clientX, y: e.clientY };
-      dragOffset.value = { symbolId: sym.id, dx: 0, dy: 0 };
-      drag.onPointerDown(sym.id, e.clientX, e.clientY);
-    } else {
-      // Background drag = pan (works on touch too, enables one-finger pan on mobile)
-      panMoved = false;
-      panOrigin.value = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
-    }
-  }
-}
-
-function onCanvasPointerMove(e: PointerEvent): void {
-  pointerMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-  // Pinch zoom
-  if (pointerMap.size >= 2) {
-    const info = getPinchInfo();
-    if (info && prevPinchDist > 0) {
-      const factor = info.dist / prevPinchDist;
-      const rect = canvasEl.value!.getBoundingClientRect();
-      zoomAtPoint(info.midX - rect.left, info.midY - rect.top, factor, midWidth.value, midHeight.value);
-    }
-    prevPinchDist = info?.dist ?? 0;
-    return;
-  }
-
-  // Pan
-  if (panOrigin.value?.pointerId === e.pointerId) {
-    const dx = e.clientX - panOrigin.value.x;
-    const dy = e.clientY - panOrigin.value.y;
-    if (!panMoved && Math.hypot(dx, dy) > 4) panMoved = true;
-    panOrigin.value = { ...panOrigin.value, x: e.clientX, y: e.clientY };
+const gesture = createGestureController({
+  onZoom(factor, screenX, screenY) {
+    zoomAtPoint(screenX, screenY, factor, midWidth.value, midHeight.value);
+  },
+  onPan(dx, dy) {
     pan(dx, dy);
-    return;
-  }
-
-  // Symbol drag
-  if (!dragOffset.value || !dragOrigin.value) return;
-  const scale   = viewport.value.scale;
-  const worldDx = (e.clientX - dragOrigin.value.x) / scale;
-  const worldDy = (e.clientY - dragOrigin.value.y) / scale;
-  dragOffset.value = { ...dragOffset.value, dx: worldDx, dy: worldDy };
-  drag.onPointerMove(e.clientX, e.clientY);
-}
-
-function onCanvasPointerUp(e: PointerEvent): void {
-  pointerMap.delete(e.pointerId);
-
-  if (panOrigin.value?.pointerId === e.pointerId) {
-    panOrigin.value = null;
-    return;
-  }
-
-  if (dragOffset.value && drag.isDragging.value) {
+  },
+  onSymbolPointerDown(symbolId, clientX, clientY) {
+    dragOrigin.value = { x: clientX, y: clientY };
+    dragOffset.value = { symbolId, dx: 0, dy: 0 };
+    drag.onPointerDown(symbolId, clientX, clientY);
+  },
+  onSymbolPointerMove(clientX, clientY) {
+    if (!dragOffset.value || !dragOrigin.value) return;
+    const scale = viewport.value.scale;
+    dragOffset.value = {
+      ...dragOffset.value,
+      dx: (clientX - dragOrigin.value.x) / scale,
+      dy: (clientY - dragOrigin.value.y) / scale,
+    };
+    drag.onPointerMove(clientX, clientY);
+  },
+  onSymbolPointerUp() {
     dragOffset.value = null;
     dragOrigin.value = null;
     drag.onPointerUp();
-    return;
-  }
-}
-
-function onCanvasPointerCancel(e: PointerEvent): void {
-  pointerMap.delete(e.pointerId);
-
-  if (panOrigin.value?.pointerId === e.pointerId) {
-    panOrigin.value = null;
-    return;
-  }
-
-  if (dragOffset.value) {
+  },
+  onSymbolPointerCancel() {
     dragOffset.value = null;
     dragOrigin.value = null;
     drag.onPointerCancel();
-  }
-}
+  },
+  onBackgroundClick() {
+    props.dispatch((state) => selectNone(state));
+  },
+  onSpaceDown() { spaceDown.value = true; },
+  onSpaceUp()   { spaceDown.value = false; },
+});
 
-// ─── Canvas background click → deselect ──────────────────────────────────────
-
-function onCanvasClick(_e: MouseEvent): void {
-  if (panMoved) { panMoved = false; return; } // drag, not a click
-  props.dispatch((state) => selectNone(state));
-}
-
-// ─── Wheel (zoom + pan) — registered with { passive: false } in onMounted ────
-
-function onWheel(e: WheelEvent): void {
-  if (!canvasEl.value) return;
-  // Always prevent default: we own all wheel events on the canvas.
-  // This stops the browser from scrolling the virtual scroll layer directly
-  // (only scrollbar drags move it; wheel goes through our pan/zoom logic).
-  e.preventDefault();
-
-  // Ctrl+Wheel or trackpad pinch gesture (browser synthesises ctrlKey)
-  if (e.ctrlKey) {
-    const rect    = canvasEl.value.getBoundingClientRect();
-    const screenX = e.clientX - rect.left;
-    const screenY = e.clientY - rect.top;
-    const rawDelta = e.deltaMode === 0 ? e.deltaY : e.deltaY * 16;
-    const factor   = Math.pow(VIEWPORT_ZOOM_STEP, -rawDelta / 100);
-    zoomAtPoint(screenX, screenY, factor, midWidth.value, midHeight.value);
-    return;
-  }
-
-  // Regular scroll → pan
-  const dx = e.deltaMode === 0 ? e.deltaX : e.deltaX * 16;
-  const dy = e.deltaMode === 0 ? e.deltaY : e.deltaY * 16;
-  pan(-dx, -dy);
-}
-
-// ─── Keyboard shortcuts ───────────────────────────────────────────────────────
+// ─── Keyboard shortcuts (Ctrl+= / Ctrl+- / etc.) ─────────────────────────────
 
 function onKeydown(e: KeyboardEvent): void {
   const mod = e.ctrlKey || e.metaKey;
-
-  if (e.key === ' ' && !e.repeat) {
-    spaceDown.value = true;
-    e.preventDefault();
-    return;
-  }
-
   if (!mod) return;
 
   switch (e.key) {
@@ -410,10 +280,6 @@ function onKeydown(e: KeyboardEvent): void {
       }
       break;
   }
-}
-
-function onKeyup(e: KeyboardEvent): void {
-  if (e.key === ' ') spaceDown.value = false;
 }
 
 // ─── Drop symbol from palette ─────────────────────────────────────────────────
@@ -475,6 +341,7 @@ function focus(): void {
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
 
 let resizeObserver: ResizeObserver | null = null;
+let detachGestures: (() => void) | null = null;
 
 onMounted(() => {
   if (canvasEl.value) {
@@ -490,12 +357,12 @@ onMounted(() => {
     });
     resizeObserver.observe(canvasEl.value);
 
-    canvasEl.value.addEventListener('wheel', onWheel, { passive: false });
+    detachGestures = gesture.attach(canvasEl.value);
   }
 });
 
 onBeforeUnmount(() => {
-  canvasEl.value?.removeEventListener('wheel', onWheel);
+  detachGestures?.();
   resizeObserver?.disconnect();
 });
 

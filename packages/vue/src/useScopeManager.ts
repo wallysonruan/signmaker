@@ -8,10 +8,10 @@ import {
   type Command,
   type PaletteNavigationState,
   type ScopedRouterOptions,
-  type KeyEventDescriptor,
   type ScopeManager,
   type FocusManagerPort,
 } from '@signwriter/editor';
+import { createKeyboardRouter } from '@signwriter/interactions';
 import type { ComputedRef, Ref } from 'vue';
 
 export interface UseScopeManagerOptions extends ScopedRouterOptions {
@@ -111,50 +111,22 @@ export function useScopeManager(
   });
   manager.enter('canvas');
 
-  const scopeSwitchKeyCode = options.scopeSwitchBinding?.keyCode ?? 117; // F6
-
-  function attach(el: EventTarget): () => void {
-    function handleKeydown(event: Event): void {
-      const e = event as KeyboardEvent;
-
-      // Skip when focus is in a text input
-      const target = e.target as HTMLElement | null;
-      if (target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA') return;
-
-      // Global scope-switch shortcut (default: F6)
-      if (
-        e.keyCode === scopeSwitchKeyCode &&
-        (options.scopeSwitchBinding?.shift ?? false) === e.shiftKey &&
-        (options.scopeSwitchBinding?.ctrl  ?? false) === e.ctrlKey
-      ) {
-        e.preventDefault();
-        manager.enter(scopeRef.value === 'canvas' ? 'palette' : 'canvas');
-        return;
-      }
-
-      const descriptor: KeyEventDescriptor = {
-        keyCode:  e.keyCode,
-        key:      e.key,
-        shiftKey: e.shiftKey,
-        ctrlKey:  e.ctrlKey,
-        metaKey:  e.metaKey,
-      };
-
-      const consumed = manager.routeKey(descriptor);
-      if (consumed && (e.keyCode === 8 || e.keyCode === 9 || e.keyCode === 191)) {
-        e.preventDefault();
-      }
-    }
-
-    el.addEventListener('keydown', handleKeydown);
-    return () => el.removeEventListener('keydown', handleKeydown);
-  }
+  const router = createKeyboardRouter({
+    scopeManager: manager,
+    scopeSwitchBinding: options.scopeSwitchBinding
+      ? {
+          keyCode: options.scopeSwitchBinding.keyCode,
+          shift:   options.scopeSwitchBinding.shift,
+          ctrl:    options.scopeSwitchBinding.ctrl,
+        }
+      : undefined,
+  });
 
   return {
-    scope:      computed(() => scopeRef.value),
+    scope:       computed(() => scopeRef.value),
     paletteNav,
     manager,
     focusManager,
-    attach,
+    attach: router.attach,
   };
 }
