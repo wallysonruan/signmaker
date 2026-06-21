@@ -12,9 +12,11 @@ declare const _default: import('vue').DefineComponent<__VLS_Props, {
     focus: typeof focus;
 }, {}, {}, {}, import('vue').ComponentOptionsMixin, import('vue').ComponentOptionsMixin, {
     "add-symbol": (key: string) => any;
+    "palette-drop": (key: string, clientX: number, clientY: number) => any;
     "update:nav": (state: PaletteNavigationState) => any;
 }, string, import('vue').PublicProps, Readonly<__VLS_Props> & Readonly<{
     "onAdd-symbol"?: ((key: string) => any) | undefined;
+    "onPalette-drop"?: ((key: string, clientX: number, clientY: number) => any) | undefined;
     "onUpdate:nav"?: ((state: PaletteNavigationState) => any) | undefined;
 }>, {}, {}, {}, {}, string, import('vue').ComponentProvideOptions, false, {
     paletteEl: HTMLElement;

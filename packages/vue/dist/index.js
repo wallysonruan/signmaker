@@ -1,12 +1,12 @@
-import { Fragment as e, computed as t, createCommentVNode as n, createElementBlock as r, createElementVNode as i, createStaticVNode as a, createVNode as o, defineComponent as s, nextTick as c, normalizeClass as l, normalizeStyle as u, openBlock as d, ref as f, renderList as p, shallowRef as m, toDisplayString as h, triggerRef as g, unref as _, vModelText as v, watch as y, withDirectives as b, withKeys as x, withModifiers as S } from "vue";
-import { DEFAULT_BINDINGS as C, EMPTY_STATE as w, INITIAL_PALETTE_NAV as T, actionToCommand as E, addSymbol as D, cancelDrag as O, copySelected as k, createCanvasScope as A, createCanvasScope as j, createCommandBus as M, createCommandBus as N, createDefaultHistory as P, createDefaultHistory as F, createFocusManager as I, createFocusManager as L, createMementoCommand as ee, createMementoCommand as te, createPaletteScope as ne, createPaletteScope as re, createScope as ie, createScope as ae, createScopeManager as oe, createScopeManager as se, createSignMaker as ce, createSignMaker as le, endDrag as ue, getSelected as R, lookupAction as z, mirrorSelected as B, paletteBack as V, paletteEnterBase as H, paletteEnterGroup as U, paletteSetVariantTab as de, rotateSelected as W, selectNone as fe, startDrag as pe, updateDrag as me } from "@signwriter/editor";
-import { getSymbolSize as he, renderSymbol as G } from "@signwriter/renderer";
+import { Fragment as e, computed as t, createCommentVNode as n, createElementBlock as r, createElementVNode as i, createStaticVNode as a, createVNode as o, defineComponent as s, getCurrentInstance as c, nextTick as l, normalizeClass as u, normalizeStyle as d, onUnmounted as f, openBlock as p, ref as m, renderList as h, shallowRef as g, toDisplayString as _, triggerRef as v, unref as y, vModelText as b, watch as x, withDirectives as S, withKeys as C, withModifiers as w } from "vue";
+import { DEFAULT_BINDINGS as T, EMPTY_STATE as E, INITIAL_PALETTE_NAV as D, actionToCommand as O, addSymbol as k, cancelDrag as A, copySelected as j, createCanvasScope as M, createCanvasScope as N, createCommandBus as P, createCommandBus as F, createDefaultHistory as I, createDefaultHistory as L, createFocusManager as ee, createFocusManager as te, createMementoCommand as ne, createMementoCommand as re, createPaletteScope as ie, createPaletteScope as ae, createScope as oe, createScope as se, createScopeManager as ce, createScopeManager as le, createSignMaker as ue, createSignMaker as de, endDrag as fe, getSelected as pe, lookupAction as me, mirrorSelected as R, paletteBack as z, paletteEnterBase as B, paletteEnterGroup as V, paletteSetVariantTab as he, rotateSelected as H, selectNone as ge, startDrag as _e, updateDrag as ve } from "@signwriter/editor";
+import { getSymbolSize as ye, renderSymbol as U } from "@signwriter/renderer";
 //#region src/useEditorState.ts
-function ge(e = {}) {
-	let n = e.history ?? F(w), r = m(n.current()), i = () => {
-		r.value = n.current(), g(r);
-	}, a = N({ apply(e, t) {
-		return n.push(te(t, e)), i(), n.current();
+function be(e = {}) {
+	let n = e.history ?? L(E), r = g(n.current()), i = () => {
+		r.value = n.current(), v(r);
+	}, a = F({ apply(e, t) {
+		return n.push(re(t, e)), i(), n.current();
 	} }), o = t(() => r.value), s = t(() => (r.value, n.canUndo())), c = t(() => (r.value, n.canRedo()));
 	function l(e) {
 		a.dispatch("", e);
@@ -34,24 +34,24 @@ function ge(e = {}) {
 }
 //#endregion
 //#region src/useSymbolDrag.ts
-function K(e, n, r) {
-	let i = f(null), a = f(0), o = f(0), s = t(() => i.value !== null);
+function W(e, n, r) {
+	let i = m(null), a = m(0), o = m(0), s = t(() => i.value !== null);
 	function c(t, r, s) {
-		let { editorState: c, drag: l } = pe(e(), t);
+		let { editorState: c, drag: l } = _e(e(), t);
 		i.value = l, a.value = r, o.value = s, n(c);
 	}
 	function l(e, t) {
 		if (i.value === null) return;
 		let n = e - a.value, r = t - o.value;
-		i.value = me(i.value, n, r);
+		i.value = ve(i.value, n, r);
 	}
 	function u() {
 		if (i.value === null) return;
 		let e = i.value;
-		i.value = null, r((t) => ue(t, e));
+		i.value = null, r((t) => fe(t, e));
 	}
 	function d() {
-		i.value !== null && (i.value = null, n(O(e())));
+		i.value !== null && (i.value = null, n(A(e())));
 	}
 	return {
 		isDragging: s,
@@ -62,11 +62,100 @@ function K(e, n, r) {
 	};
 }
 //#endregion
+//#region src/usePaletteDrag.ts
+var xe = 10;
+function G(e) {
+	let n = m(null), r = m(null), i = null, a = t(() => r.value !== null);
+	function o(e, t, n) {
+		let r = document.createElement("div");
+		r.innerHTML = U(e), r.style.cssText = [
+			"position:fixed",
+			`left:${t}px`,
+			`top:${n}px`,
+			"transform:translate(-50%,-50%)",
+			"pointer-events:none",
+			"z-index:9999",
+			"opacity:0.85",
+			"width:48px",
+			"height:48px",
+			"background:white",
+			"border:2px solid #3b82f6",
+			"border-radius:4px",
+			"padding:4px",
+			"box-shadow:0 4px 12px rgba(0,0,0,.15)",
+			"display:flex",
+			"align-items:center",
+			"justify-content:center",
+			"overflow:hidden"
+		].join(";");
+		let i = r.querySelector("svg");
+		return i && (i.style.cssText = "max-width:100%;max-height:100%;display:block"), document.body.appendChild(r), r;
+	}
+	function s() {
+		i?.remove(), i = null;
+	}
+	function l() {
+		n.value = null, r.value = null, s(), document.removeEventListener("pointermove", d), document.removeEventListener("pointerup", p), document.removeEventListener("pointercancel", h);
+	}
+	function u(e, t) {
+		t.button !== 0 && t.pointerType === "mouse" || (n.value = {
+			key: e,
+			startX: t.clientX,
+			startY: t.clientY,
+			pointerId: t.pointerId
+		}, document.addEventListener("pointermove", d, { passive: !1 }), document.addEventListener("pointerup", p), document.addEventListener("pointercancel", h));
+	}
+	function d(e) {
+		if (r.value !== null) {
+			if (e.pointerId !== r.value.pointerId) return;
+			e.preventDefault(), i && (i.style.left = e.clientX + "px", i.style.top = e.clientY + "px");
+			return;
+		}
+		if (n.value === null || e.pointerId !== n.value.pointerId) return;
+		let t = e.clientX - n.value.startX, a = e.clientY - n.value.startY;
+		if (Math.hypot(t, a) > xe) {
+			let t = n.value.key;
+			n.value = null, r.value = {
+				key: t,
+				pointerId: e.pointerId
+			}, i = o(t, e.clientX, e.clientY), e.preventDefault();
+		}
+	}
+	function p(t) {
+		if (r.value !== null && t.pointerId === r.value.pointerId) {
+			let n = r.value.key;
+			l(), document.elementsFromPoint(t.clientX, t.clientY).some((e) => e.hasAttribute("data-canvas")) && e(n, t.clientX, t.clientY);
+			return;
+		}
+		n.value !== null && t.pointerId === n.value.pointerId && l();
+	}
+	function h(e) {
+		(r.value !== null && e.pointerId === r.value.pointerId || n.value !== null && e.pointerId === n.value.pointerId) && l();
+	}
+	return c() && f(l), {
+		isDragging: a,
+		onButtonPointerDown: u
+	};
+}
+//#endregion
+//#region src/debounce.ts
+function K(e, t) {
+	let n = null;
+	function r(...r) {
+		n !== null && clearTimeout(n), n = setTimeout(() => {
+			n = null, e(...r);
+		}, t);
+	}
+	return r.cancel = function() {
+		n !== null && (clearTimeout(n), n = null);
+	}, r;
+}
+//#endregion
 //#region src/useKeyboard.ts
-function _e(e, t, n) {
+function Se(e, t, n) {
 	function r(r) {
 		function i(r) {
-			let i = r, a = z(C, i.keyCode, i.shiftKey, i.ctrlKey);
+			let i = r, a = me(T, i.keyCode, i.shiftKey, i.ctrlKey);
 			if (a === null) return;
 			if ((i.keyCode === 8 || i.keyCode === 9 || i.keyCode === 191) && i.preventDefault(), a === "undo") {
 				t();
@@ -76,7 +165,7 @@ function _e(e, t, n) {
 				n();
 				return;
 			}
-			let o = E(a);
+			let o = O(a);
 			o !== null && e(o);
 		}
 		return r.addEventListener("keydown", i), () => {
@@ -428,7 +517,7 @@ var q = {
 //#endregion
 //#region src/usePaletteScope.ts
 function Y(e, t) {
-	return re({
+	return ae({
 		onAddSymbol: e,
 		initialNav: t,
 		itemsAt: (e) => e.level === "groups" ? J : e.level === "bases" && e.selectedGroup !== null ? q[e.selectedGroup] ?? [] : [],
@@ -439,19 +528,19 @@ function Y(e, t) {
 //#endregion
 //#region src/useScopeManager.ts
 function X(e, n, r, i = {}) {
-	let a = f(T), o = i.focusManager ?? L(), s = j({
+	let a = m(D), o = i.focusManager ?? te(), s = N({
 		dispatch: e,
 		onUndo: n,
 		onRedo: r,
 		bindings: i.canvasBindings
-	}), c = ae("palette"), l = i.scopeManager ?? se();
+	}), c = se("palette"), l = i.scopeManager ?? le();
 	l.register(s), l.register(c);
-	let u = f("canvas");
+	let u = m("canvas");
 	l.onScopeChanged((e) => {
 		(e === "palette" || e === "canvas") && (u.value = e), e !== null && o.focusScope(e);
 	}), l.enter("canvas");
 	let d = i.scopeSwitchBinding?.keyCode ?? 117;
-	function p(e) {
+	function f(e) {
 		function t(e) {
 			let t = e, n = t.target;
 			if (n?.tagName === "INPUT" || n?.tagName === "TEXTAREA") return;
@@ -475,14 +564,14 @@ function X(e, n, r, i = {}) {
 		paletteNav: a,
 		manager: l,
 		focusManager: o,
-		attach: p
+		attach: f
 	};
 }
 //#endregion
 //#region src/useSignMaker.ts
-function ve(e = {}) {
-	let { router: n, ...r } = e, i = le(r), a = m(i.getState()), o = () => {
-		a.value = i.getState(), g(a);
+function Ce(e = {}) {
+	let { router: n, ...r } = e, i = de(r), a = g(i.getState()), o = () => {
+		a.value = i.getState(), v(a);
 	};
 	i.history.onPush(o), i.history.onUndo(o), i.history.onRedo(o), i.history.onClear(o);
 	let s = t(() => a.value), c = t(() => (a.value, i.canUndo())), l = t(() => (a.value, i.canRedo()));
@@ -498,7 +587,7 @@ function ve(e = {}) {
 	function p() {
 		i.redo();
 	}
-	let { scope: h, paletteNav: _, attach: v } = X(u, f, p, {
+	let { scope: m, paletteNav: h, attach: _ } = X(u, f, p, {
 		scopeManager: i.scopeManager,
 		focusManager: i.focusManager,
 		...n
@@ -507,8 +596,8 @@ function ve(e = {}) {
 		state: s,
 		canUndo: c,
 		canRedo: l,
-		scope: h,
-		paletteNav: _,
+		scope: m,
+		paletteNav: h,
 		bus: i.bus,
 		history: i.history,
 		scopeManager: i.scopeManager,
@@ -518,105 +607,110 @@ function ve(e = {}) {
 		replaceState: d,
 		undo: f,
 		redo: p,
-		attach: v
+		attach: _
 	};
 }
 //#endregion
 //#region src/components/SymbolPalette.vue?vue&type=script&setup=true&lang.ts
-var ye = {
+var we = {
 	key: 0,
 	class: "palette-section"
-}, be = ["aria-rowcount"], xe = [
+}, Te = ["aria-rowcount"], Ee = [
 	"title",
 	"aria-label",
 	"tabindex",
 	"aria-selected",
-	"onDragstart",
+	"onPointerdown",
 	"onClick",
 	"onDblclick"
-], Se = ["innerHTML"], Ce = {
+], De = ["innerHTML"], Oe = {
 	key: 1,
 	class: "palette-section"
-}, we = { class: "palette-nav" }, Te = {
+}, ke = { class: "palette-nav" }, Ae = {
 	class: "palette-title",
 	"aria-live": "polite"
-}, Ee = ["aria-label", "aria-rowcount"], De = [
+}, je = ["aria-label", "aria-rowcount"], Me = [
 	"title",
 	"aria-label",
 	"tabindex",
 	"aria-selected",
-	"onDragstart",
+	"onPointerdown",
 	"onClick",
 	"onDblclick"
-], Oe = ["innerHTML"], ke = {
+], Ne = ["innerHTML"], Pe = {
 	key: 2,
 	class: "palette-section"
-}, Ae = { class: "palette-nav" }, je = {
+}, Fe = { class: "palette-nav" }, Ie = {
 	class: "palette-title",
 	"aria-live": "polite"
-}, Me = {
+}, Le = {
 	class: "tab-bar",
 	role: "tablist",
 	"aria-label": "Rotation range"
-}, Ne = ["aria-selected"], Pe = ["aria-selected"], Fe = ["aria-label"], Ie = [
+}, Re = ["aria-selected"], ze = ["aria-selected"], Be = ["aria-label"], Ve = [
 	"title",
 	"aria-label",
 	"tabindex",
 	"aria-selected",
-	"onDragstart",
+	"onPointerdown",
 	"onClick"
-], Z = ["innerHTML"], Le = /*@__PURE__*/ s({
+], He = ["innerHTML"], Ue = /*@__PURE__*/ s({
 	__name: "SymbolPalette",
 	props: {
 		nav: {},
 		clickBehavior: {}
 	},
-	emits: ["add-symbol", "update:nav"],
+	emits: [
+		"add-symbol",
+		"palette-drop",
+		"update:nav"
+	],
 	setup(a, { expose: o, emit: s }) {
-		let u = a, m = s, g = f(null), v = f(T), y = t(() => u.nav ?? v.value);
-		function b(e) {
-			u.nav === void 0 ? v.value = e : m("update:nav", e), c(() => x());
+		let c = a, d = s, g = m(null), v = m(D), b = G((e, t, n) => {
+			d("palette-drop", e, t, n);
+		}), x = t(() => c.nav ?? v.value);
+		function S(e) {
+			c.nav === void 0 ? v.value = e : d("update:nav", e), l(() => C());
 		}
-		function x() {
+		function C() {
 			if (!g.value) return !1;
 			let e = g.value.querySelector("[tabindex=\"0\"]");
 			return e ? (e.focus(), !0) : !1;
 		}
-		let C = Y((e) => m("add-symbol", e));
-		C.onNavChanged((e) => b(e));
-		let w = t(() => {
-			let e = y.value;
+		let T = Y((e) => d("add-symbol", e));
+		T.onNavChanged((e) => S(e));
+		let E = t(() => {
+			let e = x.value;
 			return e.level === "groups" ? J : e.level === "bases" && e.selectedGroup !== null ? q[e.selectedGroup] ?? [] : [];
 		});
-		function E(e) {
-			return G(e);
+		function O(e) {
+			return U(e);
 		}
-		function D(e, t, n) {
+		function k(e, t, n) {
 			return e.slice(0, 4) + t.toString() + n.toString(16);
 		}
-		function O(e) {
-			(u.clickBehavior ?? "add") === "add" ? m("add-symbol", e) : y.value.level === "groups" ? b(U(y.value, e)) : y.value.level === "bases" && b(H(y.value, e));
+		let A = K((e) => d("add-symbol", e), 300);
+		f(() => A.cancel());
+		function j(e) {
+			(c.clickBehavior ?? "add") === "add" ? A(e) : x.value.level === "groups" ? S(V(x.value, e)) : x.value.level === "bases" && S(B(x.value, e));
 		}
-		function k(e, t) {
-			(u.clickBehavior ?? "add") !== "navigate" && (y.value.level === "groups" ? b(U({
-				...y.value,
+		function M(e, t) {
+			(c.clickBehavior ?? "add") !== "navigate" && (A.cancel(), x.value.level === "groups" ? S(V({
+				...x.value,
 				focusedIndex: e
-			}, t)) : y.value.level === "bases" && b(H({
-				...y.value,
+			}, t)) : x.value.level === "bases" && S(B({
+				...x.value,
 				focusedIndex: e
 			}, t)));
 		}
-		function A() {
-			b(V(y.value));
+		function N() {
+			S(z(x.value));
 		}
-		function j(e) {
-			b(de(y.value, e));
+		function P(e) {
+			S(he(x.value, e));
 		}
-		function M(e, t) {
-			e.dataTransfer?.setData("text/plain", t), e.dataTransfer && (e.dataTransfer.effectAllowed = "copy");
-		}
-		function N(e) {
-			C.setNav(y.value), C.scope.handleKey({
+		function F(e) {
+			T.setNav(x.value), T.scope.handleKey({
 				keyCode: e.keyCode,
 				key: e.key,
 				shiftKey: e.shiftKey,
@@ -624,108 +718,105 @@ var ye = {
 				metaKey: e.metaKey
 			}) && (e.preventDefault(), e.stopPropagation());
 		}
-		function P() {
-			c(() => {
-				x() || g.value?.focus();
+		function I() {
+			l(() => {
+				C() || g.value?.focus();
 			});
 		}
-		return o({ focus: P }), (t, a) => (d(), r("aside", {
+		return o({ focus: I }), (t, a) => (p(), r("aside", {
 			ref_key: "paletteEl",
 			ref: g,
 			class: "palette",
 			role: "navigation",
 			"aria-label": "Symbol palette",
 			"data-palette": "",
-			onKeydown: N
-		}, [y.value.level === "groups" ? (d(), r("div", ye, [a[2] ||= i("div", {
+			onKeydown: F
+		}, [x.value.level === "groups" ? (p(), r("div", we, [a[2] ||= i("div", {
 			class: "palette-title",
 			"aria-hidden": "true"
 		}, "Symbol Groups", -1), i("div", {
 			class: "group-grid",
 			role: "grid",
 			"aria-label": "Symbol groups",
-			"aria-rowcount": Math.ceil(_(J).length / 4)
-		}, [(d(!0), r(e, null, p(_(J), (e, t) => (d(), r("button", {
+			"aria-rowcount": Math.ceil(y(J).length / 4)
+		}, [(p(!0), r(e, null, h(y(J), (e, t) => (p(), r("button", {
 			key: e,
 			class: "group-btn",
 			title: e,
 			"aria-label": e,
-			tabindex: t === y.value.focusedIndex ? 0 : -1,
-			"aria-selected": t === y.value.focusedIndex,
-			draggable: "true",
-			onDragstart: (t) => M(t, e),
-			onClick: (t) => O(e),
-			onDblclick: S((n) => k(t, e), ["prevent"])
+			tabindex: t === x.value.focusedIndex ? 0 : -1,
+			"aria-selected": t === x.value.focusedIndex,
+			onPointerdown: (t) => y(b).onButtonPointerDown(e, t),
+			onClick: (t) => j(e),
+			onDblclick: w((n) => M(t, e), ["prevent"])
 		}, [i("span", {
 			class: "symbol-cell",
-			innerHTML: E(e),
+			innerHTML: O(e),
 			"aria-hidden": "true"
-		}, null, 8, Se)], 40, xe))), 128))], 8, be)])) : y.value.level === "bases" && y.value.selectedGroup !== null ? (d(), r("div", Ce, [i("div", we, [i("button", {
+		}, null, 8, De)], 40, Ee))), 128))], 8, Te)])) : x.value.level === "bases" && x.value.selectedGroup !== null ? (p(), r("div", Oe, [i("div", ke, [i("button", {
 			class: "back-btn",
-			onClick: A
-		}, "← Groups"), i("span", Te, h(y.value.selectedGroup), 1)]), i("div", {
+			onClick: N
+		}, "← Groups"), i("span", Ae, _(x.value.selectedGroup), 1)]), i("div", {
 			class: "symbol-grid",
 			role: "grid",
-			"aria-label": `Symbols in ${y.value.selectedGroup}`,
-			"aria-rowcount": Math.ceil(w.value.length / 4)
-		}, [(d(!0), r(e, null, p(w.value, (e, t) => (d(), r("button", {
+			"aria-label": `Symbols in ${x.value.selectedGroup}`,
+			"aria-rowcount": Math.ceil(E.value.length / 4)
+		}, [(p(!0), r(e, null, h(E.value, (e, t) => (p(), r("button", {
 			key: e,
 			class: "symbol-btn",
 			title: e,
 			"aria-label": e,
-			tabindex: t === y.value.focusedIndex ? 0 : -1,
-			"aria-selected": t === y.value.focusedIndex,
-			draggable: "true",
-			onDragstart: (t) => M(t, e),
-			onClick: (t) => O(e),
-			onDblclick: S((n) => k(t, e), ["prevent"])
+			tabindex: t === x.value.focusedIndex ? 0 : -1,
+			"aria-selected": t === x.value.focusedIndex,
+			onPointerdown: (t) => y(b).onButtonPointerDown(e, t),
+			onClick: (t) => j(e),
+			onDblclick: w((n) => M(t, e), ["prevent"])
 		}, [i("span", {
 			class: "symbol-cell",
-			innerHTML: E(e),
+			innerHTML: O(e),
 			"aria-hidden": "true"
-		}, null, 8, Oe)], 40, De))), 128))], 8, Ee)])) : y.value.level === "variants" && y.value.selectedBase !== null ? (d(), r("div", ke, [
-			i("div", Ae, [i("button", {
+		}, null, 8, Ne)], 40, Me))), 128))], 8, je)])) : x.value.level === "variants" && x.value.selectedBase !== null ? (p(), r("div", Pe, [
+			i("div", Fe, [i("button", {
 				class: "back-btn",
-				onClick: A
-			}, "← Base"), i("span", je, h(y.value.selectedBase), 1)]),
-			i("div", Me, [i("button", {
+				onClick: N
+			}, "← Base"), i("span", Ie, _(x.value.selectedBase), 1)]),
+			i("div", Le, [i("button", {
 				role: "tab",
-				class: l(["tab-btn", { active: y.value.variantTab === "first" }]),
-				"aria-selected": y.value.variantTab === "first",
-				onClick: a[0] ||= (e) => j("first")
-			}, "0–7", 10, Ne), i("button", {
+				class: u(["tab-btn", { active: x.value.variantTab === "first" }]),
+				"aria-selected": x.value.variantTab === "first",
+				onClick: a[0] ||= (e) => P("first")
+			}, "0–7", 10, Re), i("button", {
 				role: "tab",
-				class: l(["tab-btn", { active: y.value.variantTab === "second" }]),
-				"aria-selected": y.value.variantTab === "second",
-				onClick: a[1] ||= (e) => j("second")
-			}, "8–f", 10, Pe)]),
+				class: u(["tab-btn", { active: x.value.variantTab === "second" }]),
+				"aria-selected": x.value.variantTab === "second",
+				onClick: a[1] ||= (e) => P("second")
+			}, "8–f", 10, ze)]),
 			i("div", {
 				class: "variant-grid",
 				role: "grid",
-				"aria-label": `Variants for ${y.value.selectedBase}, rotations ${y.value.variantTab === "first" ? "0–7" : "8–f"}`,
+				"aria-label": `Variants for ${x.value.selectedBase}, rotations ${x.value.variantTab === "first" ? "0–7" : "8–f"}`,
 				"aria-rowcount": "6"
-			}, [(d(), r(e, null, p(6, (t) => (d(), r(e, { key: t }, [(d(), r(e, null, p(8, (e) => i("button", {
+			}, [(p(), r(e, null, h(6, (t) => (p(), r(e, { key: t }, [(p(), r(e, null, h(8, (e) => i("button", {
 				key: e,
 				class: "symbol-btn",
-				title: D(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1),
-				"aria-label": D(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1),
-				tabindex: (t - 1) * 8 + (e - 1) === y.value.focusedIndex ? 0 : -1,
-				"aria-selected": (t - 1) * 8 + (e - 1) === y.value.focusedIndex,
-				draggable: "true",
-				onDragstart: (n) => M(n, D(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1)),
-				onClick: (n) => m("add-symbol", D(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1))
+				title: k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1),
+				"aria-label": k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1),
+				tabindex: (t - 1) * 8 + (e - 1) === x.value.focusedIndex ? 0 : -1,
+				"aria-selected": (t - 1) * 8 + (e - 1) === x.value.focusedIndex,
+				onPointerdown: (n) => y(b).onButtonPointerDown(k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1), n),
+				onClick: (n) => d("add-symbol", k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1))
 			}, [i("span", {
 				class: "symbol-cell",
-				innerHTML: E(D(y.value.selectedBase, t - 1, (y.value.variantTab === "second" ? 8 : 0) + e - 1)),
+				innerHTML: O(k(x.value.selectedBase, t - 1, (x.value.variantTab === "second" ? 8 : 0) + e - 1)),
 				"aria-hidden": "true"
-			}, null, 8, Z)], 40, Ie)), 64))], 64))), 64))], 8, Fe)
+			}, null, 8, He)], 40, Ve)), 64))], 64))), 64))], 8, Be)
 		])) : n("", !0)], 544));
 	}
-}), Q = (e, t) => {
+}), Z = (e, t) => {
 	let n = e.__vccOpts || e;
 	for (let [e, r] of t) n[e] = r;
 	return n;
-}, Re = /*#__PURE__*/ Q(Le, [["__scopeId", "data-v-ce98b47c"]]), $ = /*#__PURE__*/ Q(/* @__PURE__ */ s({
+}, We = /*#__PURE__*/ Z(Ue, [["__scopeId", "data-v-956ed457"]]), Q = /*#__PURE__*/ Z(/* @__PURE__ */ s({
 	__name: "SymbolHandles",
 	props: {
 		state: {},
@@ -737,12 +828,12 @@ var ye = {
 	setup(e) {
 		let o = e, s = t(() => {
 			if (o.isDragging) return null;
-			let e = R(o.state);
+			let e = pe(o.state);
 			return e.length === 1 ? e[0] : null;
 		}), c = t(() => {
 			let e = s.value;
 			if (!e) return null;
-			let t = he(e.key) ?? {
+			let t = ye(e.key) ?? {
 				width: 40,
 				height: 40
 			};
@@ -764,37 +855,37 @@ var ye = {
 				pointerEvents: "none"
 			} : {};
 		});
-		function f() {
-			o.dispatch(W(-1));
+		function u() {
+			o.dispatch(H(-1));
 		}
-		function p() {
-			o.dispatch(W(1));
+		function f() {
+			o.dispatch(H(1));
 		}
 		function m() {
-			o.dispatch(B());
+			o.dispatch(R());
 		}
 		function h() {
-			o.dispatch((e) => B()(W(4)(e)));
+			o.dispatch((e) => R()(H(4)(e)));
 		}
 		function g() {
-			o.dispatch(k(() => crypto.randomUUID()));
+			o.dispatch(j(() => crypto.randomUUID()));
 		}
-		return (e, t) => c.value ? (d(), r("div", {
+		return (e, t) => c.value ? (p(), r("div", {
 			key: 0,
 			class: "handles-root",
-			style: u(l.value),
-			onClick: t[0] ||= S(() => {}, ["stop"]),
-			onPointerdown: t[1] ||= S(() => {}, ["stop"])
+			style: d(l.value),
+			onClick: t[0] ||= w(() => {}, ["stop"]),
+			onPointerdown: t[1] ||= w(() => {}, ["stop"])
 		}, [
 			t[2] ||= a("<div class=\"handles-box\" data-v-26e112d3><span class=\"handle handle--tl\" data-v-26e112d3></span><span class=\"handle handle--tr\" data-v-26e112d3></span><span class=\"handle handle--bl\" data-v-26e112d3></span><span class=\"handle handle--br\" data-v-26e112d3></span></div>", 1),
 			i("div", { class: "handles-toolbar handles-toolbar--top" }, [i("button", {
 				class: "handle-btn",
 				title: "Rotate counter-clockwise",
-				onClick: f
+				onClick: u
 			}, "↺"), i("button", {
 				class: "handle-btn",
 				title: "Rotate clockwise",
-				onClick: p
+				onClick: f
 			}, "↻")]),
 			i("div", { class: "handles-toolbar handles-toolbar--bottom" }, [
 				i("button", {
@@ -815,12 +906,12 @@ var ye = {
 			])
 		], 36)) : n("", !0);
 	}
-}), [["__scopeId", "data-v-26e112d3"]]), ze = [
+}), [["__scopeId", "data-v-26e112d3"]]), $ = [
 	"tabindex",
 	"aria-label",
 	"aria-selected",
 	"onPointerdown"
-], Be = ["innerHTML"], Ve = /*#__PURE__*/ Q(/* @__PURE__ */ s({
+], Ge = ["innerHTML"], Ke = /*#__PURE__*/ Z(/* @__PURE__ */ s({
 	__name: "SignEditorCanvas",
 	props: {
 		state: {},
@@ -828,59 +919,57 @@ var ye = {
 		replaceState: { type: Function }
 	},
 	setup(n, { expose: a }) {
-		let s = n, c = f(null), m = f(null), h = t(() => c.value ? c.value.clientWidth / 2 : 300), g = t(() => c.value ? c.value.clientHeight / 2 : 250), v = f(null), b = f(null), x = K(() => s.state, (e) => s.replaceState(e), (e) => s.dispatch(e));
-		function C(e) {
-			return G(e);
+		let s = n, c = m(null), l = m(null), f = t(() => c.value ? c.value.clientWidth / 2 : 300), g = t(() => c.value ? c.value.clientHeight / 2 : 250), _ = m(null), v = m(null), b = W(() => s.state, (e) => s.replaceState(e), (e) => s.dispatch(e));
+		function S(e) {
+			return U(e);
 		}
-		function w(e) {
+		function C(e) {
 			let t = e.x, n = e.y;
-			return v.value?.symbolId === e.id && (t += v.value.dx, n += v.value.dy), {
+			return _.value?.symbolId === e.id && (t += _.value.dx, n += _.value.dy), {
 				position: "absolute",
-				left: t - 500 + h.value + "px",
+				left: t - 500 + f.value + "px",
 				top: n - 500 + g.value + "px",
-				cursor: x.isDragging.value ? "grabbing" : "grab",
+				cursor: b.isDragging.value ? "grabbing" : "grab",
 				zIndex: s.state.selection.has(e.id) ? "10" : "1"
 			};
 		}
 		function T(e, t) {
-			t.currentTarget.setPointerCapture(t.pointerId), t.stopPropagation(), b.value = {
+			t.currentTarget.setPointerCapture(t.pointerId), t.stopPropagation(), v.value = {
 				x: t.clientX,
 				y: t.clientY
-			}, v.value = {
+			}, _.value = {
 				symbolId: e.id,
 				dx: 0,
 				dy: 0
-			}, x.onPointerDown(e.id, t.clientX, t.clientY);
+			}, b.onPointerDown(e.id, t.clientX, t.clientY);
 		}
 		function E(e) {
-			!v.value || !b.value || (v.value = {
-				...v.value,
-				dx: e.clientX - b.value.x,
-				dy: e.clientY - b.value.y
-			}, x.onPointerMove(e.clientX, e.clientY));
+			!_.value || !v.value || (_.value = {
+				..._.value,
+				dx: e.clientX - v.value.x,
+				dy: e.clientY - v.value.y
+			}, b.onPointerMove(e.clientX, e.clientY));
+		}
+		function D(e) {
+			_.value = null, v.value = null, b.onPointerUp();
 		}
 		function O(e) {
-			v.value = null, b.value = null, x.onPointerUp();
-		}
-		function k(e) {
-			v.value = null, b.value = null, x.onPointerCancel();
+			_.value = null, v.value = null, b.onPointerCancel();
 		}
 		function A(e) {
-			s.dispatch((e) => fe(e));
+			s.dispatch((e) => ge(e));
 		}
-		function j(e) {
-			e.preventDefault();
-			let t = e.dataTransfer?.getData("text/plain");
-			if (!t || !c.value) return;
-			let n = c.value.getBoundingClientRect(), r = Math.round(e.clientX - n.left - h.value + 500), i = Math.round(e.clientY - n.top - g.value + 500);
-			s.dispatch(D(t, r, i, () => crypto.randomUUID()));
+		function j(e, t, n) {
+			if (!c.value) return;
+			let r = c.value.getBoundingClientRect(), i = Math.round(t - r.left - f.value + 500), a = Math.round(n - r.top - g.value + 500);
+			s.dispatch(k(e, i, a, () => crypto.randomUUID()));
 		}
 		function M(e) {
-			m.value && (m.value.textContent = "", requestAnimationFrame(() => {
-				m.value && (m.value.textContent = e);
+			l.value && (l.value.textContent = "", requestAnimationFrame(() => {
+				l.value && (l.value.textContent = e);
 			}));
 		}
-		y(() => s.state, (e, t) => {
+		x(() => s.state, (e, t) => {
 			let n = e.symbols.length - t.symbols.length;
 			if (n > 0) {
 				let t = e.symbols[e.symbols.length - 1];
@@ -893,7 +982,7 @@ var ye = {
 				let t = [...e.selection], n = e.symbols.find((e) => e.id === t[0]);
 				M(n ? `${n.key} selected` : "Symbol selected");
 			}
-		}, { deep: !1 }), y(() => s.state.selection, (e) => {
+		}, { deep: !1 }), x(() => s.state.selection, (e) => {
 			if (e.size !== 1 || !c.value) return;
 			let t = c.value.querySelector("[aria-selected=\"true\"]");
 			c.value.contains(document.activeElement) && t?.focus();
@@ -901,7 +990,10 @@ var ye = {
 		function N() {
 			(c.value?.querySelector("[aria-selected=\"true\"]") ?? c.value)?.focus();
 		}
-		return a({ focus: N }), (t, a) => (d(), r("div", {
+		return a({
+			focus: N,
+			dropSymbolAt: j
+		}), (t, a) => (p(), r("div", {
 			ref_key: "canvasEl",
 			ref: c,
 			class: "canvas",
@@ -911,31 +1003,29 @@ var ye = {
 			"data-canvas": "",
 			onClick: A,
 			onPointermove: E,
-			onPointerup: O,
-			onPointercancel: k,
-			onDragover: a[1] ||= S(() => {}, ["prevent"]),
-			onDrop: j
+			onPointerup: D,
+			onPointercancel: O
 		}, [
-			(d(!0), r(e, null, p(n.state.symbols, (e) => (d(), r("div", {
+			(p(!0), r(e, null, h(n.state.symbols, (e) => (p(), r("div", {
 				key: e.id,
-				class: l(["symbol-wrapper", { selected: n.state.selection.has(e.id) }]),
-				style: u(w(e)),
+				class: u(["symbol-wrapper", { selected: n.state.selection.has(e.id) }]),
+				style: d(C(e)),
 				tabindex: n.state.selection.has(e.id) ? 0 : -1,
 				role: "img",
 				"aria-label": `Symbol ${e.key}`,
 				"aria-selected": n.state.selection.has(e.id),
 				onPointerdown: (t) => T(e, t),
-				onClick: a[0] ||= S(() => {}, ["stop"])
+				onClick: a[0] ||= w(() => {}, ["stop"])
 			}, [i("span", {
-				innerHTML: C(e.key),
+				innerHTML: S(e.key),
 				"aria-hidden": "true"
-			}, null, 8, Be)], 46, ze))), 128)),
-			o($, {
+			}, null, 8, Ge)], 46, $))), 128)),
+			o(Q, {
 				state: n.state,
 				dispatch: n.dispatch,
-				"mid-width": h.value,
+				"mid-width": f.value,
 				"mid-height": g.value,
-				"is-dragging": _(x).isDragging.value
+				"is-dragging": y(b).isDragging.value
 			}, null, 8, [
 				"state",
 				"dispatch",
@@ -945,7 +1035,7 @@ var ye = {
 			]),
 			i("div", {
 				ref_key: "liveRegion",
-				ref: m,
+				ref: l,
 				class: "sr-only",
 				role: "status",
 				"aria-live": "polite",
@@ -953,26 +1043,26 @@ var ye = {
 			}, null, 512)
 		], 544));
 	}
-}), [["__scopeId", "data-v-5bcd2d64"]]), He = { class: "fsw-panel" }, Ue = { class: "fsw-current" }, We = { class: "fsw-input-group" }, Ge = /*#__PURE__*/ Q(/* @__PURE__ */ s({
+}), [["__scopeId", "data-v-c1765804"]]), qe = { class: "fsw-panel" }, Je = { class: "fsw-current" }, Ye = { class: "fsw-input-group" }, Xe = /*#__PURE__*/ Z(/* @__PURE__ */ s({
 	__name: "FswPanel",
 	props: { fsw: {} },
 	emits: ["load-fsw"],
 	setup(e, { emit: t }) {
-		let n = t, a = f("");
+		let n = t, a = m("");
 		function o() {
 			let e = a.value.trim();
 			e && (n("load-fsw", e), a.value = "");
 		}
-		return (t, n) => (d(), r("footer", He, [
+		return (t, n) => (p(), r("footer", qe, [
 			n[1] ||= i("span", { class: "fsw-label" }, "FSW:", -1),
-			i("span", Ue, h(e.fsw || "(empty)"), 1),
-			i("div", We, [b(i("input", {
+			i("span", Je, _(e.fsw || "(empty)"), 1),
+			i("div", Ye, [S(i("input", {
 				"onUpdate:modelValue": n[0] ||= (e) => a.value = e,
 				class: "fsw-input",
 				type: "text",
 				placeholder: "Paste FSW to load a sign…",
-				onKeydown: x(o, ["enter"])
-			}, null, 544), [[v, a.value]]), i("button", {
+				onKeydown: C(o, ["enter"])
+			}, null, 544), [[b, a.value]]), i("button", {
 				class: "fsw-load-btn",
 				onClick: o
 			}, "Load")])
@@ -980,4 +1070,4 @@ var ye = {
 	}
 }), [["__scopeId", "data-v-393d8782"]]);
 //#endregion
-export { Ge as FswPanel, Ve as SignEditorCanvas, $ as SymbolHandles, Re as SymbolPalette, A as createCanvasScope, M as createCommandBus, P as createDefaultHistory, I as createFocusManager, ee as createMementoCommand, ne as createPaletteScope, ie as createScope, oe as createScopeManager, ce as createSignMaker, ge as useEditorState, _e as useKeyboard, Y as usePaletteScope, X as useScopeManager, ve as useSignMaker, K as useSymbolDrag };
+export { Xe as FswPanel, Ke as SignEditorCanvas, Q as SymbolHandles, We as SymbolPalette, M as createCanvasScope, P as createCommandBus, I as createDefaultHistory, ee as createFocusManager, ne as createMementoCommand, ie as createPaletteScope, oe as createScope, ce as createScopeManager, ue as createSignMaker, K as debounce, be as useEditorState, Se as useKeyboard, G as usePaletteDrag, Y as usePaletteScope, X as useScopeManager, Ce as useSignMaker, W as useSymbolDrag };
