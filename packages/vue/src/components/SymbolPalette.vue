@@ -494,6 +494,8 @@ defineExpose({ focus });
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     align-content: start;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
@@ -507,6 +509,8 @@ defineExpose({ focus });
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     align-content: start;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
@@ -537,6 +541,9 @@ defineExpose({ focus });
     aspect-ratio: auto;
     height: 100%;
     padding: 1px;
+    /* Allow vertical touch to scroll the grid; browser fires pointercancel
+       so createPaletteDragState resets cleanly if a scroll gesture wins. */
+    touch-action: pan-y;
   }
 
   /* Symbol cell expands to fill the button so the SVG scales with it */
