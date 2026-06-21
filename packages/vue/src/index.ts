@@ -9,6 +9,9 @@ export { createCommandBus, createDefaultHistory, createMementoCommand } from '@s
 export { useSymbolDrag } from './useSymbolDrag';
 export type { UseSymbolDragReturn } from './useSymbolDrag';
 
+export { usePaletteDrag } from './usePaletteDrag';
+export type { UsePaletteDragReturn } from './usePaletteDrag';
+
 export { useKeyboard } from './useKeyboard';
 export type { UseKeyboardReturn } from './useKeyboard';
 

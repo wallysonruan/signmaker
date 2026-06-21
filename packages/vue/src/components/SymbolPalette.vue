@@ -24,8 +24,7 @@
           :aria-label="groupKey"
           :tabindex="idx === navState.focusedIndex ? 0 : -1"
           :aria-selected="idx === navState.focusedIndex"
-          draggable="true"
-          @dragstart="onDragStart($event, groupKey)"
+          @pointerdown="paletteDrag.onButtonPointerDown(groupKey, $event)"
           @click="onItemClick(groupKey)"
           @dblclick.prevent="onItemDblClick(idx, groupKey)"
         >
@@ -54,8 +53,7 @@
           :aria-label="baseKey"
           :tabindex="idx === navState.focusedIndex ? 0 : -1"
           :aria-selected="idx === navState.focusedIndex"
-          draggable="true"
-          @dragstart="onDragStart($event, baseKey)"
+          @pointerdown="paletteDrag.onButtonPointerDown(baseKey, $event)"
           @click="onItemClick(baseKey)"
           @dblclick.prevent="onItemDblClick(idx, baseKey)"
         >
@@ -101,8 +99,7 @@
             :aria-label="variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1)"
             :tabindex="(fillIdx - 1) * 8 + (rotIdx - 1) === navState.focusedIndex ? 0 : -1"
             :aria-selected="(fillIdx - 1) * 8 + (rotIdx - 1) === navState.focusedIndex"
-            draggable="true"
-            @dragstart="onDragStart($event, variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1))"
+            @pointerdown="paletteDrag.onButtonPointerDown(variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1), $event)"
             @click="emit('add-symbol', variantKey(navState.selectedBase, fillIdx - 1, (navState.variantTab === 'second' ? 8 : 0) + rotIdx - 1))"
           >
             <span
@@ -120,6 +117,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue';
 import { renderSymbol } from '@signwriter/renderer';
+import { usePaletteDrag } from '../usePaletteDrag';
 import { ALPHABET, GROUPS } from '../data/alphabet';
 import {
   INITIAL_PALETTE_NAV,
@@ -142,12 +140,17 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'add-symbol': [key: string];
+  'palette-drop': [key: string, clientX: number, clientY: number];
   /** Emitted when nav state changes in controlled mode (use with v-model:nav). */
   'update:nav': [state: PaletteNavigationState];
 }>();
 
 const paletteEl = ref<HTMLElement | null>(null);
 const internalNav = ref<PaletteNavigationState>(INITIAL_PALETTE_NAV);
+
+const paletteDrag = usePaletteDrag((key, clientX, clientY) => {
+  emit('palette-drop', key, clientX, clientY);
+});
 
 const navState = computed<PaletteNavigationState>(() => props.nav ?? internalNav.value);
 
@@ -221,11 +224,6 @@ function onBack(): void {
 
 function onSetTab(tab: VariantTab): void {
   applyNav(paletteSetVariantTab(navState.value, tab));
-}
-
-function onDragStart(e: DragEvent, key: string): void {
-  e.dataTransfer?.setData('text/plain', key);
-  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy';
 }
 
 // ─── Keyboard handling ─────────────────────────────────────────────────────────
@@ -344,6 +342,7 @@ defineExpose({ focus });
   justify-content: center;
   overflow: hidden;
   transition: border-color 0.1s, background 0.1s;
+  touch-action: none;
 }
 
 .group-btn:hover,
