@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.1.1...vue-v1.2.0) (2026-06-21)
+
+### Features
+
+* **vue:** add ToolbarPanel component with undo, redo, copy/paste FSW ([#9](https://github.com/wallysonruan/signmaker/issues/9)) ([71d5057](https://github.com/wallysonruan/signmaker/commit/71d5057f4b590524d655bd26870ee79a29e9a21d))
+
 ## [1.1.1](https://github.com/wallysonruan/signmaker/compare/vue-v1.1.0...vue-v1.1.1) (2026-06-21)
 
 ### Bug Fixes
