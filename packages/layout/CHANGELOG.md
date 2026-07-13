@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/wallysonruan/signmaker/compare/layout-v1.0.1...layout-v1.0.2) (2026-07-13)
+
+### Bug Fixes
+
+* **layout:** replace file: workspace dep with npm version range ([66d5ed2](https://github.com/wallysonruan/signmaker/commit/66d5ed273b2b2738a0c7d8d0d4badd9ca4e55454))
+
 ## [1.0.1](https://github.com/wallysonruan/signmaker/compare/layout-v1.0.0...layout-v1.0.1) (2026-07-13)
 
 ### Bug Fixes
