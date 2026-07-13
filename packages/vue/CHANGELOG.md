@@ -1,3 +1,13 @@
+## [1.4.1](https://github.com/wallysonruan/signmaker/compare/vue-v1.4.0...vue-v1.4.1) (2026-07-13)
+
+### Bug Fixes
+
+* **vue:** add homepage field to package.json ([e9f8729](https://github.com/wallysonruan/signmaker/commit/e9f87293a8c476a1dcd5411969dd4c3811424da7))
+
+### Documentation
+
+* **vue:** add production-ready README for @wallysonruan/signmaker-vue npm package ([f00a9b5](https://github.com/wallysonruan/signmaker/commit/f00a9b5df0de83899c064c6a0a137970c7fb0855))
+
 ## [1.4.0](https://github.com/wallysonruan/signmaker/compare/vue-v1.3.0...vue-v1.4.0) (2026-06-21)
 
 ### Features
