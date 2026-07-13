@@ -1,5 +1,5 @@
 {
-  "name": "@wallysonruan/signmaker-editor-engine",
+  "name": "@signwriter/editor",
   "version": "1.1.0",
   "description": "Pure TypeScript editor engine: immutable state, commands, undo/redo, selection, keyboard bindings",
   "license": "ISC",
@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/wallysonruan/signmaker",
     "directory": "packages/editor"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
