@@ -78,10 +78,10 @@
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { useSymbolDrag } from '../useSymbolDrag';
 import { useViewport } from '../useViewport';
-import { selectNone, addSymbol, screenToWorld } from '@signwriter/editor';
-import { renderSymbol } from '@signwriter/renderer';
-import { createGestureController } from '@signwriter/interactions';
-import type { EditorState, EditorSymbol, Command } from '@signwriter/editor';
+import { selectNone, addSymbol, screenToWorld } from '@wallysonruan/signmaker-editor-engine';
+import { renderSymbol } from '@wallysonruan/signmaker-renderer';
+import { createGestureController } from '@wallysonruan/signmaker-interactions';
+import type { EditorState, EditorSymbol, Command } from '@wallysonruan/signmaker-editor-engine';
 import SymbolHandles from './SymbolHandles.vue';
 import ZoomControls  from './ZoomControls.vue';
 

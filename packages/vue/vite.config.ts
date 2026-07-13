@@ -21,10 +21,10 @@ export default defineConfig({
     rollupOptions: {
       external: [
         'vue',
-        '@signwriter/editor',
-        '@signwriter/renderer',
-        '@signwriter/fsw',
-        '@signwriter/layout',
+        '@wallysonruan/signmaker-editor-engine',
+        '@wallysonruan/signmaker-renderer',
+        '@wallysonruan/signmaker-fsw-engine',
+        '@wallysonruan/signmaker-layout-engine',
       ],
       output: {
         globals: { vue: 'Vue' },

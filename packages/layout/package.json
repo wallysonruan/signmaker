@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/layout",
+  "name": "@wallysonruan/signmaker-layout-engine",
   "version": "0.1.0",
   "description": "Pure TypeScript layout engine: bounding box, FSW\u2194screen coordinates, sign normalization",
   "license": "ISC",
@@ -24,7 +24,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@signwriter/fsw": "file:../fsw"
+    "@wallysonruan/signmaker-fsw-engine": "file:../fsw"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

@@ -1,6 +1,6 @@
 import { stateFromFsw, stateToFsw, stateToNormalizedFsw } from '../src/FSWBridge';
 import { EMPTY_STATE } from '../src/types';
-import type { SizeProvider } from '@signwriter/layout';
+import type { SizeProvider } from '@wallysonruan/signmaker-layout-engine';
 
 let counter = 0;
 const idGen = () => `id${++counter}`;

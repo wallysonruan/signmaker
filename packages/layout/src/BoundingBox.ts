@@ -1,4 +1,4 @@
-import type { SymbolPlacement } from '@signwriter/fsw';
+import type { SymbolPlacement } from '@wallysonruan/signmaker-fsw-engine';
 import type { BoundingBox, SizeProvider } from './types';
 
 /**

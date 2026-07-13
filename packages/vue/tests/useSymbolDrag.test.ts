@@ -1,6 +1,6 @@
 import { useEditorState } from '../src/useEditorState';
 import { useSymbolDrag } from '../src/useSymbolDrag';
-import { addSymbol } from '@signwriter/editor';
+import { addSymbol } from '@wallysonruan/signmaker-editor-engine';
 
 let counter = 0;
 const idGen = () => `id${++counter}`;

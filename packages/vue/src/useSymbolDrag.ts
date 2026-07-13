@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import type { ComputedRef } from 'vue';
-import { startDrag, updateDrag, endDrag, cancelDrag } from '@signwriter/editor';
-import type { EditorState, Command, DragState } from '@signwriter/editor';
+import { startDrag, updateDrag, endDrag, cancelDrag } from '@wallysonruan/signmaker-editor-engine';
+import type { EditorState, Command, DragState } from '@wallysonruan/signmaker-editor-engine';
 
 export interface UseSymbolDragReturn {
   isDragging: ComputedRef<boolean>;

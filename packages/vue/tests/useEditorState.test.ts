@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { useEditorState } from '../src/useEditorState';
-import { EMPTY_STATE, addSymbol, createDefaultHistory } from '@signwriter/editor';
+import { EMPTY_STATE, addSymbol, createDefaultHistory } from '@wallysonruan/signmaker-editor-engine';
 
 let counter = 0;
 const idGen = () => `id${++counter}`;

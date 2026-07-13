@@ -116,9 +116,9 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onUnmounted } from 'vue';
-import { renderSymbol } from '@signwriter/renderer';
+import { renderSymbol } from '@wallysonruan/signmaker-renderer';
 import { usePaletteDrag } from '../usePaletteDrag';
-import { ALPHABET, GROUPS } from '@signwriter/editor';
+import { ALPHABET, GROUPS } from '@wallysonruan/signmaker-editor-engine';
 import {
   INITIAL_PALETTE_NAV,
   paletteEnterGroup,
@@ -127,9 +127,9 @@ import {
   paletteBack,
   type PaletteNavigationState,
   type VariantTab,
-} from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
 import { usePaletteScope } from '../usePaletteScope';
-import { debounce } from '@signwriter/editor';
+import { debounce } from '@wallysonruan/signmaker-editor-engine';
 
 const props = defineProps<{
   /** External navigation state. When provided the component is controlled (model-style). */

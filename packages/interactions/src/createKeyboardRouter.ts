@@ -1,4 +1,4 @@
-import type { ScopeManager, KeyEventDescriptor } from '@signwriter/editor';
+import type { ScopeManager, KeyEventDescriptor } from '@wallysonruan/signmaker-editor-engine';
 
 export interface KeyboardRouterOptions {
   scopeManager: ScopeManager;

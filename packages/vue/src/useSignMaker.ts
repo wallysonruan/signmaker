@@ -10,7 +10,7 @@ import {
   type ScopeManager,
   type FocusManagerPort,
   type PaletteNavigationState,
-} from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
 import { useScopeManager, type UseScopeManagerOptions } from './useScopeManager';
 import type { ComputedRef, Ref } from 'vue';
 

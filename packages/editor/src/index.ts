@@ -39,7 +39,7 @@ export { createCommandBus } from './CommandBus';
 
 // Re-exported so consumers of stateToFsw / stateToNormalizedFsw don't need
 // to add @signwriter/layout as a direct dependency.
-export type { SizeProvider } from '@signwriter/layout';
+export type { SizeProvider } from '@wallysonruan/signmaker-layout-engine';
 
 export * from './commands';
 

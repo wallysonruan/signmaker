@@ -43,10 +43,10 @@ import {
   mirrorSelected,
   copySelected,
   deleteSelected,
-} from '@signwriter/editor';
-import type { ViewportState } from '@signwriter/editor';
-import { getSymbolSize } from '@signwriter/renderer';
-import type { EditorState, Command } from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
+import type { ViewportState } from '@wallysonruan/signmaker-editor-engine';
+import { getSymbolSize } from '@wallysonruan/signmaker-renderer';
+import type { EditorState, Command } from '@wallysonruan/signmaker-editor-engine';
 
 const props = defineProps<{
   state: EditorState;
