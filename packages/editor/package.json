@@ -37,8 +37,8 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@wallysonruan/signmaker-fsw-engine": "file:../fsw",
-    "@wallysonruan/signmaker-layout-engine": "file:../layout"
+    "@wallysonruan/signmaker-fsw-engine": "^1.0.1",
+    "@wallysonruan/signmaker-layout-engine": "^1.0.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
