@@ -45,6 +45,29 @@ Any other scope will fail `commitlint` and block CI.
 
 **Valid types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `revert`
 
+### Scopes and semantic-release
+
+Only commits scoped to a **package name** (`fsw`, `layout`, `editor`, `renderer`, `vue`) trigger
+a release for that package. The other scopes (`app`, `ci`, `release`, `deps`) are valid for
+commitlint but are **invisible to semantic-release** — no new npm version will be published.
+
+Concretely, `scripts/commit-filter-plugin.cjs` filters the commit list for each package down to
+only those whose scope matches the package name before passing them to `@semantic-release/commit-analyzer`.
+A commit like `fix(release): …` is valid git history but produces **no release** for any package.
+
+**Rule of thumb:** if your change affects a package's published behaviour or metadata (source files,
+`package.json` fields, `tsconfig.json`, vite config), commit it under the package scope so
+semantic-release sees it:
+
+```
+fix(fsw): …      → patch release of @wallysonruan/signmaker-fsw-engine
+feat(vue): …     → minor release of @wallysonruan/signmaker-vue
+fix(ci): …       → NO release (ci scope is filtered out)
+fix(release): …  → NO release (release scope is filtered out)
+```
+
+If you need to touch multiple packages in one logical change, split into one commit per package.
+
 ---
 
 ## Build artefacts — never commit
