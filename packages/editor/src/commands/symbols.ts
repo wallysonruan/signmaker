@@ -1,5 +1,5 @@
 import type { Command, EditorSymbol, IdGenerator } from '../types';
-import { rotate, mirror, fill, variation } from '@signwriter/fsw';
+import { rotate, mirror, fill, variation } from '@wallysonruan/signmaker-fsw-engine';
 
 // ── Add ───────────────────────────────────────────────────────────────────────
 

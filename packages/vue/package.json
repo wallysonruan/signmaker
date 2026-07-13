@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/vue",
+  "name": "@wallysonruan/signmaker-vue",
   "version": "1.4.0",
   "description": "Vue 3 composables and components for the SignWriter editor.",
   "license": "ISC",
@@ -41,9 +41,9 @@
     "vue": "^3.0.0"
   },
   "dependencies": {
-    "@signwriter/editor": "file:../editor",
-    "@signwriter/interactions": "file:../interactions",
-    "@signwriter/renderer": "file:../renderer",
+    "@wallysonruan/signmaker-editor-engine": "file:../editor",
+    "@wallysonruan/signmaker-interactions": "file:../interactions",
+    "@wallysonruan/signmaker-renderer": "file:../renderer",
     "vue": "^3.5.38"
   },
   "devDependencies": {

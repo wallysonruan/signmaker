@@ -10,8 +10,8 @@ import {
   type ScopedRouterOptions,
   type ScopeManager,
   type FocusManagerPort,
-} from '@signwriter/editor';
-import { createKeyboardRouter } from '@signwriter/interactions';
+} from '@wallysonruan/signmaker-editor-engine';
+import { createKeyboardRouter } from '@wallysonruan/signmaker-interactions';
 import type { ComputedRef, Ref } from 'vue';
 
 export interface UseScopeManagerOptions extends ScopedRouterOptions {

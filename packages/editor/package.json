@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/editor",
+  "name": "@wallysonruan/signmaker-editor-engine",
   "version": "1.1.0",
   "description": "Pure TypeScript editor engine: immutable state, commands, undo/redo, selection, keyboard bindings",
   "license": "ISC",
@@ -24,8 +24,8 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@signwriter/fsw": "file:../fsw",
-    "@signwriter/layout": "file:../layout"
+    "@wallysonruan/signmaker-fsw-engine": "file:../fsw",
+    "@wallysonruan/signmaker-layout-engine": "file:../layout"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

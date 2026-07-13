@@ -3,8 +3,8 @@ export type { UseEditorStateReturn, UseEditorStateOptions } from './useEditorSta
 export type {
   CommandBusPort, BeforeHook, AfterHook, Interceptor, Unsubscribe,
   HistoryPort, ReversibleCommand, HistoryCommandHook,
-} from '@signwriter/editor';
-export { createCommandBus, createDefaultHistory, createMementoCommand } from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
+export { createCommandBus, createDefaultHistory, createMementoCommand } from '@wallysonruan/signmaker-editor-engine';
 
 export { useSymbolDrag } from './useSymbolDrag';
 export type { UseSymbolDragReturn } from './useSymbolDrag';
@@ -15,8 +15,8 @@ export type { UseViewportReturn } from './useViewport';
 export { usePaletteDrag } from './usePaletteDrag';
 export type { UsePaletteDragReturn } from './usePaletteDrag';
 
-export { debounce } from '@signwriter/editor';
-export type { DebouncedFn } from '@signwriter/editor';
+export { debounce } from '@wallysonruan/signmaker-editor-engine';
+export type { DebouncedFn } from '@wallysonruan/signmaker-editor-engine';
 
 export { useKeyboard } from './useKeyboard';
 export type { UseKeyboardReturn } from './useKeyboard';
@@ -29,18 +29,18 @@ export type {
   Scope, ScopeInit, ScopeManager, ScopeHook, ScopeChangedHook,
   FocusManagerPort, FocusTarget, FocusTargetFn,
   CanvasScopeDeps, PaletteScope, PaletteScopeDeps,
-} from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
 export {
   createScope, createScopeManager, createFocusManager,
   createCanvasScope, createPaletteScope,
-} from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
 export type { UseScopeManagerOptions } from './useScopeManager';
 
 // Composition root — the single recommended entry point.
 export { useSignMaker } from './useSignMaker';
 export type { UseSignMakerReturn, UseSignMakerOptions } from './useSignMaker';
-export type { SignMaker, SignMakerDeps } from '@signwriter/editor';
-export { createSignMaker } from '@signwriter/editor';
+export type { SignMaker, SignMakerDeps } from '@wallysonruan/signmaker-editor-engine';
+export { createSignMaker } from '@wallysonruan/signmaker-editor-engine';
 
 export { default as SymbolPalette }    from './components/SymbolPalette.vue';
 export { default as SignEditorCanvas } from './components/SignEditorCanvas.vue';

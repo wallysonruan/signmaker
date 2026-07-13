@@ -1,5 +1,5 @@
 import { useSignMaker } from '../src/useSignMaker';
-import { addSymbol, createDefaultHistory, createScopeManager, EMPTY_STATE } from '@signwriter/editor';
+import { addSymbol, createDefaultHistory, createScopeManager, EMPTY_STATE } from '@wallysonruan/signmaker-editor-engine';
 
 let counter = 0;
 const idGen = () => `id${++counter}`;

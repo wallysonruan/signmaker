@@ -1,6 +1,6 @@
 import { usePaletteDrag } from '../src/usePaletteDrag';
 
-jest.mock('@signwriter/renderer', () => ({
+jest.mock('@wallysonruan/signmaker-renderer', () => ({
   renderSymbol: (key: string) => `<svg data-key="${key}"></svg>`,
 }));
 

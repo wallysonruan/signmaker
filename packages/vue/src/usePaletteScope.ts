@@ -4,7 +4,7 @@ import {
   GROUPS,
   type PaletteScope,
   type PaletteNavigationState,
-} from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
 
 /**
  * Vue wrapper around the framework-agnostic createPaletteScope. Supplies the

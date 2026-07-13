@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { createZoomSliderModel, type ViewportState } from '@signwriter/editor';
+import { createZoomSliderModel, type ViewportState } from '@wallysonruan/signmaker-editor-engine';
 
 const props = defineProps<{
   viewport: ViewportState;

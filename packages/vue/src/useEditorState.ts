@@ -8,7 +8,7 @@ import {
   type Command,
   type CommandBusPort,
   type HistoryPort,
-} from '@signwriter/editor';
+} from '@wallysonruan/signmaker-editor-engine';
 import type { ComputedRef, ShallowRef } from 'vue';
 
 export interface UseEditorStateOptions {

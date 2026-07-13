@@ -1,7 +1,7 @@
 import { ref, computed, onUnmounted, getCurrentInstance } from 'vue';
 import type { ComputedRef } from 'vue';
-import { renderSymbol } from '@signwriter/renderer';
-import { createPaletteDragState } from '@signwriter/interactions';
+import { renderSymbol } from '@wallysonruan/signmaker-renderer';
+import { createPaletteDragState } from '@wallysonruan/signmaker-interactions';
 
 export interface UsePaletteDragReturn {
   isDragging: ComputedRef<boolean>;

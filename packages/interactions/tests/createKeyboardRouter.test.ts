@@ -1,5 +1,5 @@
 import { createKeyboardRouter } from '../src/createKeyboardRouter';
-import { createScopeManager, createScope } from '@signwriter/editor';
+import { createScopeManager, createScope } from '@wallysonruan/signmaker-editor-engine';
 
 function fireKeydown(
   el: EventTarget,

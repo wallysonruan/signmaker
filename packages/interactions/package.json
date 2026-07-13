@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/interactions",
+  "name": "@wallysonruan/signmaker-interactions",
   "version": "0.1.0",
   "description": "Framework-agnostic DOM interaction primitives for the SignWriter editor.",
   "license": "ISC",
@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/wallysonruan/signmaker",
     "directory": "packages/interactions"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +21,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@signwriter/editor": "file:../editor"
+    "@wallysonruan/signmaker-editor-engine": "file:../editor"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

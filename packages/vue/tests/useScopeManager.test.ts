@@ -1,6 +1,6 @@
 import { useScopeManager } from '../src/useScopeManager';
 import { useEditorState } from '../src/useEditorState';
-import { addSymbol } from '@signwriter/editor';
+import { addSymbol } from '@wallysonruan/signmaker-editor-engine';
 
 let counter = 0;
 const idGen = () => `id${++counter}`;

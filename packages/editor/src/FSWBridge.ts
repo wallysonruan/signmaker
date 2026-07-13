@@ -1,7 +1,7 @@
-import { parseFsw, generateFsw, extractSign } from '@signwriter/fsw';
-import type { Sign } from '@signwriter/fsw';
-import type { SizeProvider } from '@signwriter/layout';
-import { recomputeBoxCoord, normalizeFsw } from '@signwriter/layout';
+import { parseFsw, generateFsw, extractSign } from '@wallysonruan/signmaker-fsw-engine';
+import type { Sign } from '@wallysonruan/signmaker-fsw-engine';
+import type { SizeProvider } from '@wallysonruan/signmaker-layout-engine';
+import { recomputeBoxCoord, normalizeFsw } from '@wallysonruan/signmaker-layout-engine';
 import type { EditorState, IdGenerator } from './types';
 import { EMPTY_STATE } from './types';
 

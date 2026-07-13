@@ -1,5 +1,5 @@
 {
-  "name": "@signwriter/fsw",
+  "name": "@wallysonruan/signmaker-fsw-engine",
   "version": "0.1.0",
   "description": "Pure TypeScript FSW engine: parse, generate, validate, convert, symbol manipulation",
   "license": "ISC",

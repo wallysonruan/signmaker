@@ -1,5 +1,5 @@
 import { normalizeFsw, recomputeBoxCoord } from '../src/Layout';
-import type { Sign } from '@signwriter/fsw';
+import type { Sign } from '@wallysonruan/signmaker-fsw-engine';
 import type { SizeProvider } from '../src/types';
 
 const FIXED_30: SizeProvider = { getSize: () => ({ width: 30, height: 30 }) };

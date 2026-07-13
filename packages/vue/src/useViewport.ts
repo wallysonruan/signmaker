@@ -8,9 +8,9 @@ import {
   panViewport,
   resetViewport,
   fitContent as _fitContent,
-} from '@signwriter/editor';
-import type { EditorSymbol } from '@signwriter/editor';
-import { getSymbolSize } from '@signwriter/renderer';
+} from '@wallysonruan/signmaker-editor-engine';
+import type { EditorSymbol } from '@wallysonruan/signmaker-editor-engine';
+import { getSymbolSize } from '@wallysonruan/signmaker-renderer';
 
 export interface UseViewportReturn {
   /** Read-only reactive viewport state. */

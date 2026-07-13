@@ -1,5 +1,5 @@
-import { lookupAction, actionToCommand, DEFAULT_BINDINGS } from '@signwriter/editor';
-import type { Command } from '@signwriter/editor';
+import { lookupAction, actionToCommand, DEFAULT_BINDINGS } from '@wallysonruan/signmaker-editor-engine';
+import type { Command } from '@wallysonruan/signmaker-editor-engine';
 
 export interface UseKeyboardReturn {
   attach(el: EventTarget): () => void;
