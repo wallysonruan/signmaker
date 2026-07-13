@@ -1,5 +1,5 @@
 {
-  "name": "@wallysonruan/signmaker-layout-engine",
+  "name": "@signwriter/layout",
   "version": "0.1.0",
   "description": "Pure TypeScript layout engine: bounding box, FSW\u2194screen coordinates, sign normalization",
   "license": "ISC",
@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/wallysonruan/signmaker",
     "directory": "packages/layout"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,5 +1,5 @@
 {
-  "name": "@wallysonruan/signmaker-renderer",
+  "name": "@signwriter/renderer",
   "version": "1.0.0",
   "description": "SVG rendering for SignWriting signs and symbols using Sutton font-ttf",
   "license": "ISC",
@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/wallysonruan/signmaker",
     "directory": "packages/renderer"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
