@@ -68,6 +68,13 @@ fix(release): …  → NO release (release scope is filtered out)
 
 If you need to touch multiple packages in one logical change, split into one commit per package.
 
+> **Squash-merge warning**: GitHub squash-merges collapse all commits into one whose message
+> is the PR title. If the PR title has no package scope (e.g. `fix: update multiple packages`),
+> semantic-release will see 0 matching commits and publish nothing. Either:
+> - Use a **rebase merge** so individual commit messages land on `main` verbatim, or
+> - Push per-package commits **directly to `main`** (bypassing the PR squash), or
+> - Give the PR a scoped title that matches exactly one package (only works for single-package PRs).
+
 ---
 
 ## Build artefacts — never commit
