@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/wallysonruan/signmaker/compare/editor-v1.1.0...editor-v1.1.1) (2026-07-13)
+
+### Bug Fixes
+
+* **editor:** add homepage field to package.json ([5841cca](https://github.com/wallysonruan/signmaker/commit/5841cca6b7e8fbc11b043721ff88793ae66d27e9))
+
 ## [1.1.0](https://github.com/wallysonruan/signmaker/compare/editor-v1.0.0...editor-v1.1.0) (2026-06-21)
 
 ### Features

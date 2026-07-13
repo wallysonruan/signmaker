@@ -1,6 +1,6 @@
 {
   "name": "@wallysonruan/signmaker-editor-engine",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Pure TypeScript editor engine: immutable state, commands, undo/redo, selection, keyboard bindings",
   "keywords": [
     "signwriting",
