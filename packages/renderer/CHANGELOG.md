@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/wallysonruan/signmaker/compare/renderer-v1.0.0...renderer-v1.0.1) (2026-07-13)
+
+### Bug Fixes
+
+* **renderer:** add homepage field to package.json ([0d53a4d](https://github.com/wallysonruan/signmaker/commit/0d53a4dce8937f94e84f24a393657c385ef48388))
+
 ## 1.0.0 (2026-06-20)
 
 ### Bug Fixes

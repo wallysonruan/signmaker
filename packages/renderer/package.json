@@ -1,6 +1,6 @@
 {
   "name": "@wallysonruan/signmaker-renderer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SVG rendering for SignWriting signs and symbols using Sutton font-ttf",
   "keywords": [
     "signwriting",
