@@ -12,6 +12,7 @@
     "fsw"
   ],
   "license": "ISC",
+  "homepage": "https://github.com/wallysonruan/signmaker/tree/main/packages/renderer#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/wallysonruan/signmaker",
