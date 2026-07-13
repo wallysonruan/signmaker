@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/wallysonruan/signmaker/compare/vue-v1.4.1...vue-v1.4.2) (2026-07-13)
+
+### Bug Fixes
+
+* **vue:** replace file: workspace deps with npm version ranges ([57f1cef](https://github.com/wallysonruan/signmaker/commit/57f1cef5f3ddfd5ac50d34339e81cb53e895f227))
+
 ## [1.4.1](https://github.com/wallysonruan/signmaker/compare/vue-v1.4.0...vue-v1.4.1) (2026-07-13)
 
 ### Bug Fixes
