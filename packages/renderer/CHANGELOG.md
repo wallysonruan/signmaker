@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/wallysonruan/signmaker/compare/renderer-v1.0.1...renderer-v1.0.2) (2026-07-13)
+
+### Bug Fixes
+
+* **renderer:** declare minimum Node.js engine version ([e5416e0](https://github.com/wallysonruan/signmaker/commit/e5416e03cd085e0e3c8870d0c83c240c6d384583))
+
 ## [1.0.1](https://github.com/wallysonruan/signmaker/compare/renderer-v1.0.0...renderer-v1.0.1) (2026-07-13)
 
 ### Bug Fixes
