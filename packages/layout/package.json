@@ -1,6 +1,6 @@
 {
   "name": "@wallysonruan/signmaker-layout-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pure TypeScript layout engine: bounding box, FSW↔screen coordinates, sign normalization",
   "keywords": [
     "signwriting",
