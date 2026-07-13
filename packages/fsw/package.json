@@ -1,6 +1,6 @@
 {
   "name": "@wallysonruan/signmaker-fsw-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pure TypeScript FSW engine: parse, generate, validate, convert, symbol manipulation",
   "keywords": [
     "signwriting",
