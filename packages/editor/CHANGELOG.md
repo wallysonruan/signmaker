@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/wallysonruan/signmaker/compare/editor-v1.1.2...editor-v1.1.3) (2026-07-13)
+
+### Bug Fixes
+
+* **editor:** replace file: workspace deps with npm version ranges ([c06de9c](https://github.com/wallysonruan/signmaker/commit/c06de9c1078f33fd75e9060b31bfc06a5def9b18))
+
 ## [1.1.2](https://github.com/wallysonruan/signmaker/compare/editor-v1.1.1...editor-v1.1.2) (2026-07-13)
 
 ### Bug Fixes
