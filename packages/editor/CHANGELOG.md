@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/wallysonruan/signmaker/compare/editor-v1.1.1...editor-v1.1.2) (2026-07-13)
+
+### Bug Fixes
+
+* **editor:** declare minimum Node.js engine version ([acb332e](https://github.com/wallysonruan/signmaker/commit/acb332e93271f54bf1332b444c1c791fb9df3652))
+
 ## [1.1.1](https://github.com/wallysonruan/signmaker/compare/editor-v1.1.0...editor-v1.1.1) (2026-07-13)
 
 ### Bug Fixes
