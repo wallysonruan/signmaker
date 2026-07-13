@@ -52,12 +52,12 @@
     "vue": "^3.0.0"
   },
   "dependencies": {
-    "@wallysonruan/signmaker-editor-engine": "file:../editor",
-    "@wallysonruan/signmaker-interactions": "file:../interactions",
-    "@wallysonruan/signmaker-renderer": "file:../renderer",
+    "@wallysonruan/signmaker-editor-engine": "^1.1.2",
+    "@wallysonruan/signmaker-renderer": "^1.0.2",
     "vue": "^3.5.38"
   },
   "devDependencies": {
+    "@wallysonruan/signmaker-interactions": "file:../interactions",
     "@types/jest": "^29.5.14",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.4.6",
