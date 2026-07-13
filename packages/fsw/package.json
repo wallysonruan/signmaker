@@ -2,6 +2,15 @@
   "name": "@wallysonruan/signmaker-fsw-engine",
   "version": "0.1.0",
   "description": "Pure TypeScript FSW engine: parse, generate, validate, convert, symbol manipulation",
+  "keywords": [
+    "signwriting",
+    "fsw",
+    "sutton-signwriting",
+    "sign-language",
+    "parser",
+    "asl",
+    "bsl"
+  ],
   "license": "ISC",
   "repository": {
     "type": "git",

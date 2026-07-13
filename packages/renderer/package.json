@@ -2,6 +2,15 @@
   "name": "@wallysonruan/signmaker-renderer",
   "version": "1.0.0",
   "description": "SVG rendering for SignWriting signs and symbols using Sutton font-ttf",
+  "keywords": [
+    "signwriting",
+    "sutton-signwriting",
+    "sign-language",
+    "svg",
+    "renderer",
+    "font-ttf",
+    "fsw"
+  ],
   "license": "ISC",
   "repository": {
     "type": "git",
